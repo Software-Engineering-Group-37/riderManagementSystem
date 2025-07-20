@@ -1,6 +1,6 @@
 // src/context/ValueContext.tsx
 import type { ReactNode } from "react";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 
 // Define the shape of the data
 interface ValueContextType {
@@ -38,12 +38,4 @@ export const ValueProvider = ({ children }: { children: ReactNode }) => {
         </ValueContext.Provider>
     );
 };
-
-// Hook to use the context safely
-export const useSharedValue = () => {
-    const context = useContext(ValueContext);
-    if (!context) {
-        throw new Error("useSharedValue must be used within a ValueProvider");
-    }
-    return context;
-};
+export { ValueContext, type ValueContextType };

@@ -1,7 +1,8 @@
 import ArrowDropDownCircleIcon from '@mui/icons-material/ArrowDropDownCircle';
 import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel } from "@mui/material";
-import React, { useEffect } from "react";
-import Menu from "./Menu";
+import React, { useEffect, useRef } from "react";
+import Menu from './Menu';
+import SmallMenu from './SmallMenu';
 
 interface Data {
     id: number;
@@ -62,12 +63,13 @@ const Dashboard = () => {
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [orderBy, setOrderBy] = React.useState<keyof Data>('name');
     const [order, setOrder] = React.useState<'asc' | 'desc'>('asc');
-    const [onClicked, setOnClicked] = React.useState(false);
+    const isClicked = useRef(false);
     const [rows, setRows] = React.useState<Data[]>([]);
     const [showEditModal, setShowEditModal] = React.useState(false);
     const [id, setId] = React.useState<number>(0);
-    const [tableBottom, setTableBottom] = React.useState<number>(-window.innerHeight * 0.60);
-
+    const [tableBottom, setTableBottom] = React.useState<number>(-window.innerHeight * 0.59);
+    const [width, setWidth] = React.useState(window.innerWidth);
+    console.log("Width:", width);
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
     };
@@ -155,24 +157,38 @@ const Dashboard = () => {
         //     });
         // }
         const pullArrow = document.getElementById('pull-arrow');
-        if (pullArrow) {
-            pullArrow.addEventListener('click', () => {
-                const hiddenPos = -window.innerHeight * 0.60;
-                const visiblePos = window.innerHeight * 0.1;
-                if (onClicked) {
-                    setTableBottom(hiddenPos);
-                    pullArrow.classList.remove('rotate-0');
-                    pullArrow.classList.add('rotate-180');
-                } else {
-                    setTableBottom(visiblePos);
-                    pullArrow.classList.remove('rotate-180');
-                    pullArrow.classList.add('rotate-0');
-                }
-                setOnClicked(!onClicked);
-            });
-        }
+        if (!pullArrow || !table) return;
 
-    }, [onClicked]);
+        const handleClick = () => {
+            const hiddenPos = -window.innerHeight * 0.59;
+            const visiblePos = window.innerHeight * 0.1;
+
+            if (isClicked.current) {
+                setTableBottom(hiddenPos);
+                pullArrow.classList.remove('rotate-0');
+                pullArrow.classList.add('rotate-180');
+            } else {
+                setTableBottom(visiblePos);
+                pullArrow.classList.remove('rotate-180');
+                pullArrow.classList.add('rotate-0');
+            }
+
+            isClicked.current = !isClicked.current;
+        };
+
+        const handleResize = () => {
+            setWidth(window.innerWidth);
+            console.log("Resized Width:", window.innerWidth);
+        }
+        window.addEventListener("resize", handleResize);
+
+        pullArrow.addEventListener('click', handleClick);
+
+        return () => {
+            pullArrow.removeEventListener('click', handleClick);
+            window.removeEventListener("resize", handleResize);
+        };
+    }, [width]);
 
     const handleClickEdit = (rowIndex: number) => {
         setId(rows[rowIndex].id);
@@ -197,6 +213,7 @@ const Dashboard = () => {
     }
     console.log(id);
 
+
     const handleDelete = async (row: Data) => {
         await fetch(`http://localhost:3000/riders/${row.name}`, {
             method: 'DELETE',
@@ -209,9 +226,9 @@ const Dashboard = () => {
 
     return (
         <div className="flex h-screen overflow-hidden">
-            <Menu />
-            <Box className="relative flex-1 flex flex-col justify-center items-center mx-3 mt-1 h-screen">
-                <h1 className="text-xl font-semibold mr-auto">{`Hello ${name}`}</h1>
+            {width > 968 ? <Menu /> : <SmallMenu />}
+            <Box className="relative flex-1 flex flex-col justify-center items-center mx-3 mt-0.3 h-screen">
+                <h1 className="text-xl font-semibold pl-16 pb-3 mr-auto">{`Hello ${name}`}</h1>
                 <div className="p-4 m-1 w-9/10 rounded-[25px] shadow-md flex justify-evenly items-center gap-4 bg-white">
                     <div className="flex items-center flex-1">
                         <img src="human.png" alt="" />
@@ -237,9 +254,12 @@ const Dashboard = () => {
                 </div>
                 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d254133.5171535812!2d-0.17972945000002716!3d5.591208700000012!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfdf9084b2b7a773%3A0xbed14ed8650e2dd3!2sAccra!5e0!3m2!1sen!2sgh!4v1752542600242!5m2!1sen!2sgh" height="400" className="border-1 rounded-md m-1 w-9/10" allowFullScreen={false} loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
                 <div id="floating-table" style={{ bottom: `${tableBottom}px` }} className="absolute transition-all duration-1500 ease-in-out z-10 bg-white max-h-[75vh] w-9/10 shadow-lg">
-                    <Paper sx={{ width: '100%', overflow: 'hidden', marginTop: 1 }}>
-                        <ArrowDropDownCircleIcon id="pull-arrow" className='rotate-180' />
-                        <TableContainer sx={{ maxHeight: 400, height: 400, overflow: 'auto' }}>
+                    <Paper sx={{ width: '100%', overflow: 'hidden', marginTop: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
+                        <div className="flex items-center justify-between p-4">
+                            <h2 className="text-lg font-semibold">Active Riders</h2>
+                            <ArrowDropDownCircleIcon id="pull-arrow" className='rotate-180 ml-auto mr-15' />
+                        </div>
+                        <TableContainer sx={{ maxHeight: 400, height: 400, overflow: 'auto', animation: 'slideIn 0.5s ease-in-out' }}>
                             <Table stickyHeader aria-label="sticky table">
                                 <TableHead>
                                     <TableRow>
@@ -370,7 +390,7 @@ const EditModal: React.FC<EditModalProps> = ({ showEditModal, handleClickCancel,
     return (
         <div
             id='modal'
-            className={`fixed ${showEditModal ? 'flex' : 'hidden'} items-center justify-center w-6/7 h-full z-10 bg-gray-200 opacity-90`}
+            className={`fixed ${showEditModal ? 'flex' : 'hidden'} items-center justify-center h-full z-10`}
         >
             <form onSubmit={handleEdit} className=' flex flex-col gap-4 p-6 bg-white shadow-lg rounded-lg w-full max-w-md mx-auto mt-10'>
                 <input
