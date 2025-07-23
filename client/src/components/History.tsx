@@ -19,9 +19,9 @@ const History = () => {
     return (
         <div className="flex h-screen overflow-hidden">
             {width > 968 ? <Menu /> : <SmallMenu />}
-            <h1 className="text-2xl font-bold text-center mt-8">History</h1>
-            <p className="text-center mt-4">This is the history page where you can view past activities.</p>
-            {/* Add your history content here */}
+            <div className="flex justify-center w-full">
+                <h1 className="text-2xl font-bold text-center mt-8">History</h1>
+            </div>
         </div>
     );
 }

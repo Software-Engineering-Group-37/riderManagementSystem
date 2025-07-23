@@ -5,7 +5,7 @@ import SmallMenu from "./SmallMenu";
 const Rider = () => {
     const [width, setWidth] = useState(window.innerWidth);
     useEffect(() => {
-        document.title = "History - Rider Management System";
+        document.title = "Rider - Rider Management System";
         const handleResize = () => {
             setWidth(window.innerWidth);
             console.log("Resized Width:", window.innerWidth);
@@ -19,9 +19,9 @@ const Rider = () => {
     return (
         <div className="flex h-screen overflow-hidden">
             {width > 968 ? <Menu /> : <SmallMenu />}
-            <h1 className="text-2xl font-bold text-center mt-8">Rider Management</h1>
-            <p className="text-center mt-4">This is the rider management page where you can manage riders.</p>
-            {/* Add your rider management content here */}
+            <div className="flex justify-center w-full">
+                <h1 className="text-2xl font-bold text-center mt-8">Rider Management</h1>
+            </div>
         </div>
     );
 }

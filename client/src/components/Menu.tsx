@@ -8,14 +8,14 @@ const Menu: React.FC = () => {
     return (
         <div className="flex flex-col items-center p-4 h-screen w-full max-w-56 bg-white shadow">
             <div className="mb-6 flex flex-col items-center">
-                <img src="" alt="Logo" className="w-16 h-16 mb-2" />
+                <img src="zippy_logo.svg" alt="Logo" className="h-16 mb-2" />
                 <p className="text-lg font-semibold text-gray-700">Rider Management<br />System</p>
             </div>
 
             <MenuButton />
 
             <Link to="/profile" className="mt-auto w-full flex items-center gap-4 pt-4 border-t border-gray-200">
-                <div className="w-10 h-10 bg-purple-500 text-white rounded-full flex items-center justify-center font-semibold">
+                <div className="w-10 h-10 bg-[#1680E4] text-white rounded-full flex items-center justify-center font-semibold">
                     {name ? name.charAt(0).toUpperCase() : ''}
                 </div>
                 <div>
@@ -43,8 +43,11 @@ const MenuButton: React.FC = () => {
         <div className="flex flex-col gap-2 items-start w-full">
             {button.map((item: { name: string; icon: string; active: string; alt: string; link: string }, index: number) => (
                 console.log("Rendering button:", item.link, index),
-                <Link to={item.link} key={index} className={` flex items-center w-full gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-[#5a32ea8c] rounded ${location.pathname === item.link ? "bg-[#5932EA] hover:bg-[#5932EA] text-white" : ""
-                    }`}>
+                <Link to={item.link} key={index} className={`flex items-center w-full gap-2 px-3 py-2 text-sm rounded
+    ${location.pathname === item.link
+                        ? "bg-[#1680E4] text-white"
+                        : "text-gray-600 hover:bg-[#1680e481]"}
+  `}>
                     <img src={location.pathname === item.link ? item.active : item.icon} alt={item.alt} className='w-4 h-4' />
                     {item.name}
                 </Link>

@@ -14,7 +14,7 @@ const ResetPassword = () => {
         const { id } = user;
 
 
-        const res = await fetch(`http://localhost:3000/users/${id}`, {
+        const res = await fetch(`http://localhost:4000/users/${id}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
@@ -36,8 +36,8 @@ const ResetPassword = () => {
             <h1 className="text-2xl font-bold text-center mt-8">Reset Password</h1>
             <div className="flex justify-center mt-6">
                 <form className='bg-white flex gap-4' onSubmit={handleSubmit}>
-                    <input type="password" placeholder="New Password" required className="w-4/5 border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#5932EA]" value={password} onChange={(e) => { setPassword(e.target.value) }} />
-                    <button type="submit" className="w-1/2 bg-[#5932EA] hover:bg-[#4a28c2] text-white py-2 rounded-md text-sm transition">
+                    <input type="password" placeholder="New Password" required className="w-4/5 border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1680E4]" value={password} onChange={(e) => { setPassword(e.target.value) }} />
+                    <button type="submit" className="w-1/2 bg-[#1680E4] hover:bg-[#4a28c2] text-white py-2 rounded-md text-sm transition">
                         Reset Password
                     </button>
                 </form>

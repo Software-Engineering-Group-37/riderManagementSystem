@@ -5,7 +5,7 @@ import SmallMenu from "./SmallMenu";
 const Notification = () => {
     const [width, setWidth] = useState(window.innerWidth);
     useEffect(() => {
-        document.title = "History - Rider Management System";
+        document.title = "Notification - Rider Management System";
         const handleResize = () => {
             setWidth(window.innerWidth);
             console.log("Resized Width:", window.innerWidth);
@@ -19,9 +19,9 @@ const Notification = () => {
     return (
         <div className="flex h-screen overflow-hidden">
             {width > 968 ? <Menu /> : <SmallMenu />}
-            <h1 className="text-2xl font-bold text-center mt-8">Notifications</h1>
-            <p className="text-center mt-4">This is the notifications page where you can view alerts and messages.</p>
-            {/* Add your notification content here */}
+            <div className="flex justify-center w-full">
+                <h1 className="text-2xl font-bold text-center mt-8">Notifications</h1>
+            </div>
         </div>
     );
 }

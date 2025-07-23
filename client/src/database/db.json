@@ -4,7 +4,7 @@
       "id": "1",
       "name": "John Doe",
       "email": "johndoe@gmail.com",
-      "password": "awe"
+      "password": "dashboard"
     },
     {
       "id": "2",
@@ -15,404 +15,169 @@
   ],
   "activeRiders": [
     {
-      "id": "1",
-      "name": "Jane Smith",
-      "location": "Osu",
-      "phone": "020 565 1234",
-      "startTime": "07:00 AM",
-      "endTime": "11:00 AM"
-    },
-    {
-      "id": "2",
-      "name": "Michael Johnson",
-      "location": "East Legon",
-      "phone": "024 123 4567",
-      "startTime": "11:00 AM",
-      "endTime": "03:00 PM"
-    },
-    {
-      "id": "3",
-      "name": "Emily Davis",
-      "location": "Madina",
-      "phone": "050 987 6543",
-      "startTime": "03:00 PM",
-      "endTime": "06:00 PM"
-    },
-    {
-      "id": "4",
-      "name": "David Brown",
-      "location": "Dansoman",
-      "phone": "055 123 7890",
-      "startTime": "07:00 AM",
-      "endTime": "11:00 AM"
-    },
-    {
       "id": "5",
       "name": "Sarah Wilson",
       "location": "Adenta",
+      "pic": "vite.svg",
       "phone": "030 456 7890",
       "startTime": "11:00 AM",
-      "endTime": "03:00 PM"
-    },
-    {
-      "id": "6",
-      "name": "Chris Lee",
-      "location": "Labadi",
-      "phone": "020 789 1234",
-      "startTime": "03:00 PM",
-      "endTime": "06:00 PM"
-    },
-    {
-      "id": "7",
-      "name": "Isaac Mensah",
-      "location": "Ridge",
-      "phone": "024 111 2233",
-      "startTime": "07:00 AM",
-      "endTime": "11:00 AM"
-    },
-    {
-      "id": "8",
-      "name": "Linda Osei",
-      "location": "Dzorwulu",
-      "phone": "050 223 4455",
-      "startTime": "11:00 AM",
-      "endTime": "03:00 PM"
-    },
-    {
-      "id": "9",
-      "name": "Kojo Appiah",
-      "location": "Achimota",
-      "phone": "055 334 5566",
-      "startTime": "03:00 PM",
-      "endTime": "06:00 PM"
+      "endTime": "03:00 PM",
+      "lat": 5.7042433,
+      "lon": -0.1690967
     },
     {
       "id": "10",
       "name": "Nana Ama Boateng",
       "location": "Nima",
+      "pic": "vite.svg",
       "phone": "030 112 3344",
       "startTime": "07:00 AM",
-      "endTime": "11:00 AM"
+      "endTime": "11:00 AM",
+      "lat": 5.5820252,
+      "lon": -0.1987685
     },
     {
       "id": "11",
       "name": "Yaw Owusu",
       "location": "Airport Hills",
+      "pic": "vite.svg",
       "phone": "020 665 7788",
       "startTime": "11:00 AM",
-      "endTime": "03:00 PM"
-    },
-    {
-      "id": "12",
-      "name": "Akua Serwaa",
-      "location": "Kaneshie",
-      "phone": "024 889 9900",
-      "startTime": "03:00 PM",
-      "endTime": "06:00 PM"
-    },
-    {
-      "id": "13",
-      "name": "Daniel Tetteh",
-      "location": "West Legon",
-      "phone": "050 900 1122",
-      "startTime": "07:00 AM",
-      "endTime": "11:00 AM"
-    },
-    {
-      "id": "14",
-      "name": "Esi Yankson",
-      "location": "Ashaley Botwe",
-      "phone": "055 667 8899",
-      "startTime": "11:00 AM",
-      "endTime": "03:00 PM"
-    },
-    {
-      "id": "15",
-      "name": "Kwame Nkrumah",
-      "location": "Spintex",
-      "phone": "030 445 6677",
-      "startTime": "03:00 PM",
-      "endTime": "06:00 PM"
-    },
-    {
-      "id": "16",
-      "name": "Adjoa Mensimah",
-      "location": "Kwabenya",
-      "phone": "020 111 3344",
-      "startTime": "07:00 AM",
-      "endTime": "11:00 AM"
+      "endTime": "03:00 PM",
+      "lat": 5.6115334,
+      "lon": -0.1429725
     },
     {
       "id": "17",
       "name": "Patrick Boadi",
       "location": "Roman Ridge",
+      "pic": "vite.svg",
       "phone": "024 556 6677",
       "startTime": "11:00 AM",
-      "endTime": "03:00 PM"
+      "endTime": "03:00 PM",
+      "lat": 5.5984081,
+      "lon": -0.186718
     },
     {
       "id": "18",
       "name": "Selina Koranteng",
       "location": "Teshie",
+      "pic": "vite.svg",
       "phone": "050 998 7766",
       "startTime": "03:00 PM",
-      "endTime": "06:00 PM"
-    },
-    {
-      "id": "19",
-      "name": "Kwesi Agyemang",
-      "location": "Haatso",
-      "phone": "055 665 4433",
-      "startTime": "07:00 AM",
-      "endTime": "11:00 AM"
-    },
-    {
-      "id": "20",
-      "name": "Ama Nyarko",
-      "location": "North Legon",
-      "phone": "030 221 3344",
-      "startTime": "11:00 AM",
-      "endTime": "03:00 PM"
+      "endTime": "06:00 PM",
+      "lat": 5.5822343,
+      "lon": -0.1135104
     },
     {
       "id": "21",
       "name": "Yaw Adu",
       "location": "Sakumono",
+      "pic": "vite.svg",
       "phone": "020 556 7788",
       "startTime": "03:00 PM",
-      "endTime": "06:00 PM"
-    },
-    {
-      "id": "22",
-      "name": "Mavis Abena",
-      "location": "Pokuase",
-      "phone": "024 331 1122",
-      "startTime": "07:00 AM",
-      "endTime": "11:00 AM"
+      "endTime": "06:00 PM",
+      "lat": 5.6252982,
+      "lon": -0.0570156
     },
     {
       "id": "23",
       "name": "Richmond Arhin",
       "location": "Abelemkpe",
+      "pic": "vite.svg",
       "phone": "050 332 5566",
       "startTime": "11:00 AM",
-      "endTime": "03:00 PM"
-    },
-    {
-      "id": "24",
-      "name": "Emmanuel Kyei",
-      "location": "Tema Community 18",
-      "phone": "055 778 8899",
-      "startTime": "03:00 PM",
-      "endTime": "06:00 PM"
-    },
-    {
-      "id": "25",
-      "name": "Akosua Dapaah",
-      "location": "Darkuman",
-      "phone": "030 445 8899",
-      "startTime": "07:00 AM",
-      "endTime": "11:00 AM"
+      "endTime": "03:00 PM",
+      "lat": 5.6082524,
+      "lon": -0.2139627
     },
     {
       "id": "26",
       "name": "Prince Ofori",
       "location": "Bortianor",
+      "pic": "vite.svg",
       "phone": "020 999 1122",
       "startTime": "11:00 AM",
-      "endTime": "03:00 PM"
-    },
-    {
-      "id": "27",
-      "name": "Felicia Baidoo",
-      "location": "Abeka",
-      "phone": "024 110 2233",
-      "startTime": "03:00 PM",
-      "endTime": "06:00 PM"
+      "endTime": "03:00 PM",
+      "lat": 5.5078931,
+      "lon": -0.3362458
     },
     {
       "id": "28",
       "name": "Nana Kwame",
       "location": "Weija",
+      "pic": "vite.svg",
       "phone": "050 223 3344",
       "startTime": "07:00 AM",
-      "endTime": "11:00 AM"
-    },
-    {
-      "id": "29",
-      "name": "Belinda Amponsah",
-      "location": "Awoshie",
-      "phone": "055 556 6677",
-      "startTime": "11:00 AM",
-      "endTime": "03:00 PM"
-    },
-    {
-      "id": "30",
-      "name": "Joseph Antwi",
-      "location": "Tabora",
-      "phone": "030 334 5566",
-      "startTime": "03:00 PM",
-      "endTime": "06:00 PM"
+      "endTime": "11:00 AM",
+      "lat": 5.5792263,
+      "lon": -0.3306792
     },
     {
       "id": "31",
       "name": "Naomi Boateng",
       "location": "Odorkor",
+      "pic": "vite.svg",
       "phone": "020 456 7788",
       "startTime": "07:00 AM",
-      "endTime": "11:00 AM"
-    },
-    {
-      "id": "32",
-      "name": "Michael Darko",
-      "location": "Amasaman",
-      "phone": "024 990 1122",
-      "startTime": "11:00 AM",
-      "endTime": "03:00 PM"
-    },
-    {
-      "id": "33",
-      "name": "Gloria Addo",
-      "location": "Tema Community 25",
-      "phone": "050 331 2233",
-      "startTime": "03:00 PM",
-      "endTime": "06:00 PM"
-    },
-    {
-      "id": "34",
-      "name": "Francis Owusu",
-      "location": "Kotobabi",
-      "phone": "055 223 4455",
-      "startTime": "07:00 AM",
-      "endTime": "11:00 AM"
+      "endTime": "11:00 AM",
+      "lat": 5.5813129,
+      "lon": -0.2652799
     },
     {
       "id": "35",
       "name": "Rebecca Asare",
       "location": "Maamobi",
+      "pic": "vite.svg",
       "phone": "030 556 6677",
       "startTime": "11:00 AM",
-      "endTime": "03:00 PM"
-    },
-    {
-      "id": "36",
-      "name": "Ebenezer Dede",
-      "location": "Lartebiokorshie",
-      "phone": "020 777 8899",
-      "startTime": "03:00 PM",
-      "endTime": "06:00 PM"
-    },
-    {
-      "id": "37",
-      "name": "Cynthia Obeng",
-      "location": "Tema New Town",
-      "phone": "024 113 2255",
-      "startTime": "07:00 AM",
-      "endTime": "11:00 AM"
+      "endTime": "03:00 PM",
+      "lat": 5.5905066,
+      "lon": -0.1969641
     },
     {
       "id": "38",
       "name": "Stephen Opoku",
       "location": "La",
+      "pic": "vite.svg",
       "phone": "050 667 8899",
       "startTime": "11:00 AM",
-      "endTime": "03:00 PM"
-    },
-    {
-      "id": "39",
-      "name": "Angela Biney",
-      "location": "Teshie Nungua",
-      "phone": "055 332 5566",
-      "startTime": "03:00 PM",
-      "endTime": "06:00 PM"
-    },
-    {
-      "id": "40",
-      "name": "John Kwaku",
-      "location": "McCarthy Hill",
-      "phone": "030 776 8899",
-      "startTime": "07:00 AM",
-      "endTime": "11:00 AM"
+      "endTime": "03:00 PM",
+      "lat": 5.5602324,
+      "lon": -0.1576413
     },
     {
       "id": "41",
       "name": "Peace Aryee",
       "location": "Tema Community 1",
+      "pic": "vite.svg",
       "phone": "020 445 6677",
       "startTime": "11:00 AM",
-      "endTime": "03:00 PM"
+      "endTime": "03:00 PM",
+      "lat": 5.6371059,
+      "lon": -0.0010401
     },
     {
       "id": "42",
       "name": "Naa Lamiley",
       "location": "Avenor",
+      "pic": "vite.svg",
       "phone": "024 667 8899",
       "startTime": "03:00 PM",
-      "endTime": "06:00 PM"
-    },
-    {
-      "id": "43",
-      "name": "Kwabena Anane",
-      "location": "Tema Comm. 8",
-      "phone": "020 789 1122",
-      "startTime": "07:00 AM",
-      "endTime": "11:00 AM"
-    },
-    {
-      "id": "44",
-      "name": "Comfort Yeboah",
-      "location": "Agbogbloshie",
-      "phone": "024 334 2233",
-      "startTime": "11:00 AM",
-      "endTime": "03:00 PM"
+      "endTime": "06:00 PM",
+      "lat": 5.5801584,
+      "lon": -0.2196165
     },
     {
       "id": "45",
       "name": "Yaw Frempong",
       "location": "Ashaiman",
+      "pic": "vite.svg",
       "phone": "050 112 3344",
       "startTime": "03:00 PM",
-      "endTime": "06:00 PM"
-    },
-    {
-      "id": "46",
-      "name": "Irene Sackey",
-      "location": "New Achimota",
-      "phone": "055 443 1122",
-      "startTime": "07:00 AM",
-      "endTime": "11:00 AM"
-    },
-    {
-      "id": "47",
-      "name": "Gideon Koomson",
-      "location": "Mamprobi",
-      "phone": "030 991 3344",
-      "startTime": "11:00 AM",
-      "endTime": "03:00 PM"
-    },
-    {
-      "id": "48",
-      "name": "Anita Quaye",
-      "location": "Korle Bu",
-      "phone": "020 554 7766",
-      "startTime": "03:00 PM",
-      "endTime": "06:00 PM"
-    },
-    {
-      "id": "49",
-      "name": "Martin Armah",
-      "location": "Tema Comm. 22",
-      "phone": "024 663 5566",
-      "startTime": "07:00 AM",
-      "endTime": "11:00 AM"
-    },
-    {
-      "id": "50",
-      "name": "Doris Afriyie",
-      "location": "Burma Camp",
-      "phone": "050 880 9988",
-      "startTime": "11:00 AM",
-      "endTime": "03:00 PM"
+      "endTime": "06:00 PM",
+      "lat": 5.694385,
+      "lon": -0.029529
     }
   ]
 }

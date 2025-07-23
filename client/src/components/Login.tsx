@@ -19,7 +19,7 @@ const Login = () => {
 
     const handleLogin = async (event: React.FormEvent) => {
         event.preventDefault();
-        const response = await fetch('http://localhost:3000/users');
+        const response = await fetch('http://localhost:4000/users');
         const data = await response.json();
         const user = data.find((user: User) => user.email === email && user.password === password);
         console.log("Login attempt:", { email, password, user });
@@ -42,7 +42,7 @@ const Login = () => {
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
-            <div className="border border-[#5932EA] p-6 rounded-lg w-full max-w-[400px] mx-auto bg-white shadow-sm">
+            <div className="border border-[#1680E4] p-6 rounded-lg w-full max-w-[400px] mx-auto bg-white shadow-sm">
                 <form onSubmit={handleLogin} className="flex flex-col gap-4">
                     <input
                         type="email"
@@ -50,7 +50,7 @@ const Login = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         autoComplete="email"
-                        className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#5932EA]"
+                        className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1680E4]"
                     />
                     <input
                         type="password"
@@ -58,15 +58,15 @@ const Login = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         autoComplete="current-password"
-                        className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#5932EA]"
+                        className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1680E4]"
                     />
                     <button
                         type="submit"
-                        className="w-full bg-[#5932EA] hover:bg-[#4a28c2] text-white py-2 rounded-md text-sm transition"
+                        className="w-full bg-[#1680E4] hover:bg-[#4a28c2] text-white py-2 rounded-md text-sm transition"
                     >
                         Sign In
                     </button>
-                    <Link to="/forgotPassword" className="text-xs underline text-center cursor-pointer text-[#5932EA]">
+                    <Link to="/forgotPassword" className="text-xs underline text-center cursor-pointer text-[#1680E4]">
                         Forgot Password?
                     </Link>
                 </form>

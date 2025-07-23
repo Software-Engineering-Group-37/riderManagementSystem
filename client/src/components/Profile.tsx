@@ -20,7 +20,7 @@ const Profile = () => {
 
         const fetchUsers = async () => {
             try {
-                const response = await fetch(`http://localhost:3000/users`);
+                const response = await fetch(`http://localhost:4000/users`);
                 if (!response.ok) throw new Error('Network response was not ok');
 
                 const data = await response.json();
@@ -46,7 +46,7 @@ const Profile = () => {
         const user = JSON.parse(sessionStorage.getItem('user') || '{}');
 
 
-        const res = await fetch(`http://localhost:3000/users/${user}`, {
+        const res = await fetch(`http://localhost:4000/users/${user}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ const Profile = () => {
                     <UploadAvatars />
                 </div>
                 <div className='border-gray-300 m-0 p-2 border-l-1 w-1/2 h-3/4 flex justify-center items-center'>
-                    <div className="border border-[#5932EA] p-6 rounded-lg w-3/4 bg-white shadow-sm">
+                    <div className="border border-[#1680E4] p-6 rounded-lg w-3/4 bg-white shadow-sm">
                         <form onSubmit={handleChangePassword} className="flex flex-col w-full gap-4">
                             <input
                                 type="password"
@@ -81,7 +81,7 @@ const Profile = () => {
                                 value={CurrentPassword}
                                 onChange={(e) => setCurrentPassword(e.target.value)}
                                 autoComplete="current-password"
-                                className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#5932EA]"
+                                className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1680E4]"
                             />
                             <input
                                 type="password"
@@ -89,7 +89,7 @@ const Profile = () => {
                                 value={newPassword}
                                 onChange={(e) => setNewPassword(e.target.value)}
                                 autoComplete="new-password"
-                                className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#5932EA]"
+                                className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1680E4]"
                             />
                             <input
                                 type="password"
@@ -97,11 +97,11 @@ const Profile = () => {
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 autoComplete="confirm-password"
-                                className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#5932EA]"
+                                className="w-full border border-gray-300 px-3 py-2 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1680E4]"
                             />
                             <button
                                 type="submit"
-                                className="w-full bg-[#5932EA] hover:bg-[#4a28c2] text-white py-2 rounded-md text-sm transition"
+                                className="w-full bg-[#1680E4] hover:bg-[#4a28c2] text-white py-2 rounded-md text-sm transition"
                             >
                                 Sign In
                             </button>
