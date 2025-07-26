@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
-
     const navigate = useNavigate();
     document.title = "Profile - Rider Management System";
     const [CurrentPassword, setCurrentPassword] = useState("");
@@ -13,16 +12,15 @@ const Profile = () => {
     const [password, setPassword] = useState("")
 
     useEffect(() => {
+        // Check if entered current password matches any user (for demonstration)
         interface User {
             password: string;
         }
-
 
         const fetchUsers = async () => {
             try {
                 const response = await fetch(`http://localhost:4000/users`);
                 if (!response.ok) throw new Error('Network response was not ok');
-
                 const data = await response.json();
                 const user = data.find((user: User) => user.password === CurrentPassword);
 
@@ -41,17 +39,16 @@ const Profile = () => {
         }
     }, [CurrentPassword]);
 
+    // Handle password change form submission
     const handleChangePassword = async (event: React.FormEvent) => {
         event.preventDefault();
         const user = JSON.parse(sessionStorage.getItem('user') || '{}');
-
 
         const res = await fetch(`http://localhost:4000/users/${user}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
             },
-
             body: JSON.stringify({
                 password,
             })
@@ -62,16 +59,20 @@ const Profile = () => {
         }
         navigate("/login")
     }
+
     return (
         <div className="flex flex-col h-screen overflow-hidden">
+            {/* Header */}
             <div className="flex items-center justify-center h-16">
                 <img src="dashboard.png" alt="arrow" className="right-6/7 fixed" />
                 <h1 className="text-2xl font-bold text-center m-auto">Profile</h1>
             </div>
             <div className='flex justify-around items-center'>
+                {/* Avatar upload section */}
                 <div className='flex w-1/2 h-screen justify-center items-center'>
                     <UploadAvatars />
                 </div>
+                {/* Password change form */}
                 <div className='border-gray-300 m-0 p-2 border-l-1 w-1/2 h-3/4 flex justify-center items-center'>
                     <div className="border border-[#1680E4] p-6 rounded-lg w-3/4 bg-white shadow-sm">
                         <form onSubmit={handleChangePassword} className="flex flex-col w-full gap-4">
@@ -103,7 +104,7 @@ const Profile = () => {
                                 type="submit"
                                 className="w-full bg-[#1680E4] hover:bg-[#4a28c2] text-white py-2 rounded-md text-sm transition"
                             >
-                                Sign In
+                                Change Password
                             </button>
                         </form>
                     </div>
@@ -115,13 +116,15 @@ const Profile = () => {
 
 export default Profile;
 
+// Avatar upload component for profile picture
 const UploadAvatars: React.FC = () => {
     const [avatarSrc, setAvatarSrc] = React.useState<string | undefined>(undefined);
 
+    // Handle avatar file input change and preview
     const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (file) {
-            // Read the file as a data URL
+            // Read the file as a data URL for preview
             const reader = new FileReader();
             reader.onload = () => {
                 setAvatarSrc(reader.result as string);

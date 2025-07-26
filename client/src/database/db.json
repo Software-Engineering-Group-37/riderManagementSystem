@@ -4,12 +4,12 @@
       "id": "1",
       "name": "John Doe",
       "email": "johndoe@gmail.com",
-      "password": "dashboard"
+      "password": "asdfgh"
     },
     {
       "id": "2",
       "name": "Alice Smith",
-      "email": "",
+      "email": "alice@gmail.com",
       "password": "alicepass"
     }
   ],
@@ -18,7 +18,7 @@
       "id": "5",
       "name": "Sarah Wilson",
       "location": "Adenta",
-      "pic": "vite.svg",
+      "pic": "Picture2.jpg",
       "phone": "030 456 7890",
       "startTime": "11:00 AM",
       "endTime": "03:00 PM",
@@ -29,7 +29,7 @@
       "id": "10",
       "name": "Nana Ama Boateng",
       "location": "Nima",
-      "pic": "vite.svg",
+      "pic": "Picture3.png",
       "phone": "030 112 3344",
       "startTime": "07:00 AM",
       "endTime": "11:00 AM",
@@ -40,7 +40,7 @@
       "id": "11",
       "name": "Yaw Owusu",
       "location": "Airport Hills",
-      "pic": "vite.svg",
+      "pic": "Picture4.png",
       "phone": "020 665 7788",
       "startTime": "11:00 AM",
       "endTime": "03:00 PM",
@@ -51,7 +51,7 @@
       "id": "17",
       "name": "Patrick Boadi",
       "location": "Roman Ridge",
-      "pic": "vite.svg",
+      "pic": "Picture5.jpg",
       "phone": "024 556 6677",
       "startTime": "11:00 AM",
       "endTime": "03:00 PM",
@@ -62,7 +62,7 @@
       "id": "18",
       "name": "Selina Koranteng",
       "location": "Teshie",
-      "pic": "vite.svg",
+      "pic": "Picture6.jpg",
       "phone": "050 998 7766",
       "startTime": "03:00 PM",
       "endTime": "06:00 PM",
@@ -73,7 +73,7 @@
       "id": "21",
       "name": "Yaw Adu",
       "location": "Sakumono",
-      "pic": "vite.svg",
+      "pic": "Picture7.jpg",
       "phone": "020 556 7788",
       "startTime": "03:00 PM",
       "endTime": "06:00 PM",
@@ -84,7 +84,7 @@
       "id": "23",
       "name": "Richmond Arhin",
       "location": "Abelemkpe",
-      "pic": "vite.svg",
+      "pic": "Picture11.png",
       "phone": "050 332 5566",
       "startTime": "11:00 AM",
       "endTime": "03:00 PM",
@@ -95,7 +95,7 @@
       "id": "26",
       "name": "Prince Ofori",
       "location": "Bortianor",
-      "pic": "vite.svg",
+      "pic": "Picture2.jpg",
       "phone": "020 999 1122",
       "startTime": "11:00 AM",
       "endTime": "03:00 PM",
@@ -106,7 +106,7 @@
       "id": "28",
       "name": "Nana Kwame",
       "location": "Weija",
-      "pic": "vite.svg",
+      "pic": "Picture11.png",
       "phone": "050 223 3344",
       "startTime": "07:00 AM",
       "endTime": "11:00 AM",
@@ -117,7 +117,7 @@
       "id": "31",
       "name": "Naomi Boateng",
       "location": "Odorkor",
-      "pic": "vite.svg",
+      "pic": "Picture5.jpg",
       "phone": "020 456 7788",
       "startTime": "07:00 AM",
       "endTime": "11:00 AM",
@@ -128,7 +128,7 @@
       "id": "35",
       "name": "Rebecca Asare",
       "location": "Maamobi",
-      "pic": "vite.svg",
+      "pic": "Picture5.jpg",
       "phone": "030 556 6677",
       "startTime": "11:00 AM",
       "endTime": "03:00 PM",
@@ -139,7 +139,7 @@
       "id": "38",
       "name": "Stephen Opoku",
       "location": "La",
-      "pic": "vite.svg",
+      "pic": "Picture5.jpg",
       "phone": "050 667 8899",
       "startTime": "11:00 AM",
       "endTime": "03:00 PM",
@@ -150,7 +150,7 @@
       "id": "41",
       "name": "Peace Aryee",
       "location": "Tema Community 1",
-      "pic": "vite.svg",
+      "pic": "Picture5.jpg",
       "phone": "020 445 6677",
       "startTime": "11:00 AM",
       "endTime": "03:00 PM",
@@ -160,8 +160,8 @@
     {
       "id": "42",
       "name": "Naa Lamiley",
-      "location": "Avenor",
-      "pic": "vite.svg",
+      "location": "Cantoment",
+      "pic": "Picture5.jpg",
       "phone": "024 667 8899",
       "startTime": "03:00 PM",
       "endTime": "06:00 PM",
@@ -172,12 +172,219 @@
       "id": "45",
       "name": "Yaw Frempong",
       "location": "Ashaiman",
-      "pic": "vite.svg",
+      "pic": "Picture4.png",
       "phone": "050 112 3344",
       "startTime": "03:00 PM",
       "endTime": "06:00 PM",
       "lat": 5.694385,
       "lon": -0.029529
+    }
+  ],
+  "riders": [
+    {
+      "id": "2",
+      "name": "Alice Smith",
+      "phone": "030 234 5678"
+    },
+    {
+      "id": "3",
+      "name": "Bob Johnson",
+      "phone": "030 345 6789"
+    },
+    {
+      "id": "4",
+      "name": "Charlie Brown",
+      "phone": "030 456 7890"
+    },
+    {
+      "id": "5",
+      "name": "David Wilson",
+      "phone": "030 567 8901"
+    },
+    {
+      "id": "6",
+      "name": "Eva Green",
+      "phone": "030 678 9012"
+    },
+    {
+      "id": "7",
+      "name": "Frank Miller",
+      "phone": "030 789 0123"
+    },
+    {
+      "id": "8",
+      "name": "Grace Lee",
+      "phone": "030 890 1234"
+    },
+    {
+      "id": "9",
+      "name": "Hannah Kim",
+      "phone": "030 901 2345"
+    },
+    {
+      "id": "10",
+      "name": "Ian Brown",
+      "phone": "030 012 3456"
+    },
+    {
+      "id": "11",
+      "name": "Jack White",
+      "phone": "030 123 4568"
+    },
+    {
+      "id": "12",
+      "name": "Kathy Black",
+      "phone": "030 234 5679"
+    },
+    {
+      "id": "13",
+      "name": "Liam Gray",
+      "phone": "030 345 6780"
+    },
+    {
+      "id": "14",
+      "name": "Mia Blue",
+      "phone": "030 456 7891"
+    },
+    {
+      "id": "15",
+      "name": "Noah Green",
+      "phone": "030 567 8902"
+    },
+    {
+      "id": "16",
+      "name": "Olivia Red",
+      "phone": "030 678 9013"
+    },
+    {
+      "id": "17",
+      "name": "Paul Yellow",
+      "phone": "030 789 0124"
+    },
+    {
+      "id": "18",
+      "name": "Quinn Purple",
+      "phone": "030 890 1235"
+    },
+    {
+      "id": "19",
+      "name": "Rita Orange",
+      "phone": "030 901 2346"
+    },
+    {
+      "id": "20",
+      "name": "Sam Pink",
+      "phone": "030 012 3457"
+    }
+  ],
+  "shifts": [
+    {
+      "id": "9eb1",
+      "riderName": "Charlie Brown",
+      "startDate": "2025-07-30",
+      "endDate": "2025-07-30",
+      "startTime": "10:12",
+      "endTime": "12:12",
+      "location": "Legon"
+    },
+    {
+      "id": "92b3",
+      "riderName": "Charlie Brown",
+      "startDate": "2025-06-30",
+      "endDate": "2025-06-30",
+      "startTime": "13:22",
+      "endTime": "15:20",
+      "location": "Somanya"
+    },
+    {
+      "id": "a1c4",
+      "riderName": "Alice Smith",
+      "startDate": "2025-08-01",
+      "endDate": "2025-08-01",
+      "startTime": "09:00",
+      "endTime": "11:00",
+      "location": "Tema"
+    },
+    {
+      "id": "b2d5",
+      "riderName": "Bob Johnson",
+      "startDate": "2025-08-02",
+      "endDate": "2025-08-02",
+      "startTime": "14:00",
+      "endTime": "16:00",
+      "location": "Accra"
+    },
+    {
+      "id": "c3e6",
+      "riderName": "David Wilson",
+      "startDate": "2025-08-03",
+      "endDate": "2025-08-03",
+      "startTime": "08:30",
+      "endTime": "10:30",
+      "location": "Kumasi"
+    },
+    {
+      "id": "d4f7",
+      "riderName": "Eva Green",
+      "startDate": "2025-08-04",
+      "endDate": "2025-08-04",
+      "startTime": "11:15",
+      "endTime": "13:15",
+      "location": "Takoradi"
+    },
+    {
+      "id": "e5g8",
+      "riderName": "Frank Miller",
+      "startDate": "2025-08-05",
+      "endDate": "2025-08-05",
+      "startTime": "09:00",
+      "endTime": "11:00",
+      "location": "Accra"
+    },
+    {
+      "id": "f6h9",
+      "riderName": "Grace Lee",
+      "startDate": "2025-08-06",
+      "endDate": "2025-08-06",
+      "startTime": "10:00",
+      "endTime": "12:00",
+      "location": "Tema"
+    },
+    {
+      "id": "g7i0",
+      "riderName": "Hannah Kim",
+      "startDate": "2025-08-07",
+      "endDate": "2025-08-07",
+      "startTime": "13:30",
+      "endTime": "15:30",
+      "location": "Kumasi"
+    },
+    {
+      "id": "h8i1",
+      "riderName": "Ian Brown",
+      "startDate": "2025-08-08",
+      "endDate": "2025-08-08",
+      "startTime": "09:00",
+      "endTime": "11:00",
+      "location": "Accra"
+    },
+    {
+      "id": "i9j2",
+      "riderName": "Jack White",
+      "startDate": "2025-08-09",
+      "endDate": "2025-08-09",
+      "startTime": "10:00",
+      "endTime": "12:00",
+      "location": "Tema"
+    },
+    {
+      "id": "j0k3",
+      "riderName": "Kathy Black",
+      "startDate": "2025-08-10",
+      "endDate": "2025-08-10",
+      "startTime": "11:30",
+      "endTime": "13:30",
+      "location": "Takoradi"
     }
   ]
 }

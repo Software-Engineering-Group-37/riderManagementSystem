@@ -1,7 +1,11 @@
 import { useContext } from "react";
 import type { ValueContextType } from "./valueContext";
 import { ValueContext } from "./valueContext";
-// Hook to use the context safely
+
+/**
+ * Custom hook to access the shared ValueContext.
+ * Throws an error if used outside of a ValueProvider.
+ */
 export const useSharedValue = (): ValueContextType => {
     const context = useContext(ValueContext);
     if (!context) {

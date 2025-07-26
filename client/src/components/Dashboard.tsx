@@ -7,6 +7,7 @@ import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import Menu from './Menu';
 import SmallMenu from './SmallMenu';
 
+// Data type for rider and table row
 interface Data {
     id: number;
     name: string;
@@ -17,7 +18,7 @@ interface Data {
 }
 
 const Dashboard = () => {
-
+    // Table column definitions
     interface Column {
         id: 'name' | 'location' | 'phone' | 'startTime' | 'endTime' | 'actions';
         label: string;
@@ -57,6 +58,7 @@ const Dashboard = () => {
         id: number;
         name: string;
         location: string;
+        pic: string;
         phone: number;
         startTime: string;
         endTime: string;
@@ -64,7 +66,7 @@ const Dashboard = () => {
 
     type RiderWithCoords = Data & { lat?: string; lon?: string };
 
-
+    // State for table, map, and modal
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [orderBy, setOrderBy] = useState<keyof Data>('name');
@@ -74,22 +76,8 @@ const Dashboard = () => {
     const [showEditModal, setShowEditModal] = useState(false);
     const [id, setId] = useState<number>(0);
     const [tableBottom, setTableBottom] = useState<number>(-window.innerHeight * 0.59);
-    // const [markers, setMarkers] = useState([] as { id: number; name: string; photo: string; place: string; coords: { lat: number; lon: number } }[]);
     const [width, setWidth] = useState(window.innerWidth);
-    // const [ridersWithCoords, setRidersWithCoords] = useState<{
-    //     id: number;
-    //     name: string;
-    //     location: string;
-    //     pic: string;
-    //     phone: string;
-    //     startTime: string;
-    //     endTime: string;
-    //     lat: number;
-    //     lon: number;
-    // }[]
-    // >([]);
 
-    console.log("Width:", width);
     const handleChangePage = (_event: unknown, newPage: number) => {
         setPage(newPage);
     };
@@ -99,6 +87,7 @@ const Dashboard = () => {
         setPage(0);
     };
 
+    // Sort table rows by selected column and order
     const handleSort = (property: keyof Data) => {
         const isAsc = orderBy === property && order === 'asc';
         setOrder(isAsc ? 'desc' : 'asc');
@@ -117,20 +106,23 @@ const Dashboard = () => {
         return 0;
     });
 
+    // Get logged-in user's first name for greeting
     const name = JSON.parse(localStorage.getItem('loggedInUser') || '{}').name.split(" ")[0];
 
+    // Fetch all active riders and map to table/map data
     const fetchActiveRiders = useCallback(async () => {
         const response = await fetch('http://localhost:4000/activeRiders');
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        // Directly map the response to Data objects
+        // Map backend data to Data objects
         const riderRows: RiderWithCoords[] = data.map((rider: RiderWithCoords) => ({
             id: rider.id,
             name: rider.name,
             location: rider.location,
             phone: rider.phone,
+            pic: rider?.pic,
             startTime: rider.startTime,
             endTime: rider.endTime,
             lat: rider.lat ? parseFloat(rider.lat) : 0,
@@ -139,6 +131,7 @@ const Dashboard = () => {
         setRows(riderRows);
     }, []);
 
+    // Update coordinates for riders missing lat/lon
     const updatedActiveRiders = useCallback(async (rows: RiderWithCoords[]) => {
         for (const rider of rows) {
             if (rider.lat && rider.lon) continue;
@@ -155,12 +148,14 @@ const Dashboard = () => {
         await new Promise(resolve => setTimeout(resolve, 1500));
     }, []);
 
+    // Update coordinates when rows change
     useEffect(() => {
         updatedActiveRiders(rows).catch(error => {
             console.error('Error fetching active riders:', error);
         });
     }, [rows, updatedActiveRiders])
 
+    // Fetch riders and set up UI event listeners on mount
     useEffect(() => {
         fetchActiveRiders().catch(error => {
             console.error('Error fetching active riders:', error);
@@ -172,6 +167,7 @@ const Dashboard = () => {
         const pullArrow = document.getElementById('pull-arrow');
         if (!pullArrow || !table) return;
 
+        // Toggle floating table visibility on arrow click
         const handleClick = () => {
             const hiddenPos = -window.innerHeight * 0.59;
             const visiblePos = window.innerHeight * 0.1;
@@ -202,12 +198,11 @@ const Dashboard = () => {
             window.removeEventListener("resize", handleResize);
         };
     }, [fetchActiveRiders]);
+
+    // Open edit modal and prefill fields
     const handleClickEdit = (rowIndex: number) => {
         setId(rows[rowIndex].id);
-        console.log("Edit clicked", id);
-        console.log("hello")
         setShowEditModal(!showEditModal);
-        console.log("WATER", showEditModal)
 
         const modal = document.querySelector('#modal');
         if (modal) {
@@ -216,23 +211,18 @@ const Dashboard = () => {
                 modal.classList.add('flex');
             }
         }
-        //from use effect get the data and set it to the modal
         const modalInputs = document.querySelectorAll('#modal input');
         if (modalInputs.length > 0) {
-            (modalInputs[0] as HTMLInputElement).value = rows[rowIndex].name; // Replace with actual data
-            console.log(rows[rowIndex]);
-            (modalInputs[1] as HTMLInputElement).value = rows[rowIndex].location; // Replace with actual data
-            (modalInputs[2] as HTMLInputElement).value = rows[rowIndex].startTime; // Replace with actual data
-            (modalInputs[3] as HTMLInputElement).value = rows[rowIndex].endTime; // Replace with actual data
+            (modalInputs[0] as HTMLInputElement).value = rows[rowIndex].name;
+            (modalInputs[1] as HTMLInputElement).value = rows[rowIndex].location;
+            (modalInputs[2] as HTMLInputElement).value = rows[rowIndex].startTime;
+            (modalInputs[3] as HTMLInputElement).value = rows[rowIndex].endTime;
         }
     }
-    console.log(id);
 
-
+    // Delete rider and update table
     const handleDelete = async (event: React.MouseEvent<HTMLButtonElement>, row: Data) => {
         event.preventDefault();
-        console.log('Delete started');
-
         try {
             const res = await fetch(`http://localhost:4000/activeRiders/${row.id}`, {
                 method: 'DELETE',
@@ -245,16 +235,13 @@ const Dashboard = () => {
                 console.error('Delete failed with status:', res.status);
                 return;
             }
-
-            console.log('Delete success');
             setRows(prev => prev.filter(r => r.id !== row.id));
         } catch (err) {
             console.error('Delete failed with error:', err);
         }
     };
 
-
-
+    // Get coordinates for a location using Nominatim API
     const getCoordinates = async (place: string) => {
         try {
             const res = await fetch(
@@ -266,39 +253,18 @@ const Dashboard = () => {
                 }
             });
             if (!res.ok) {
-                // Handle non-200 responses
                 console.error("Nominatim request failed:", res.status, res.statusText);
             }
             const data = await res.json();
-            console.log("Coordinates data:", data);
             if (data.length > 0) {
-                console.log("Coordinates:", data[0].lat, data[0].lon);
                 const lat = parseFloat(data[0].lat);
                 const lon = parseFloat(data[0].lon);
                 return { lat, lon };
             }
         } catch (error) {
             console.error("Error fetching coordinates:", error);
-            // You could also display a user-friendly message here
         }
-        //     setMarkers([{
-        //         id: 1,
-        //         name: "John Doe",
-        //         photo: "https://via.placeholder.com/50",
-        //         place: "Accra",
-        //         coords: { lat: 5.6037, lon: -0.1870 }
-        //     }, {
-        //         id: 2,
-        //         name: "Jane Smith",
-        //         photo: "https://via.placeholder.com/50",
-        //         place: "Kumasi",
-        //         coords: { lat: 6.6885, lon: -1.6244 }
-        //     }]);
     };
-
-
-
-
 
     return (
         <div className="flex h-screen overflow-hidden">
@@ -306,28 +272,61 @@ const Dashboard = () => {
             <Box className="relative flex-1 flex flex-col items-center mx-3 mt-2 h-screen">
                 <h1 className="text-xl font-semibold pl-16 pb-3 mr-auto">{`Hello ${name}`}</h1>
                 <div className="p-4 m-1 w-9/10 rounded-[25px] shadow-md flex justify-evenly items-center gap-4 bg-white">
+                    {/* Rider, Area, and Shift summary cards */}
                     <div className="flex items-center flex-1">
-                        <img src="human.png" alt="" />
-                        <div>
+                        <img src="human.png" alt="Riders" />
+                        <div className='group relative'>
                             <p className="text-sm">Riders</p>
                             <p className="text-lg font-medium">100</p>
+                            <div className="absolute left-0 top-full mt-1 w-max bg-gray-800 text-white text-xs rounded px-3 py-2 shadow-lg opacity-0 group-hover:opacity-100 transition z-20">
+                                Total Riders: 100<br />
+                                Active Riders: 23
+                            </div>
                         </div>
                     </div>
-                    <div className="border-x-1  border-gray-300 flex items-center flex-1">
-                        <img src="loca.png" alt="" />
-                        <div>
+                    <div className="border-x border-gray-300 flex items-center flex-1">
+                        <img src="loca.png" alt="Area" />
+                        <div className='group relative'>
                             <p className="text-sm">Area Coverage</p>
-                            <p className="text-lg font-medium">100</p>
+                            <p className="text-lg font-medium">15</p>
+                            <div className="absolute left-0 top-full mt-1 w-max bg-gray-800 text-white text-xs rounded px-3 py-2 shadow-lg opacity-0 group-hover:opacity-100 transition z-20">
+                                <p className="font-semibold mb-1">Areas Covered (15)</p>
+                                <ul className="list-disc list-inside">
+                                    <li>Adabraka</li>
+                                    <li>Osu</li>
+                                    <li>Madina</li>
+                                    <li>East Legon</li>
+                                    <li>Dansoman</li>
+                                    <li>Circle</li>
+                                    <li>Labadi</li>
+                                    <li>Achimota</li>
+                                    <li>Ashaiman</li>
+                                    <li>Teshie</li>
+                                    <li>Spintex</li>
+                                    <li>Kaneshie</li>
+                                    <li>Airport</li>
+                                    <li>Sakumono</li>
+                                    <li>Ashaley Botwe</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                     <div className="flex items-center flex-1">
-                        <img src="active.png" alt="" />
-                        <div>
-                            <p className="text-sm">Active Riders</p>
-                            <p className="text-lg font-medium">10</p>
+                        <img src="active.png" alt="Shifts" />
+                        <div className='group relative'>
+                            <p className="text-sm">Shifts Today</p>
+                            <p className="text-lg font-medium">12</p>
+                            <div className="absolute left-0 top-full mt-1 w-max bg-gray-800 text-white text-xs rounded px-3 py-2 shadow-lg opacity-0 group-hover:opacity-100 transition z-20">
+                                7AM – 11AM : 5 riders<br />
+                                11AM – 3PM : 4 riders<br />
+                                3PM – 6PM : 3 riders<br />
+                                Total Shifts: 12
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                {/* Map with rider markers */}
                 <MapContainer center={[5.6037, -0.1870]} zoom={12} scrollWheelZoom={true} style={{ width: '90%' }} className='border-1 rounded-md m-1 h-5/9 z-0'>
                     <TileLayer
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -339,10 +338,10 @@ const Dashboard = () => {
                                 key={rider.id}
                                 position={[rider.lat, rider.lon]}
                                 icon={L.icon({
-                                    iconUrl: "vite.svg", // use absolute path or public folder
+                                    iconUrl: rider.pic,
                                     iconSize: [40, 40],
                                     iconAnchor: [20, 40],
-                                    className: 'rounded-full border border-white shadow-md'
+                                    className: 'rounded-full border border-white shadow-md object-fit'
                                 })}
                             >
                                 <Popup>
@@ -357,6 +356,7 @@ const Dashboard = () => {
                     ))}
                 </MapContainer>
 
+                {/* Floating table for active riders */}
                 <div id="floating-table" style={{ bottom: `${tableBottom}px` }} className="absolute transition-all duration-1500 ease-in-out z-9 bg-white max-h-[75vh] w-9/10 shadow-lg">
                     <Paper sx={{ width: '100%', overflow: 'hidden', marginTop: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
                         <div className="flex items-center justify-between p-4">
@@ -440,6 +440,7 @@ const Dashboard = () => {
                         />
                     </Paper>
                 </div>
+                {/* Edit modal for rider info */}
                 <EditModal id={id} showEditModal={showEditModal} fetchActiveRiders={fetchActiveRiders} row={rows} handleClickCancel={() => setShowEditModal(false)} />
             </Box>
         </div >
@@ -448,6 +449,7 @@ const Dashboard = () => {
 
 export default Dashboard;
 
+// Props for EditModal
 interface EditModalProps {
     showEditModal: boolean;
     handleClickCancel: () => void;
@@ -456,6 +458,7 @@ interface EditModalProps {
     fetchActiveRiders: () => void;
 }
 
+// Modal for editing rider info
 const EditModal: React.FC<EditModalProps> = ({ showEditModal, handleClickCancel, row, id, fetchActiveRiders }) => {
     const rider = row.find((ro) => ro.id === id);
     const [location, setLocation] = useState(rider?.location);
@@ -464,18 +467,15 @@ const EditModal: React.FC<EditModalProps> = ({ showEditModal, handleClickCancel,
     const name = rider?.name;
     const phone = rider?.phone;
 
+    // PATCH updated rider info to backend and refresh table
     const handleEdit = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        console.log("EDITING ID", id)
-        console.log("PUT to:", `http://localhost:4000/activeRiders/${id}`);
-
         try {
             const response = await fetch(`http://localhost:4000/activeRiders/${id}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-
                 body: JSON.stringify({
                     id,
                     name,
@@ -489,9 +489,9 @@ const EditModal: React.FC<EditModalProps> = ({ showEditModal, handleClickCancel,
                 fetchActiveRiders();
                 handleClickCancel();
             }
-            console.log("Fetch status:", response.status); // Should be 200 or 204
-            console.log("Content-Type:", response.headers.get("content-type")); // Should be application/json
-
+            // Log response for debugging
+            console.log("Fetch status:", response.status);
+            console.log("Content-Type:", response.headers.get("content-type"));
             const text = await response.text();
             console.log("Response body:", text);
         } catch (error) {

@@ -1,1 +1,93 @@
 @import "tailwindcss";
+
+.fc,
+.fc-media-screen,
+.fc-direction-ltr,
+.fc-theme-standard {
+    min-width: 200px !important;
+    width: 100% !important;
+}
+
+/* calendar-theme.css */
+
+/* Title bar */
+.fc .fc-toolbar-title {
+    color: #1680E4;
+}
+
+/* Today cell */
+.fc-day-today {
+    background-color: #e6f0fb !important;
+    /* soft blue for today */
+}
+
+/* Day numbers */
+.fc-daygrid-day-number {
+    color: #1680E4;
+    font-weight: 600;
+}
+
+/* Events */
+.fc-event {
+    background-color: #1680E4 !important;
+    color: white;
+    border: none;
+}
+
+/* Buttons */
+.fc .fc-button {
+    background-color: #1680E4;
+    border: none;
+    color: white;
+}
+
+.fc .fc-button:hover,
+.fc .fc-button:focus {
+    background-color: #0f5fb0;
+    color: white;
+}
+
+/* Time labels (optional) */
+.fc .fc-timegrid-slot-label {
+    color: #1680E4;
+}
+
+/* Scrollbar handle (optional) */
+.fc-scroller::-webkit-scrollbar-thumb {
+    background-color: #1680E4;
+}
+
+/* Normal state */
+.fc .fc-button {
+    background-color: #1680E4 !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Hover state */
+.fc .fc-button:hover {
+    background-color: #0f5fb0 !important;
+}
+
+/* Active (clicked) state */
+.fc .fc-button:active,
+.fc .fc-button.fc-button-active {
+    background-color: #0c3d6c !important;
+    color: white !important;
+    box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Focus (keyboard focus) */
+.fc .fc-button:focus {
+    background-color: #0c3d6c !important;
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(22, 128, 228, 0.4) !important;
+}
+
+.fc .fc-header-toolbar {
+    padding: 0 6px;
+    /* You can adjust this */
+    background-color: white;
+    /* Optional if you want it to stand out */
+}
