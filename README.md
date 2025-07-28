@@ -17,7 +17,7 @@ A web-based system for scheduling and managing delivery rider shifts. Built to e
 | Layer       | Technology                             |
 | ----------- | -------------------------------------- |
 | Frontend    | React + TailwindCSS + MUI              |
-| Backend     | JSON Server (dev), Spring boot (prod)  |
+| Backend     | JSON Server (dev), Nodejs (prod)  |
 | Auth        | Session-based auth                     |
 | DB (Dev)    | JSON                                   |
 | DB (Prod)   | PostgreSQL (planned)                   |
@@ -59,7 +59,7 @@ riderManagementSystem/
 3. **Start JSON Server**
 
    ```bash
-   npx json-server --watch db.json --port 3000
+   json-server --watch db.json --port 4000
    ```
 
 4. **Run the Frontend**
