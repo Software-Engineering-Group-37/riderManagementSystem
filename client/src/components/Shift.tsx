@@ -6,6 +6,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import Modal from '@mui/material/Modal';
 import { useCallback, useEffect, useState } from "react";
 import AsyncSelect from 'react-select/async';
+import Alert from "./Alert"; // <-- Import Alert
 import Menu from "./Menu";
 import SmallMenu from "./SmallMenu";
 
@@ -208,29 +209,41 @@ const ShiftModal = ({ isOpen, onClose, date, onAssign, onDelete, editingShift }:
 };
 
 // Main Shift management component
+// Define EditingShiftType interface
+interface EditingShiftType {
+    id?: string;
+    riderName?: string;
+    startDate: string;
+    endDate: string;
+    startTime: string;
+    endTime: string;
+    location?: string;
+}
+
 const Shift = () => {
     const [width, setWidth] = useState(window.innerWidth);
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState('');
-    interface EditingShiftType {
-        id?: string;
-        riderName?: string;
-        startDate: string;
-        endDate: string;
-        startTime: string;
-        endTime: string;
-        location?: string;
-    }
     const [editingShift, setEditingShift] = useState<EditingShiftType | null>(null);
-    interface CalendarEvent {
+    type CalendarEvent = {
         id?: string;
         title: string;
         start: string;
-        end?: string;
+        end: string;
         allDay?: boolean;
         color?: string;
-    }
+        extendedProps?: {
+            location?: string;
+        };
+    };
     const [events, setEvents] = useState<CalendarEvent[]>([]);
+    const [alert, setAlert] = useState<{ message: string; type?: 'success' | 'error' | 'info' } | null>(null);
+
+    // Helper to show alert for a short time
+    const showAlert = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+        setAlert({ message, type });
+        setTimeout(() => setAlert(null), 2500);
+    };
 
     useEffect(() => {
         // Fetch all shifts from backend and map to calendar events
@@ -335,7 +348,9 @@ const Shift = () => {
                         }
                         : ev
                 ));
+                showAlert("Shift updated successfully", "success");
             } catch (error) {
+                showAlert("Failed to update shift", "error");
                 console.error('Failed to update shift:', error);
             }
         } else {
@@ -357,7 +372,9 @@ const Shift = () => {
                         extendedProps: { location },
                     }
                 ]);
+                showAlert("Shift assigned successfully", "success");
             } catch (error) {
+                showAlert("Failed to assign shift", "error");
                 console.error('Failed to create shift:', error);
             }
         }
@@ -375,13 +392,17 @@ const Shift = () => {
             setEvents(prev => prev.filter(ev => ev.id !== id));
             setModalOpen(false);
             setEditingShift(null);
+            showAlert("Shift deleted successfully", "success");
         } catch (error) {
+            showAlert("Failed to delete shift", "error");
             console.error('Failed to delete shift:', error);
         }
     };
 
     return (
         <div className="flex h-screen overflow-hidden">
+            {/* Alert at the top */}
+            {alert && <Alert message={alert.message} type={alert.type} />}
             {width > 968 ? <Menu /> : <SmallMenu />}
             <ShiftModal
                 isOpen={modalOpen}

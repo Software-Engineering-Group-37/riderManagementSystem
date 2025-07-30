@@ -91,3 +91,19 @@
     background-color: white;
     /* Optional if you want it to stand out */
 }
+
+@keyframes slideIn {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-in {
+    animation: slideIn 0.5s ease-in-out forwards;
+}

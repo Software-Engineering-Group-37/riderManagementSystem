@@ -1,6 +1,7 @@
 import type { FC } from "react";
 import { useEffect, useState } from "react";
 import { FiEdit2, FiMail, FiPhone, FiPlus, FiSearch, FiTrash } from "react-icons/fi";
+import Alert from "./Alert"; // <-- Import Alert
 import Menu from "./Menu";
 import SmallMenu from "./SmallMenu";
 
@@ -21,6 +22,13 @@ const Rider = () => {
     const [selectedRider, setSelectedRider] = useState<RiderType | null>(null);
     const [deleteAlert, setDeleteAlert] = useState<{ open: boolean; id?: string }>({ open: false });
     const [search, setSearch] = useState("");
+    const [alert, setAlert] = useState<{ message: string; type?: 'success' | 'error' | 'info' } | null>(null);
+
+    // Helper to show alert for a short time
+    const showAlert = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+        setAlert({ message, type });
+        setTimeout(() => setAlert(null), 2500);
+    };
 
     // Fetch riders from backend on mount
     useEffect(() => {
@@ -55,7 +63,9 @@ const Rider = () => {
             const newRider = await res.json();
             setRiders(prev => [...prev, newRider]);
             setShowAddModal(false);
+            showAlert("Rider added successfully", "success");
         } catch (error) {
+            showAlert("Failed to add rider", "error");
             console.error("Error adding rider:", error);
         }
     };
@@ -72,7 +82,9 @@ const Rider = () => {
             setRiders(prev => prev.map(r => (r.id === rider.id ? rider : r)));
             setShowEditModal(false);
             setSelectedRider(null);
+            showAlert("Rider updated successfully", "success");
         } catch (error) {
+            showAlert("Failed to update rider", "error");
             console.error("Error editing rider:", error);
         }
     };
@@ -86,7 +98,9 @@ const Rider = () => {
             if (!res.ok) throw new Error("Failed to delete rider");
             setRiders(prev => prev.filter(r => r.id !== id));
             setDeleteAlert({ open: false });
+            showAlert("Rider deleted", "success");
         } catch (error) {
+            showAlert("Failed to delete rider", "error");
             console.error("Error deleting rider:", error);
         }
     };
@@ -98,6 +112,12 @@ const Rider = () => {
 
     return (
         <div className="flex h-screen overflow-hidden">
+            {/* Alert in the top-right corner */}
+            {alert && (
+                <div className="fixed top-6 right-6 z-50">
+                    <Alert message={alert.message} type={alert.type} />
+                </div>
+            )}
             {width > 968 ? <Menu /> : <SmallMenu />}
             <div className="flex flex-col items-center w-full ">
                 <h1 className="text-2xl font-bold text-center mt-2">Rider Management</h1>
