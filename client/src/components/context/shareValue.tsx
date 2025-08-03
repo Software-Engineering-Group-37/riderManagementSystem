@@ -1,15 +1,90 @@
-import { useContext } from "react";
-import type { ValueContextType } from "./valueContext";
-import { ValueContext } from "./valueContext";
+import type { ReactNode } from "react";
+import { createContext, useContext, useState } from "react";
 
-/**
- * Custom hook to access the shared ValueContext.
- * Throws an error if used outside of a ValueProvider.
- */
-export const useSharedValue = (): ValueContextType => {
-    const context = useContext(ValueContext);
-    if (!context) {
-        throw new Error("useSharedValue must be used within a ValueProvider");
+interface User {
+    id: string;
+    name: string;
+    email: string;
+    role_id?: string;
+    role_name: string;
+    photo_url?: string;
+    created_at?: string;
+}
+
+interface SharedValueContextType {
+    user: User | null;
+    setUser: (user: User | null) => void;
+    isSuperAdmin: boolean;
+    isRegularAdmin: boolean;
+    isAnyAdmin: boolean;
+    logout: () => Promise<void>;
+    isLoading: boolean;
+}
+
+const SharedValueContext = createContext<SharedValueContextType | undefined>(undefined);
+
+export const SharedValueProvider = ({ children }: { children: ReactNode }) => {
+    const [user, setUserState] = useState<User | null>(() => {
+        const savedUser = sessionStorage.getItem('user');
+        return savedUser ? JSON.parse(savedUser) : null;
+    });
+    const [isLoading, setIsLoading] = useState(false);
+
+    // Role helpers
+    const isSuperAdmin = user?.role_name?.toLowerCase() === 'superadmin';
+    // If not superadmin and user exists, treat as regular admin
+    const isRegularAdmin = !!user && !isSuperAdmin;
+    const isAnyAdmin = !!user;
+
+    // Set user and sync with sessionStorage
+    const setUser = (newUser: User | null) => {
+        setUserState(newUser);
+        if (newUser) {
+            sessionStorage.setItem('user', JSON.stringify(newUser));
+        } else {
+            sessionStorage.removeItem('user');
+        }
+    };
+
+    // Logout function
+    const logout = async () => {
+        setIsLoading(true);
+        try {
+            await fetch(`${import.meta.env.VITE_API_URL}/admin/logout`, {
+                method: 'POST',
+                credentials: 'include'
+            });
+        } catch (error) {
+            // Ignore backend errors, always clear local state
+            console.error('Logout failed:', error);
+        } finally {
+            sessionStorage.removeItem('user');
+            setUserState(null);
+            setIsLoading(false);
+            window.location.href = '/login';
+        }
+    };
+
+    return (
+        <SharedValueContext.Provider value={{
+            user,
+            setUser,
+            isSuperAdmin,
+            isRegularAdmin,
+            isAnyAdmin,
+            logout,
+            isLoading
+        }}>
+            {children}
+        </SharedValueContext.Provider>
+    );
+};
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const useSharedValue = () => {
+    const context = useContext(SharedValueContext);
+    if (context === undefined) {
+        throw new Error('useSharedValue must be used within a SharedValueProvider');
     }
     return context;
 };

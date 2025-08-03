@@ -3,39 +3,72 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 import { Link, useNavigate } from 'react-router-dom';
 import { useSharedValue } from './context/shareValue';
 
-interface User {
-    id: number;
-    name: string;
-    email: string;
-    password: string;
-}
-
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     const navigate = useNavigate();
-    const { setSharedValue } = useSharedValue();
-
-    // Handle login form submission and authentication
+    const { setUser } = useSharedValue();
+    // Handle login form submission
     const handleLogin = async (event: React.FormEvent) => {
         event.preventDefault();
-        const response = await fetch('http://localhost:4000/users');
-        const data = await response.json();
-        const user = data.find((user: User) => user.email === email && user.password === password);
-        setSharedValue(user);
-        if (!user) {
-            alert('Invalid email or password');
-            return;
+        setLoading(true);
+        setError('');
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include', // This includes cookies
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Login failed');
+            }
+
+            // Store user data only (no tokens!)
+            sessionStorage.setItem('user', JSON.stringify(data.user));
+            setUser(data.user);
+            navigate('/dashboard');
+
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                setError(error.message || 'Login failed');
+            } else {
+                setError('Login failed');
+            }
+        } finally {
+            setLoading(false);
         }
-        sessionStorage.setItem('user', JSON.stringify(user.id));
-        navigate('/dashboard');
+    };
+
+    const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setEmail(e.target.value);
+        if (error) setError('');
+    };
+
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPassword(e.target.value);
+        if (error) setError('');
     };
 
     useEffect(() => {
         document.title = "Login - Rider Management System";
-    }, []);
+
+        // Check if already logged in
+        const user = sessionStorage.getItem('user');
+        if (user) {
+            navigate('/dashboard');
+        }
+    }, [navigate]);
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-white px-4">
@@ -48,53 +81,70 @@ const Login = () => {
                     <p className="text-sm text-gray-500">Sign in to continue</p>
                 </div>
 
+                {/* Error Message */}
+                {error && (
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                        {error}
+                    </div>
+                )}
+
                 {/* Login Form */}
                 <form onSubmit={handleLogin} className="flex flex-col gap-4">
-                    {/* Email Input */}
                     <input
                         type="email"
                         placeholder="Email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        autoComplete="email"
-                        className="w-full border border-gray-300 px-4 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1680E4]"
+                        onChange={handleEmailChange}
+                        required
+                        disabled={loading}
+                        className="w-full border border-gray-300 px-4 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1680E4] disabled:opacity-50"
                     />
 
-                    {/* Password Input with show/hide toggle */}
                     <div className="relative">
                         <input
                             type={showPassword ? "text" : "password"}
                             placeholder="Password"
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            autoComplete="current-password"
-                            className="w-full border border-gray-300 px-4 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1680E4]"
+                            onChange={handlePasswordChange}
+                            required
+                            disabled={loading}
+                            className="w-full border border-gray-300 px-4 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1680E4] disabled:opacity-50"
                         />
                         <button
                             type="button"
-                            onClick={() => setShowPassword((prev) => !prev)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                            tabIndex={-1}
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                            disabled={loading}
                         >
                             {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
                         </button>
                     </div>
 
-                    {/* Sign In Button */}
                     <button
                         type="submit"
-                        className="w-full bg-[#1680E4] hover:bg-[#126dcc] text-white py-2 rounded-lg text-sm font-medium transition"
+                        disabled={loading || !email || !password}
+                        className="w-full bg-[#1680E4] hover:bg-[#126dcc] text-white py-2 rounded-lg text-sm font-medium transition disabled:opacity-50 flex items-center justify-center"
                     >
-                        Sign In
+                        {loading ? (
+                            <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                Signing in...
+                            </div>
+                        ) : (
+                            'Sign In'
+                        )}
                     </button>
                 </form>
 
-                {/* Forgot Password Link */}
+                {/* Test Credentials */}
+                {/* <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <p className="text-xs text-blue-700 font-medium mb-1">Test Credentials:</p>
+                    <p className="text-xs text-blue-600">Email: superadmin@example.com</p>
+                    <p className="text-xs text-blue-600">Password: superadmin123</p>
+                </div> */}
+
                 <div className="text-center">
-                    <Link
-                        to="/forgotPassword"
-                        className="text-xs underline text-[#1680E4] hover:text-[#0f5db1] transition"
-                    >
+                    <Link to="/forgot-Password" className="text-xs underline text-[#1680E4]">
                         Forgot Password?
                     </Link>
                 </div>
@@ -102,4 +152,5 @@ const Login = () => {
         </div>
     );
 }
+
 export default Login;

@@ -3,7 +3,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
-import { ValueProvider } from './components/context/valueContext.tsx';
+import { SharedValueProvider } from './components/context/shareValue.tsx';
 import './index.css';
 
 const theme = createTheme({
@@ -31,11 +31,11 @@ const theme = createTheme({
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
-      <ValueProvider>
+      <SharedValueProvider>
         <BrowserRouter>
           <App />
         </BrowserRouter>
-      </ValueProvider>
+      </SharedValueProvider>
     </ThemeProvider>
   </StrictMode>,
 )
