@@ -208,9 +208,9 @@ const Rider = () => {
         console.log('Starting delete for rider ID:', id);
 
         try {
-            console.log('Making DELETE request to:', `{ import.meta.env.VITE_API_URL }/admin/rider/${id}`);
+            console.log('Making DELETE request to:', `${import.meta.env.VITE_API_URL}/admin/rider/${id}`);
 
-            const response = await fetch(`{ import.meta.env.VITE_API_URL }/admin/rider/${id}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/rider/${id}`, {
                 method: "DELETE",
                 credentials: 'include',
                 headers: {
