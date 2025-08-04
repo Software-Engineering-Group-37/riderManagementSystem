@@ -671,7 +671,7 @@ const RiderModal: FC<{
                                 <button
                                     onClick={() => setShowDeleteConfirm(true)}
                                     disabled={!canDelete}
-                                    className={`p-2 rounded-lg transition ${canDelete
+                                    className={`p-4 rounded-lg transition ${canDelete
                                         ? 'bg-red-500 hover:bg-red-600 text-white'
                                         : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                         } `}
