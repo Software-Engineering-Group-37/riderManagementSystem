@@ -12,7 +12,6 @@ import {
     FiInfo,
     FiRefreshCw,
     FiTool,
-    FiTrash2,
     FiUser,
     FiUsers
 } from "react-icons/fi";
@@ -270,14 +269,6 @@ const Notification: FC = () => {
                                     Mark All Read
                                 </button>
                             )}
-
-                            <button
-                                onClick={() => setShowClearDialog(true)}
-                                className="flex items-center gap-2 px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition"
-                            >
-                                <FiTrash2 size={16} />
-                                Clear Read
-                            </button>
 
                             <button
                                 onClick={fetchNotifications}

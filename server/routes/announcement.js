@@ -4,7 +4,7 @@ import { verifyAdmin, verifySuperAdmin, verifyToken } from '../middleware/auth.j
 
 const router = express.Router();
 
-// Get all announcements for notifications (show to all admins/riders)
+// Show all active announcements to all admins/riders
 router.get('/announcements', verifyToken, verifyAdmin, async (req, res) => {
     try {
         const result = await pool.query(`
@@ -26,7 +26,6 @@ router.get('/announcements', verifyToken, verifyAdmin, async (req, res) => {
         `);
         res.status(200).json(result.rows);
     } catch (error) {
-        console.error('Error fetching announcements:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -139,6 +138,32 @@ router.delete('/announcement/:id', verifyToken, verifySuperAdmin, async (req, re
         });
     } catch (error) {
         console.error('Error deleting announcement:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Show only announcements created by the logged-in superadmin
+router.get('/announcements/mine', verifyToken, verifySuperAdmin, async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT 
+                a.id,
+                a.title,
+                a.content,
+                a.type,
+                a.priority,
+                a.target_audience,
+                a.is_active,
+                a.expires_at,
+                a.created_at,
+                u.name as created_by_admin
+            FROM announcements a
+            JOIN users u ON a.created_by = u.id
+            WHERE a.created_by = $1
+            ORDER BY a.created_at DESC
+        `, [req.user.id]);
+        res.status(200).json(result.rows);
+    } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
