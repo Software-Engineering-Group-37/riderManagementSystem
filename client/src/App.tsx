@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import './App.css';
 import Admin from './components/Admin';
 import Dashboard from './components/Dashboard';
@@ -11,6 +11,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Rider from './components/Rider';
 import Shift from './components/Shift';
 import SystemSettings from './components/SystemSetting';
+
 
 const App = () => {
     return (
@@ -72,7 +73,7 @@ const App = () => {
             <Route path="/forgot-password" element={<ForgotPassword />} />
 
             {/* Fallback */}
-            {/* <Route path="*" element={<Navigate to="/login" replace />} /> */}
+            <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
     );
 }
