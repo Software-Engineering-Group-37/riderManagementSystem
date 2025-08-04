@@ -3,6 +3,7 @@ import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
 import { Box, Paper, Tab, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, TableSortLabel, Tabs } from "@mui/material";
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet@1.9.4/dist/leaflet.css';
 import React, { useCallback, useEffect, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import Menu from './Menu';
