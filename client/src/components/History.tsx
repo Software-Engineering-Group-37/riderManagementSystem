@@ -257,7 +257,7 @@ const History = () => {
             if (selectedAdmin) params.append('adminId', selectedAdmin);
 
             const response = await fetch(
-                `{ import.meta.env.VITE_API_URL } / admin / audit - logs / ${selectedType} /export?${params}`,
+                `{ import.meta.env.VITE_API_URL } / admin / audit-logs / ${selectedType} /export?${params}`,
                 { credentials: 'include' }
             );
 
@@ -269,7 +269,7 @@ const History = () => {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${selectedType} - audit - ${new Date().toISOString().split('T')[0]}.csv`;
+            a.download = `${selectedType}-audit-${new Date().toISOString().split('T')[0]}.csv`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -306,7 +306,7 @@ const History = () => {
 
     // Initialize component
     useEffect(() => {
-        document.title = "History - Rider Management System";
+        document.title = "History-Rider Management System";
         const handleResize = () => setWidth(window.innerWidth);
         window.addEventListener("resize", handleResize);
 
@@ -350,7 +350,7 @@ const History = () => {
                             {/* Role indicator */}
                             <div className="flex items-center gap-2 mt-2">
                                 <span className="text-xs text-gray-500">Viewing as:</span>
-                                <span className={`px - 2 py - 1 rounded - full text - xs font - medium ${isSuperAdmin
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${isSuperAdmin
                                     ? 'bg-red-100 text-red-800'
                                     : 'bg-blue-100 text-blue-800'
                                     }`}>
@@ -588,10 +588,10 @@ const AuditTable: FC<AuditTableProps> = ({
                             {log.start_date?.split('T')[0]} to {log.end_date?.split('T')[0]}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {log.start_time} - {log.end_time}
+                            {log.start_time}-{log.end_time}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px - 2 py - 1 text - xs rounded - full ${log.status === 'completed' ? 'bg-green-100 text-green-800' :
+                            <span className={`px-2 py-1 text-xs rounded-full ${log.status === 'completed' ? 'bg-green-100 text-green-800' :
                                 log.status === 'cancelled' ? 'bg-red-100 text-red-800' :
                                     'bg-yellow-100 text-yellow-800'
                                 }`}>
@@ -614,7 +614,7 @@ const AuditTable: FC<AuditTableProps> = ({
                             {log.rider_phone}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px - 2 py - 1 text - xs rounded - full ${log.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            <span className={`px-2 py-1 text-xs rounded-full ${log.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                                 }`}>
                                 {log.is_active ? 'Active' : 'Inactive'}
                             </span>
@@ -780,7 +780,7 @@ const AuditTable: FC<AuditTableProps> = ({
                                         <button
                                             key={page}
                                             onClick={() => onPageChange(page)}
-                                            className={`px - 3 py - 1 text - sm rounded ${page === currentPage
+                                            className={`px-3 py-1 text-sm rounded ${page === currentPage
                                                 ? 'bg-blue-600 text-white'
                                                 : 'border border-gray-300 hover:bg-gray-50'
                                                 }`}

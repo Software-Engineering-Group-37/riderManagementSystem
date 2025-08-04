@@ -77,14 +77,14 @@ const Admin = () => {
             console.log('📡 Response status:', response.status);
 
             if (response.status === 401) {
-                console.log('Unauthorized - clearing session');
+                console.log('Unauthorized-clearing session');
                 sessionStorage.removeItem('user');
                 window.location.href = '/login';
                 return;
             }
 
             if (response.status === 403) {
-                console.log('Forbidden - insufficient permissions');
+                console.log('Forbidden-insufficient permissions');
                 displayAlert("You don't have permission to view admin management", "error");
                 return;
             }
@@ -110,7 +110,7 @@ const Admin = () => {
     }, [user]);
 
     useEffect(() => {
-        document.title = "Admin Management - Rider Management System";
+        document.title = "Admin Management-Rider Management System";
         const handleResize = () => setWidth(window.innerWidth);
         window.addEventListener("resize", handleResize);
 

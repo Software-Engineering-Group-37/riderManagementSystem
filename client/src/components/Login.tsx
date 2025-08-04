@@ -61,7 +61,7 @@ const Login = () => {
     };
 
     useEffect(() => {
-        document.title = "Login - Rider Management System";
+        document.title = "Login-Rider Management System";
 
         // Check if already logged in
         const user = sessionStorage.getItem('user');

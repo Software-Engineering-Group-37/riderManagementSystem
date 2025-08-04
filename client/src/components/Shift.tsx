@@ -545,7 +545,7 @@ const Shift = () => {
                 const data: ShiftData[] = await response.json();
                 console.log('Fetched shifts data:', data);
 
-                // Convert to FullCalendar events - now using pre-formatted datetime strings
+                // Convert to FullCalendar events-now using pre-formatted datetime strings
                 const calendarEvents: CalendarEvent[] = data
                     .filter((shift) => shift.shift_id && shift.rider_name && shift.zone_name)
                     .map((shift) => ({
@@ -577,7 +577,7 @@ const Shift = () => {
         };
 
         fetchShifts();
-        document.title = "Shift - Rider Management System";
+        document.title = "Shift-Rider Management System";
 
         const handleResize = () => setWidth(window.innerWidth);
         window.addEventListener("resize", handleResize);

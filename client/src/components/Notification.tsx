@@ -209,7 +209,7 @@ const Notification: FC = () => {
 
     // Initialize component
     useEffect(() => {
-        document.title = "Notifications - Rider Management System";
+        document.title = "Notifications-Rider Management System";
         const handleResize = () => setWidth(window.innerWidth);
         window.addEventListener("resize", handleResize);
 
@@ -449,7 +449,7 @@ const NotificationCard: FC<NotificationCardProps> = ({
         };
 
         return (
-            <span className={`px - 2 py - 1 text - xs rounded - full ${colors[priority as keyof typeof colors]}`}>
+            <span className={`px-2 py-1 text-xs rounded-full ${colors[priority as keyof typeof colors]}`}>
                 {priority.charAt(0).toUpperCase() + priority.slice(1)}
             </span>
         );

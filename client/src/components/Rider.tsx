@@ -6,7 +6,7 @@ import Menu from "./Menu";
 import SmallMenu from "./SmallMenu";
 import { useSharedValue } from './context/shareValue';
 
-// Move these interfaces to the top - before they're used
+// Move these interfaces to the top-before they're used
 interface AddRiderData {
     name: string;
     phone: string;
@@ -91,7 +91,7 @@ const Rider = () => {
     }, [user]);
 
     useEffect(() => {
-        document.title = "Rider - Rider Management System";
+        document.title = "Rider-Rider Management System";
         const handleResize = () => setWidth(window.innerWidth);
         window.addEventListener("resize", handleResize);
 
@@ -100,7 +100,7 @@ const Rider = () => {
         return () => window.removeEventListener("resize", handleResize);
     }, [user, fetchRiders]);
 
-    // Add Rider handler - now with proper typing (no more any!)
+    // Add Rider handler-now with proper typing (no more any!)
     const handleAddRider = async (riderData: AddRiderData) => {
         try {
             // Show loading state
@@ -145,7 +145,7 @@ const Rider = () => {
         }
     };
 
-    // Edit Rider handler - now with proper typing (no more any!)
+    // Edit Rider handler-now with proper typing (no more any!)
     const handleEditRider = async (riderData: EditRiderData) => {
         if (!selectedRider) return;
 
@@ -225,7 +225,7 @@ const Rider = () => {
             console.log("Delete response text:", responseText);
 
             if (response.status === 401) {
-                console.log('Unauthorized - redirecting to login');
+                console.log('Unauthorized-redirecting to login');
                 sessionStorage.removeItem('user');
                 window.location.href = '/login';
                 return;
@@ -474,7 +474,7 @@ const SearchBar: FC<SearchBarProps> = ({
             {/* Toggle Inactive Button */}
             <button
                 onClick={() => onToggleInactive(!showInactive)}
-                className={`px - 3 py - 2 rounded - md text - sm transition ${showInactive
+                className={`px-3 py-2 rounded-md text-sm transition ${showInactive
                     ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
@@ -524,7 +524,7 @@ const RiderCard: FC<RiderCardProps> = ({ rider, onEdit, onDelete, onReactivate }
             {/* Status Badge */}
             {!rider.is_active && (
                 <div className="flex justify-center">
-                    <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full">
+                    <span className="px-4 py-2 bg-orange-100 text-orange-700 text-xs rounded-full">
                         Inactive
                     </span>
                 </div>
@@ -581,7 +581,7 @@ const RiderCard: FC<RiderCardProps> = ({ rider, onEdit, onDelete, onReactivate }
     );
 };
 
-// Fix the Modal interface - no more any!
+// Fix the Modal interface-no more any!
 const RiderModal: FC<{
     title: string;
     rider?: RiderType;
@@ -671,7 +671,7 @@ const RiderModal: FC<{
                                 <button
                                     onClick={() => setShowDeleteConfirm(true)}
                                     disabled={!canDelete}
-                                    className={`p - 2 rounded - lg transition ${canDelete
+                                    className={`p-2 rounded-lg transition ${canDelete
                                         ? 'bg-red-500 hover:bg-red-600 text-white'
                                         : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                         } `}
@@ -724,9 +724,9 @@ const RiderModal: FC<{
                         onChange={(e) => setEmail(e.target.value)}
                     />
 
-                    {/* Password field - for both adding and editing */}
+                    {/* Password field-for both adding and editing */}
                     {!isEditing ? (
-                        // Add mode - password required
+                        // Add mode-password required
                         <div className="space-y-2">
                             <div className="flex gap-2 items-center">
                                 <input
@@ -754,7 +754,7 @@ const RiderModal: FC<{
                             </p>
                         </div>
                     ) : (
-                        // Edit mode - password optional with checkbox
+                        // Edit mode-password optional with checkbox
                         <div className="space-y-3">
                             <div className="flex items-center gap-2">
                                 <input
@@ -818,7 +818,7 @@ const RiderModal: FC<{
 
                 {/* Action Buttons */}
                 <div className="flex justify-between pt-4 border-t">
-                    {/* Left side - Status change button (only in edit mode) */}
+                    {/* Left side-Status change button (only in edit mode) */}
                     <div>
                         {isEditing && rider && (
                             <>
@@ -847,7 +847,7 @@ const RiderModal: FC<{
                         )}
                     </div>
 
-                    {/* Right side - Cancel & Save buttons */}
+                    {/* Right side-Cancel & Save buttons */}
                     <div className="flex gap-3">
                         <button
                             className="px-6 py-2 rounded-xl bg-gray-200 hover:bg-gray-300 transition"

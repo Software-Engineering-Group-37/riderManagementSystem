@@ -186,7 +186,7 @@ const SystemSettings: FC = () => {
 
     //     setConfigLoading(true);
     //     try {
-    //         const response = await fetch(`{ import.meta.env.VITE_API_URL } / admin / system - config', {
+    //         const response = await fetch(`{ import.meta.env.VITE_API_URL } / admin / system-config', {
     //             credentials: 'include'
     //         });
 
@@ -212,7 +212,7 @@ const SystemSettings: FC = () => {
 
     // Initialize component
     useEffect(() => {
-        document.title = "System Settings - Rider Management System";
+        document.title = "System Settings-Rider Management System";
         const handleResize = () => setWidth(window.innerWidth);
         window.addEventListener("resize", handleResize);
 
@@ -1301,7 +1301,7 @@ const AnnouncementModal: FC<AnnouncementModalProps> = ({ announcement, onClose, 
 
 //         setSubmitting(true);
 //         try {
-//             const response = await fetch(`{ import.meta.env.VITE_API_URL } /admin/system - config', {
+//             const response = await fetch(`{ import.meta.env.VITE_API_URL } /admin/system-config', {
 //                 method: 'PUT',
 //                 headers: { 'Content-Type': 'application/json' },
 //                 credentials: 'include',

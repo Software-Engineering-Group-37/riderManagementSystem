@@ -47,7 +47,7 @@ const Profile = () => {
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
 
-    document.title = "Profile - Rider Management System";
+    document.title = "Profile-Rider Management System";
 
     // Helper to show alert
     const displayAlert = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
@@ -438,7 +438,7 @@ const Profile = () => {
                                                     />
                                                 </label>
 
-                                                {/* Remove photo button - only show if there's a photo */}
+                                                {/* Remove photo button-only show if there's a photo */}
                                                 {avatarSrc && !avatarFile && (
                                                     <button
                                                         onClick={removeProfilePhoto}

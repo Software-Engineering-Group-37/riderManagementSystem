@@ -203,7 +203,7 @@ const Dashboard = () => {
             return;
         }
 
-        document.title = 'Dashboard - Rider Management System';
+        document.title = 'Dashboard-Rider Management System';
         fetchDashboardStats();
         fetchTodayShifts();
     }, [user, fetchDashboardStats, fetchTodayShifts]);
@@ -278,7 +278,7 @@ const Dashboard = () => {
                 {/* Fullscreen Header */}
                 <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center">
                     <h1 className="text-xl font-semibold text-gray-800 bg-white px-4 py-2 rounded-lg shadow-md">
-                        {`Hello ${name} - Today's Shifts`}
+                        {`Hello ${name}-Today's Shifts`}
                     </h1>
                     <button
                         onClick={toggleFullscreen}
@@ -321,7 +321,7 @@ const Dashboard = () => {
                                     <div className="text-sm">
                                         <strong>{shift.rider_name}</strong><br />
                                         Zone: {shift.zone_name}<br />
-                                        Time: {shift.start_time} - {shift.end_time}<br />
+                                        Time: {shift.start_time}-{shift.end_time}<br />
                                         Status: <span className={`capitalize font-medium ${shift.status === 'assigned' ? 'text-green-600' :
                                             shift.status === 'active' ? 'text-blue-600' :
                                                 shift.status === 'completed' ? 'text-purple-600' :
@@ -460,7 +460,7 @@ const Dashboard = () => {
                                                 <div className="text-sm">
                                                     <strong>{shift.rider_name}</strong><br />
                                                     Zone: {shift.zone_name}<br />
-                                                    Time: {shift.start_time} - {shift.end_time}<br />
+                                                    Time: {shift.start_time}-{shift.end_time}<br />
                                                     Status: <span className={`capitalize font-medium ${shift.status === 'assigned' ? 'text-green-600' :
                                                         shift.status === 'active' ? 'text-blue-600' :
                                                             shift.status === 'completed' ? 'text-purple-600' :
@@ -733,7 +733,7 @@ const EditShiftModal: React.FC<EditShiftModalProps> = ({
                     />
                 </div>
 
-                {/* Status Section - Similar to Shift Modal */}
+                {/* Status Section-Similar to Shift Modal */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                         Status
