@@ -825,7 +825,7 @@ const RiderModal: FC<{
                                 {isActive ? (
                                     /* Deactivate button for active riders */
                                     <button
-                                        className={`px - 4 py - 2 rounded - xl transition ${canDelete
+                                        className={`px-4 py-2 rounded-xl transition ${canDelete
                                             ? 'bg-red-500 text-white hover:bg-red-600'
                                             : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                             } `}
