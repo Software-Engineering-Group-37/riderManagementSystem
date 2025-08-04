@@ -174,7 +174,7 @@ const Dashboard = () => {
 
     const fetchTodayShifts = useCallback(async () => {
         try {
-            const response = await fetch(`{ import.meta.env.VITE_API_URL } / admin / shifts / today`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/shifts/today`, {
                 credentials: 'include'
             });
 
