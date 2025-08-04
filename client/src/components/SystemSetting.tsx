@@ -156,7 +156,7 @@ const SystemSettings: FC = () => {
 
         setAnnouncementsLoading(true);
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/announcements`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/announcements/mine`, {
                 credentials: 'include'
             });
 
