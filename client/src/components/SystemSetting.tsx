@@ -186,7 +186,7 @@ const SystemSettings: FC = () => {
 
     //     setConfigLoading(true);
     //     try {
-    //         const response = await fetch(`{ import.meta.env.VITE_API_URL } / admin / system-config', {
+    //         const response = await fetch(`{ import.meta.env.VITE_API_URL }/admin/system-config', {
     //             credentials: 'include'
     //         });
 
@@ -696,7 +696,7 @@ const ZoneManagement: FC<ZoneManagementProps> = ({ zones, loading, onRefresh, on
         }
 
         try {
-            const response = await fetch(`{ import.meta.env.VITE_API_URL } /admin/zone / ${zone.id} `, {
+            const response = await fetch(`{ import.meta.env.VITE_API_URL } /admin/zone/${zone.id} `, {
                 method: 'DELETE',
                 credentials: 'include'
             });

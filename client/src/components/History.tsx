@@ -257,7 +257,7 @@ const History = () => {
             if (selectedAdmin) params.append('adminId', selectedAdmin);
 
             const response = await fetch(
-                `{ import.meta.env.VITE_API_URL } / admin / audit-logs / ${selectedType} /export?${params}`,
+                `{ import.meta.env.VITE_API_URL }/admin/audit-logs/${selectedType} /export?${params}`,
                 { credentials: 'include' }
             );
 

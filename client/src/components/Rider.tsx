@@ -150,7 +150,7 @@ const Rider = () => {
         if (!selectedRider) return;
 
         try {
-            const response = await fetch(`{ import.meta.env.VITE_API_URL } / admin / rider / ${selectedRider.id}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/rider/${selectedRider.id}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 credentials: 'include',
@@ -208,9 +208,9 @@ const Rider = () => {
         console.log('Starting delete for rider ID:', id);
 
         try {
-            console.log('Making DELETE request to:', `{ import.meta.env.VITE_API_URL } / admin / rider / ${id}`);
+            console.log('Making DELETE request to:', `{ import.meta.env.VITE_API_URL }/admin/rider/${id}`);
 
-            const response = await fetch(`{ import.meta.env.VITE_API_URL } / admin / rider / ${id}`, {
+            const response = await fetch(`{ import.meta.env.VITE_API_URL }/admin/rider/${id}`, {
                 method: "DELETE",
                 credentials: 'include',
                 headers: {
@@ -273,7 +273,7 @@ const Rider = () => {
     // Reactivate Rider handler
     const handleReactivateRider = async (id: string) => {
         try {
-            const response = await fetch(`{ import.meta.env.VITE_API_URL } / admin / rider / ${id} / activate`, {
+            const response = await fetch(`{ import.meta.env.VITE_API_URL }/admin/rider/${id}/activate`, {
                 method: "PUT",
                 credentials: 'include'
             });
@@ -671,7 +671,7 @@ const RiderModal: FC<{
                                 <button
                                     onClick={() => setShowDeleteConfirm(true)}
                                     disabled={!canDelete}
-                                    className={`p-4 rounded-lg transition ${canDelete
+                                    className={`p-2 rounded-lg transition ${canDelete
                                         ? 'bg-red-500 hover:bg-red-600 text-white'
                                         : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                         } `}
