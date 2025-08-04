@@ -56,7 +56,7 @@ export const verifyToken = async (req, res, next) => {
                 res.cookie('accessToken', newAccessToken, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'strict',
+                    sameSite: 'none',
                     maxAge: 60 * 60 * 1000 // 1 hour
                 });
 

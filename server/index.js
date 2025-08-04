@@ -23,7 +23,7 @@ const PORT = process.env.PORT || 4000;
 
 //only cors for my react app
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: process.env.CLIENT_URL,
     credentials: true,
     }));
 
