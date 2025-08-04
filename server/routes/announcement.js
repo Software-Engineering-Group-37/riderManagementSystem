@@ -4,7 +4,7 @@ import { verifyAdmin, verifySuperAdmin, verifyToken } from '../middleware/auth.j
 
 const router = express.Router();
 
-// Get all announcements
+// Get all announcements for notifications (show to all admins/riders)
 router.get('/announcements', verifyToken, verifyAdmin, async (req, res) => {
     try {
         const result = await pool.query(`
@@ -21,10 +21,9 @@ router.get('/announcements', verifyToken, verifyAdmin, async (req, res) => {
                 u.name as created_by_admin
             FROM announcements a
             JOIN users u ON a.created_by = u.id
-            WHERE a.created_by = $1
+            WHERE a.is_active = true
             ORDER BY a.created_at DESC
-        `, [req.user.id]);
-        
+        `);
         res.status(200).json(result.rows);
     } catch (error) {
         console.error('Error fetching announcements:', error);
