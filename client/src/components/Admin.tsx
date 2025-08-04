@@ -616,6 +616,7 @@ const AdminModal: FC<{
     const [password, setPassword] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
     const [roles, setRoles] = useState<{ id: string; name: string }[]>([]);
+    const [modalAlert, setModalAlert] = useState<{ message: string; type?: 'success' | 'error' | 'info' } | null>(null);
 
     // Fetch available roles
     useEffect(() => {
@@ -649,7 +650,10 @@ const AdminModal: FC<{
 
     const handleSubmit = () => {
         if (!name || !email || !roleName) return;
-
+        if (!isValidEmail(email)) {
+            setModalAlert({ message: "Email not valid", type: "error" });
+            return;
+        }
         if (isEditing) {
             // For editing, password is optional
             onSubmit({ name, email, roleName, ...(password && { password }) });
@@ -663,6 +667,9 @@ const AdminModal: FC<{
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-[#ffffff74] bg-opacity-50 z-50">
             <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md space-y-5 max-h-[90vh] overflow-y-auto">
+                {modalAlert && (
+                    <Alert message={modalAlert.message} type={modalAlert.type} />
+                )}
                 {/* Modal Title */}
                 <h2 className="text-xl font-semibold text-gray-800">{title}</h2>
 
@@ -748,3 +755,5 @@ const AdminModal: FC<{
         </div>
     );
 };
+const isValidEmail = (email: string) =>
+    /^[\w.-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);

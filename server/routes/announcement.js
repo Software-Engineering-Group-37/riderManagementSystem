@@ -21,8 +21,9 @@ router.get('/announcements', verifyToken, verifyAdmin, async (req, res) => {
                 u.name as created_by_admin
             FROM announcements a
             JOIN users u ON a.created_by = u.id
+            WHERE a.created_by = $1
             ORDER BY a.created_at DESC
-        `);
+        `, [req.user.id]);
         
         res.status(200).json(result.rows);
     } catch (error) {

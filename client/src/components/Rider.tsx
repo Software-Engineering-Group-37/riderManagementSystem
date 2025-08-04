@@ -598,7 +598,8 @@ const RiderModal: FC<{
     const [isGenerating, setIsGenerating] = useState(false);
     const [updatePassword, setUpdatePassword] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    const [showReactivateConfirm, setShowReactivateConfirm] = useState(false); // Add this
+    const [showReactivateConfirm, setShowReactivateConfirm] = useState(false);
+    const [modalAlert, setModalAlert] = useState<{ message: string; type?: 'success' | 'error' | 'info' } | null>(null);
 
     // Generate a random password for the rider
     const generatePassword = () => {
@@ -614,7 +615,14 @@ const RiderModal: FC<{
 
     const handleSubmit = () => {
         if (!name || !phone || !email) return;
-
+        if (!isValidPhone(phone)) {
+            setModalAlert({ message: "Phone must be 10 digits and start with 0", type: "error" });
+            return;
+        }
+        if (!isValidEmail(email)) {
+            setModalAlert({ message: "Email not valid", type: "error" });
+            return;
+        }
         if (isEditing) {
             const editData: EditRiderData & { password?: string } = { name, phone, email };
             if (updatePassword && password) {
@@ -650,6 +658,9 @@ const RiderModal: FC<{
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-[#ffffff75] bg-opacity-50 z-50">
             <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md space-y-5 max-h-[90vh] overflow-y-auto">
+                {modalAlert && (
+                    <Alert message={modalAlert.message} type={modalAlert.type} />
+                )}
                 {/* Modal Title */}
                 <div className="flex justify-between items-center">
                     <h2 className="text-xl font-semibold text-gray-800">{title}</h2>
@@ -917,3 +928,7 @@ const RiderModal: FC<{
         </div>
     );
 };
+
+const isValidPhone = (phone: string) => /^0\d{9}$/.test(phone);
+const isValidEmail = (email: string) =>
+    /^[\w.-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email);
