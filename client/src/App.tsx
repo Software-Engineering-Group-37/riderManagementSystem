@@ -73,7 +73,7 @@ const App = () => {
             <Route path="/forgot-password" element={<ForgotPassword />} />
 
             {/* Fallback */}
-            <Route path="*" element={<Navigate to="/login" replace />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
     );
 }
