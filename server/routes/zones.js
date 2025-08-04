@@ -59,7 +59,7 @@ router.post('/zones', verifyToken, verifySuperAdmin, async (req, res) => {
         const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(name + ', Ghana')}&limit=1`;
         const geoResponse = await fetch(nominatimUrl, {
             headers: {
-                'User-Agent': 'RiderManagementSystem/1.0 (your-email@example.com)'
+                'User-Agent': 'RiderManagementSystem/1.0 (emamonoo@st.ug.edu.gh)'
             }
         });
         const geoData = await geoResponse.json();
