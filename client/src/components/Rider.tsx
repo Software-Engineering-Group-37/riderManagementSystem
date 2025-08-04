@@ -273,7 +273,7 @@ const Rider = () => {
     // Reactivate Rider handler
     const handleReactivateRider = async (id: string) => {
         try {
-            const response = await fetch(`{ import.meta.env.VITE_API_URL }/admin/rider/${id}/activate`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/rider/${id}/activate`, {
                 method: "PUT",
                 credentials: 'include'
             });
