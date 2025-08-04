@@ -57,7 +57,11 @@ router.post('/zones', verifyToken, verifySuperAdmin, async (req, res) => {
     try {
         // Fetch coordinates from Nominatim API
         const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(name + ', Ghana')}&limit=1`;
-        const geoResponse = await fetch(nominatimUrl);
+        const geoResponse = await fetch(nominatimUrl, {
+            headers: {
+                'User-Agent': 'RiderManagementSystem/1.0 (your-email@example.com)'
+            }
+        });
         const geoData = await geoResponse.json();
         
         let latitude = null;
