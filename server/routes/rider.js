@@ -328,15 +328,13 @@ router.post('/registerRider', verifyToken, verifyAdmin, async (req, res) => {
             });
         }
         
-        // Check if email already exists
-        const checkResult = await pool.query(
-            'SELECT id FROM riders WHERE email = $1',
-            [email]
-        );
+        // Check if email already exists in riders or users
+        const riderEmailCheck = await pool.query('SELECT id FROM riders WHERE email = $1', [email]);
+        const adminEmailCheck = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
 
-        if (checkResult.rowCount > 0) {
+        if (riderEmailCheck.rowCount > 0 || adminEmailCheck.rowCount > 0) {
             await pool.query("ROLLBACK");
-            return res.status(400).json({ error: 'Email already exists!' });
+            return res.status(400).json({ error: 'Email already exists for another rider or admin!' });
         }
 
         // Hash password and insert new rider
