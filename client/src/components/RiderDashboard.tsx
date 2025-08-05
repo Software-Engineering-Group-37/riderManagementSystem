@@ -54,6 +54,7 @@ const RiderDashboard = () => {
     const [notifications, setNotifications] = useState<Announcement[]>([]);
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const prevShiftIds = useRef<Set<string>>(new Set());
 
     // Fetch profile (on load and after photo upload)
     const fetchProfile = useCallback(async () => {
@@ -195,7 +196,7 @@ const RiderDashboard = () => {
                 if (Notification.permission === "granted") {
                     new Notification(n.title, {
                         body: n.content,
-                        icon: "/zippy_logo.svg"
+                        icon: "zippy_logo.svg"
                     });
                 }
             });
@@ -207,6 +208,30 @@ const RiderDashboard = () => {
             Notification.requestPermission();
         }
     }, []);
+
+    useEffect(() => {
+        if (!profile?.shifts) return;
+
+        // Get current and previous shift IDs
+        const currentIds = new Set(profile.shifts.map(s => s.shift_id));
+        const prevIds = prevShiftIds.current;
+
+        // Find new shifts (present now, not before)
+        const newShifts = profile.shifts.filter(s => !prevIds.has(s.shift_id));
+
+        // Show notification for each new shift
+        if ("Notification" in window && Notification.permission === "granted") {
+            newShifts.forEach(shift => {
+                new Notification("New Shift Assigned!", {
+                    body: `Shift on ${new Date(shift.start_date).toLocaleDateString()} (${shift.start_time.slice(0, 5)} - ${shift.end_time.slice(0, 5)}) in ${shift.zone_name}`,
+                    icon: "zippy_logo.svg"
+                });
+            });
+        }
+
+        // Update previous shift IDs
+        prevShiftIds.current = currentIds;
+    }, [profile?.shifts]);
 
     if (loading) {
         return (

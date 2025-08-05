@@ -95,11 +95,7 @@ const SmallMenu: React.FC = () => {
     // Filter menu items based on user role
     const normalizedRole = user?.role_name?.toLowerCase() || '';
     const availableMenuItems = menuItems.filter(item =>
-        item.roles.some(role =>
-            role === 'superadmin'
-                ? normalizedRole === 'superadmin'
-                : normalizedRole !== 'superadmin'
-        )
+        item.roles.includes(normalizedRole)
     );
     return (
         <>
