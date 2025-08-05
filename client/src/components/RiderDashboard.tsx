@@ -55,35 +55,51 @@ const RiderDashboard = () => {
 
     // Fetch profile (on load and after photo upload)
     const fetchProfile = useCallback(async () => {
-        setLoading(true);
         try {
-            // Fetch rider profile
             const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/riders/profile`, { credentials: 'include' });
             if (!res.ok) throw new Error('Failed to load profile');
             const data = await res.json();
-
-            // Fetch rider shifts
-            const shiftsRes = await fetch(`${import.meta.env.VITE_API_URL}/admin/me`, { credentials: 'include' });
-            let shifts: Shift[] = [];
-            if (shiftsRes.ok) {
-                const shiftData = await shiftsRes.json();
-                shifts = shiftData.shifts || [];
-            }
-
-            setProfile({ ...data, shifts });
             setName(data.name);
             setPhotoUrl(data.photo_url);
             setUser({ ...user!, photo_url: data.photo_url, name: data.name });
+            return data;
         } catch {
             setAlert({ message: 'Failed to load profile', type: 'error' });
-        } finally {
-            setLoading(false);
+            return null;
         }
     }, [user, setUser]);
 
+    const fetchShifts = useCallback(async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/rider/me`, { credentials: 'include' });
+            if (!res.ok) throw new Error('Failed to load shifts');
+            const data = await res.json();
+            return data.shifts || [];
+        } catch {
+            setAlert({ message: 'Failed to load shifts', type: 'error' });
+            return [];
+        }
+    }, []);
+
+    // Fetch profile on mount and after photo/name update
     useEffect(() => {
-        fetchProfile();
+        setLoading(true);
+        fetchProfile()
+            .then(profileData => {
+                if (profileData) {
+                    setProfile(prev => ({ ...profileData, shifts: prev?.shifts || [] }));
+                }
+            })
+            .finally(() => setLoading(false));
     }, [fetchProfile]);
+
+    // Fetch shifts on mount and when needed
+    useEffect(() => {
+        fetchShifts()
+            .then(shifts => {
+                setProfile(prev => prev ? { ...prev, shifts } : prev);
+            });
+    }, [fetchShifts]);
 
     // Fetch announcements for rider
     useEffect(() => {
