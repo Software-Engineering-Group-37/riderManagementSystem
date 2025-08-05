@@ -142,6 +142,7 @@ export const verifySuperAdmin = async (req, res, next) => {
 
 // Middleware to verify rider role
 export const verifyRider = async (req, res, next) => {
+    console.log('Verifying rider role for user:', req.user);
     try {
         if (req.user.role !== 'rider') {
             return res.status(403).json({ error: 'Access denied. Rider role required.' });
