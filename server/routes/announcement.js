@@ -1,11 +1,11 @@
 import express from 'express';
 import pool from '../database/dbPool.js';
-import { verifyAdmin, verifySuperAdmin, verifyToken } from '../middleware/auth.js';
+import { verifySuperAdmin, verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // Show all active announcements to all admins/riders
-router.get('/announcements', verifyToken, verifyAdmin, async (req, res) => {
+router.get('/announcements', verifyToken, async (req, res) => {
     try {
         const result = await pool.query(`
             SELECT 
