@@ -57,6 +57,7 @@ const RiderDashboard = () => {
     const fetchProfile = useCallback(async () => {
         setLoading(true);
         try {
+            // Fetch rider profile
             const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/riders/profile`, { credentials: 'include' });
             if (!res.ok) throw new Error('Failed to load profile');
             const data = await res.json();
@@ -79,6 +80,7 @@ const RiderDashboard = () => {
     useEffect(() => {
         const fetchNotifications = async () => {
             try {
+                // Fetch announcements
                 const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/announcements`, {
                     credentials: 'include'
                 });
@@ -106,6 +108,7 @@ const RiderDashboard = () => {
         }
         try {
             setLoading(true);
+            // Update rider profile
             const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/rider-profile`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -134,6 +137,7 @@ const RiderDashboard = () => {
             const formData = new FormData();
             formData.append('avatar', file);
 
+            // Upload rider avatar
             const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/rider-profile/avatar`, {
                 method: 'POST',
                 credentials: 'include',
