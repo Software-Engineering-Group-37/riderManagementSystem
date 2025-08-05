@@ -465,3 +465,4 @@ router.post('/rider-profile/avatar', verifyToken, upload.single('avatar'), async
     if (result.rows.length === 0) return res.status(404).json({ error: 'Rider not found' });
     res.status(200).json({ photo_url: photoUrl, success: true });
 });
+export default router;
