@@ -8,18 +8,15 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, requiredRoles, fallback }: ProtectedRouteProps) => {
-    const { user } = useSharedValue();
+    const { isSuperAdmin, isRegularAdmin, isRider } = useSharedValue();
 
-    const normalizedRole = user?.role_name?.toLowerCase();
     let hasAccess = false;
-    if (normalizedRole) {
-        if (requiredRoles.includes('superadmin') && normalizedRole === 'superadmin') {
-            hasAccess = true;
-        } else if (requiredRoles.includes('admin') && normalizedRole !== 'superadmin' && normalizedRole !== 'rider') {
-            hasAccess = true;
-        } else if (requiredRoles.includes('rider') && normalizedRole === 'rider') {
-            hasAccess = true;
-        }
+    if (requiredRoles.includes('superadmin') && isSuperAdmin) {
+        hasAccess = true;
+    } else if (requiredRoles.includes('admin') && isRegularAdmin) {
+        hasAccess = true;
+    } else if (requiredRoles.includes('rider') && isRider) {
+        hasAccess = true;
     }
 
     if (!hasAccess) {

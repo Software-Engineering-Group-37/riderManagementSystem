@@ -17,6 +17,7 @@ interface SharedValueContextType {
     isSuperAdmin: boolean;
     isRegularAdmin: boolean;
     isAnyAdmin: boolean;
+    isRider: boolean;
     logout: () => Promise<void>;
     isLoading: boolean;
 }
@@ -33,8 +34,10 @@ export const SharedValueProvider = ({ children }: { children: ReactNode }) => {
     // Role helpers
     const isSuperAdmin = user?.role_name?.toLowerCase() === 'superadmin';
     // If not superadmin and user exists, treat as regular admin
-    const isRegularAdmin = !!user && !isSuperAdmin;
-    const isAnyAdmin = !!user;
+    const isRegularAdmin = !!user && !!user.role_name && !isSuperAdmin;
+    const isAnyAdmin = !!user && !!user.role_name;
+    // Rider: user exists and does NOT have a role_name property
+    const isRider = !!user && !user.role_name;
 
     // Set user and sync with sessionStorage
     const setUser = (newUser: User | null) => {
@@ -72,6 +75,7 @@ export const SharedValueProvider = ({ children }: { children: ReactNode }) => {
             isSuperAdmin,
             isRegularAdmin,
             isAnyAdmin,
+            isRider, // <-- add this
             logout,
             isLoading
         }}>
