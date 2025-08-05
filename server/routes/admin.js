@@ -159,7 +159,6 @@ router.post('/login', async (req, res) => {
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'none',
             maxAge: 60 * 60 * 1000, // 1 hour
-            domain: process.env.CLIENT_URL
         });
 
         res.cookie('refreshToken', refreshToken, {
@@ -167,7 +166,7 @@ router.post('/login', async (req, res) => {
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'none',
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-            domain: process.env.CLIENT_URL
+            
         });
 
         // Return user data (without password and tokens)
@@ -244,7 +243,7 @@ router.post('/refresh', async (req, res) => {
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'none',
             maxAge: 60 * 60 * 1000, // 1 hour
-            domain: process.env.CLIENT_URL
+            
         });
 
         res.cookie('refreshToken', newRefreshToken, {
@@ -252,7 +251,7 @@ router.post('/refresh', async (req, res) => {
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'none',
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-            domain: process.env.CLIENT_URL
+            
         });
 
         res.json({ message: 'Tokens refreshed successfully' });

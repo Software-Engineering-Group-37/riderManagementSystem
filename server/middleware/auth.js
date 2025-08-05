@@ -58,7 +58,7 @@ export const verifyToken = async (req, res, next) => {
                     secure: process.env.NODE_ENV === 'production',
                     sameSite: 'none',
                     maxAge: 60 * 60 * 1000, // 1 hour
-                    domain: process.env.CLIENT_URL
+                    
                 });
 
                 req.user = {
