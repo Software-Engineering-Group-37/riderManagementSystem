@@ -167,6 +167,30 @@ router.get('/profile', verifyToken, async (req, res) => {
     }
 });
 
+router.get('/riders/profile', verifyToken, async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT 
+                u.id,
+                u.name,
+                u.email,
+                u.photo_url,
+                u.created_at,
+            FROM riders u
+            WHERE u.id = $1
+        `, [req.user.id]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const user = result.rows[0];
+        res.status(200).json(user);
+    } catch (error) {
+        console.error('Error fetching profile:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 // Update profile information
 router.put('/profile', verifyToken, async (req, res) => {
     try {
