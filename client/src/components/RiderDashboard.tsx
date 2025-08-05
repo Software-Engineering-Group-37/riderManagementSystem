@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FiCamera, FiCheck, FiEdit2, FiLogOut, FiX } from 'react-icons/fi';
 import Alert from './Alert';
+import ConfirmDialog from './ConfirmDialog';
 import { useSharedValue } from './context/shareValue';
 
 interface Shift {
@@ -44,13 +45,14 @@ interface Announcement {
 const RiderDashboard = () => {
     const { user, setUser, logout } = useSharedValue();
     const [profile, setProfile] = useState<RiderProfile | null>(null);
-    // const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
     const [alert, setAlert] = useState<{ message: string; type?: 'success' | 'error' | 'info' } | null>(null);
     const [editName, setEditName] = useState(false);
     const [name, setName] = useState('');
     const [photoUrl, setPhotoUrl] = useState<string | undefined>('');
     const [uploading, setUploading] = useState(false);
     const [notifications, setNotifications] = useState<Announcement[]>([]);
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Fetch profile (on load and after photo upload)
@@ -90,7 +92,7 @@ const RiderDashboard = () => {
                     setProfile(prev => ({ ...profileData, shifts: prev?.shifts || [] }));
                 }
             })
-        // .finally(() => setLoading(false));
+            .finally(() => setLoading(false));
     }, [fetchProfile]);
 
     // Fetch shifts on mount and when needed
@@ -132,7 +134,7 @@ const RiderDashboard = () => {
             return;
         }
         try {
-            // setLoading(true);
+            setLoading(true);
             // Update rider profile
             const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/rider-profile`, {
                 method: 'PUT',
@@ -149,7 +151,7 @@ const RiderDashboard = () => {
         } catch {
             setAlert({ message: 'Failed to update name', type: 'error' });
         } finally {
-            // setLoading(false);
+            setLoading(false);
         }
     };
 
@@ -205,14 +207,14 @@ const RiderDashboard = () => {
         }
     }, []);
 
-    // if (loading) {
-    // return (
-    //         <div className="flex h-screen items-center justify-center bg-gray-50">
-    //             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-    //             <span className="ml-3 text-gray-600">Loading dashboard...</span>
-    //         </div>
-    //     );
-    // }
+    if (loading) {
+        return (
+            <div className="flex h-screen items-center justify-center bg-gray-50">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <span className="ml-3 text-gray-600">Loading dashboard...</span>
+            </div>
+        );
+    }
 
     if (!profile) {
         return <div className="flex h-screen items-center justify-center text-gray-500">Profile not found.</div>;
@@ -263,7 +265,7 @@ const RiderDashboard = () => {
                         />
                     </div>
                     <button
-                        onClick={logout}
+                        onClick={() => setShowLogoutConfirm(true)}
                         className="flex items-center gap-1 px-3 py-2 bg-red-50 text-red-600 rounded hover:bg-red-100 transition"
                         title="Logout"
                     >
@@ -314,41 +316,64 @@ const RiderDashboard = () => {
                     </div>
                 </div>
 
-                {/* Shifts Table */}
-                <div className="w-full bg-white rounded-2xl shadow-lg p-5 overflow-x-auto">
+                {/* Shifts List */}
+                <div className="w-full bg-white rounded-2xl shadow-lg p-5">
                     <h2 className="text-lg font-semibold mb-4 text-blue-700">My Shifts</h2>
                     {profile.shifts && profile.shifts.length === 0 ? (
                         <div className="text-gray-500">No shifts assigned yet.</div>
                     ) : (
-                        <table className="min-w-full text-sm">
-                            <thead>
-                                <tr className="bg-blue-50">
-                                    <th className="py-2 px-3 text-left">Date</th>
-                                    <th className="py-2 px-3 text-left">Time</th>
-                                    <th className="py-2 px-3 text-left">Zone</th>
-                                    <th className="py-2 px-3 text-left">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {profile.shifts && profile.shifts.map(shift => (
-                                    <tr key={shift.shift_id} className="border-b last:border-b-0">
-                                        <td className="py-2 px-3">{shift.start_date} - {shift.end_date}</td>
-                                        <td className="py-2 px-3">{shift.start_time} - {shift.end_time}</td>
-                                        <td className="py-2 px-3">{shift.zone_name}</td>
-                                        <td className="py-2 px-3">
-                                            <span className={`capitalize px-2 py-1 rounded text-xs font-medium ${shift.status === 'assigned' ? 'bg-green-100 text-green-800' :
+                        <div className="flex flex-col gap-4">
+                            {profile.shifts && profile.shifts.map(shift => {
+                                // Format dates and times
+                                const startDate = new Date(shift.start_date);
+                                const endDate = new Date(shift.end_date);
+                                const startTime = shift.start_time.slice(0, 5); // "HH:mm"
+                                const endTime = shift.end_time.slice(0, 5);     // "HH:mm"
+                                const dateString = startDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) +
+                                    (shift.start_date !== shift.end_date
+                                        ? ` - ${endDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}`
+                                        : '');
+
+                                return (
+                                    <div key={shift.shift_id} className="border rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between bg-blue-50">
+                                        <div>
+                                            <div className="font-semibold text-blue-800">{dateString}</div>
+                                            <div className="text-gray-700 text-sm">
+                                                {startTime} - {endTime}
+                                            </div>
+                                            <div className="text-gray-600 text-sm">Zone: {shift.zone_name}</div>
+                                        </div>
+                                        <div className="mt-2 sm:mt-0">
+                                            <span className={`capitalize px-3 py-1 rounded text-xs font-medium ${shift.status === 'assigned' ? 'bg-green-100 text-green-800' :
                                                 shift.status === 'ongoing' ? 'bg-blue-100 text-blue-800' :
                                                     shift.status === 'completed' ? 'bg-purple-100 text-purple-800' :
                                                         shift.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                                                            'bg-gray-100 text-gray-800'}`}>{shift.status}</span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                                            'bg-gray-100 text-gray-800'
+                                                }`}>
+                                                {shift.status}
+                                            </span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     )}
                 </div>
             </main>
+
+            <ConfirmDialog
+                isOpen={showLogoutConfirm}
+                title="Confirm Logout"
+                message="Are you sure you want to log out?"
+                confirmText="Logout"
+                cancelText="Cancel"
+                onConfirm={() => {
+                    setShowLogoutConfirm(false);
+                    logout();
+                }}
+                onCancel={() => setShowLogoutConfirm(false)}
+                type="danger"
+            />
         </div>
     );
 };
