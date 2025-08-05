@@ -44,7 +44,7 @@ const RiderDashboard = () => {
         const fetchProfile = async () => {
             setLoading(true);
             try {
-                const res = await fetch(`${import.meta.env.VITE_API_URL}/rider/me`, { credentials: 'include' });
+                const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/rider/me`, { credentials: 'include' });
                 if (res.status === 401) {
                     sessionStorage.removeItem('user');
                     window.location.href = '/login';
@@ -72,7 +72,7 @@ const RiderDashboard = () => {
         }
         try {
             setLoading(true);
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/rider/me`, {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/rider/me`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -102,7 +102,7 @@ const RiderDashboard = () => {
             reader.onloadend = async () => {
                 const base64 = reader.result as string;
                 // Save to backend
-                const res = await fetch(`${import.meta.env.VITE_API_URL}/rider/me`, {
+                const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/rider/me`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
