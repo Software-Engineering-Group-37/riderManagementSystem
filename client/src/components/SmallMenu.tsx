@@ -79,7 +79,7 @@ const SmallMenu: React.FC = () => {
             icon: "systemsetting.png",
             active: "systemsettingA.png",
             alt: "System Settings Icon",
-            link: "/systemSettings",
+            link: "/system-settings",
             roles: ['superadmin']
         },
         {
@@ -95,7 +95,11 @@ const SmallMenu: React.FC = () => {
     // Filter menu items based on user role
     const normalizedRole = user?.role_name?.toLowerCase() || '';
     const availableMenuItems = menuItems.filter(item =>
-        item.roles.includes(normalizedRole)
+        item.roles.some(role =>
+            role === 'superadmin'
+                ? normalizedRole === 'superadmin'
+                : normalizedRole !== 'superadmin'
+        )
     );
     return (
         <>
