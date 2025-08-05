@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FiCamera, FiCheck, FiEdit2, FiLogOut, FiX } from 'react-icons/fi';
 import Alert from './Alert';
@@ -27,6 +27,20 @@ interface RiderProfile {
     shifts: Shift[];
 }
 
+interface Announcement {
+    id: string;
+    title: string;
+    content: string;
+    type: 'info' | 'warning' | 'urgent' | 'maintenance';
+    priority: 'low' | 'normal' | 'high' | 'urgent';
+    target_audience: string;
+    is_active: boolean;
+    expires_at?: string;
+    created_at: string;
+    created_by_admin: string;
+    is_read?: boolean;
+}
+
 const RiderDashboard = () => {
     const { user, setUser, logout } = useSharedValue();
     const [profile, setProfile] = useState<RiderProfile | null>(null);
@@ -36,31 +50,53 @@ const RiderDashboard = () => {
     const [name, setName] = useState('');
     const [photoUrl, setPhotoUrl] = useState<string | undefined>('');
     const [uploading, setUploading] = useState(false);
+    const [notifications, setNotifications] = useState<Announcement[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Fetch rider profile and shifts
+    // Fetch profile (on load and after photo upload)
+    const fetchProfile = useCallback(async () => {
+        setLoading(true);
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/profile`, { credentials: 'include' });
+            if (!res.ok) throw new Error('Failed to load profile');
+            const data = await res.json();
+            setProfile((prev) => prev ? { ...prev, ...data } : data);
+            setName(data.name);
+            setPhotoUrl(data.photo_url);
+            setUser({ ...user!, photo_url: data.photo_url, name: data.name });
+        } catch {
+            setAlert({ message: 'Failed to load profile', type: 'error' });
+        } finally {
+            setLoading(false);
+        }
+    }, [user, setUser]);
+
     useEffect(() => {
-        const fetchProfile = async () => {
-            setLoading(true);
+        fetchProfile();
+        // Optionally, fetch shifts separately if needed
+    }, [fetchProfile]);
+
+    // Fetch announcements for rider
+    useEffect(() => {
+        const fetchNotifications = async () => {
             try {
-                const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/me`, { credentials: 'include' });
-                if (res.status === 401) {
-                    sessionStorage.removeItem('user');
-                    window.location.href = '/login';
-                    return;
-                }
-                if (!res.ok) throw new Error('Failed to load profile');
-                const data: RiderProfile = await res.json();
-                setProfile(data);
-                setName(data.name);
-                setPhotoUrl(data.photo_url);
+                const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/announcements`, {
+                    credentials: 'include'
+                });
+                if (!res.ok) throw new Error('Failed to fetch notifications');
+                const data = await res.json();
+                // Optionally filter for active and relevant to riders
+                const riderNotifs = data.filter(
+                    (n: Announcement) =>
+                        n.is_active &&
+                        (n.target_audience === 'riders' || n.target_audience === 'all')
+                );
+                setNotifications(riderNotifs);
             } catch {
-                setAlert({ message: 'Failed to load profile', type: 'error' });
-            } finally {
-                setLoading(false);
+                // Optionally handle error
             }
         };
-        fetchProfile();
+        fetchNotifications();
     }, []);
 
     // Handle name edit
@@ -106,18 +142,40 @@ const RiderDashboard = () => {
             });
 
             if (!res.ok) throw new Error('Failed to upload photo');
-            const data = await res.json();
+            await res.json();
 
-            setPhotoUrl(data.photo_url);
-            setProfile((prev) => prev ? { ...prev, photo_url: data.photo_url } : prev);
+            // Fetch the latest profile to get the new photo_url
+            await fetchProfile();
+
             setAlert({ message: 'Profile photo updated', type: 'success' });
-            setUser({ ...user!, photo_url: data.photo_url });
         } catch {
             setAlert({ message: 'Failed to update photo', type: 'error' });
         } finally {
             setUploading(false);
         }
     };
+
+    // Notification logic (example)
+    useEffect(() => {
+        if (notifications.length > 0 && "Notification" in window) {
+            // Find unread, high-priority, or new notifications
+            const newNotifs = notifications.filter(n => !n.is_read && n.priority === 'urgent');
+            newNotifs.forEach(n => {
+                if (Notification.permission === "granted") {
+                    new Notification(n.title, {
+                        body: n.content,
+                        icon: "/zippy_logo.svg"
+                    });
+                }
+            });
+        }
+    }, [notifications]);
+
+    useEffect(() => {
+        if ("Notification" in window && Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+    }, []);
 
     if (loading) {
         return (
