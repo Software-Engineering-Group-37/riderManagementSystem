@@ -20,26 +20,47 @@ const Login = () => {
         setError('');
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/login`, {
+            // Try admin login first
+            let response = await fetch(`${import.meta.env.VITE_API_URL}/admin/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                credentials: 'include', // This includes cookies
+                credentials: 'include',
                 body: JSON.stringify({ email, password })
             });
 
-            const data = await response.json();
+            let data = await response.json();
 
-            if (!response.ok) {
-                throw new Error(data.error || 'Login failed');
+            if (response.ok) {
+                sessionStorage.setItem('user', JSON.stringify(data.user));
+                sessionStorage.setItem('role', 'admin');
+                setUser(data.user);
+                navigate('/dashboard');
+                return;
             }
 
-            // Store user data only (no tokens!)
-            sessionStorage.setItem('user', JSON.stringify(data.user));
-            setUser(data.user);
-            navigate('/dashboard');
+            // If admin login fails, try rider login
+            response = await fetch(`${import.meta.env.VITE_API_URL}/rider/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ email, password })
+            });
 
+            data = await response.json();
+
+            if (response.ok) {
+                sessionStorage.setItem('user', JSON.stringify(data.user));
+                sessionStorage.setItem('role', 'rider');
+                setUser(data.user);
+                navigate('/dashboard');
+                return;
+            }
+
+            throw new Error(data.error || 'Login failed');
         } catch (error: unknown) {
             if (error instanceof Error) {
                 setError(error.message || 'Login failed');
