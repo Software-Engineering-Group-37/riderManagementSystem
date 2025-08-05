@@ -63,7 +63,7 @@ const RiderDashboard = () => {
             const data = await res.json();
 
             // Fetch rider shifts
-            const shiftsRes = await fetch(`${import.meta.env.VITE_API_URL}/admin/rider/me`, { credentials: 'include' });
+            const shiftsRes = await fetch(`${import.meta.env.VITE_API_URL}/admin/me`, { credentials: 'include' });
             let shifts: Shift[] = [];
             if (shiftsRes.ok) {
                 const shiftData = await shiftsRes.json();
