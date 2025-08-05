@@ -345,6 +345,7 @@ const ShiftModal = ({ isOpen, onClose, date, onAssign, editingShift }: ShiftModa
                                     type="date"
                                     value={startDate}
                                     onChange={(e) => setStartDate(e.target.value)}
+                                    min={new Date().toISOString().split('T')[0]} // today
                                     className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     disabled={submitting}
                                 />
@@ -358,7 +359,7 @@ const ShiftModal = ({ isOpen, onClose, date, onAssign, editingShift }: ShiftModa
                                     type="date"
                                     value={endDate}
                                     onChange={(e) => setEndDate(e.target.value)}
-                                    min={startDate}
+                                    min={startDate || new Date().toISOString().split('T')[0]} // can't be before startDate
                                     className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     disabled={submitting}
                                 />
@@ -847,6 +848,9 @@ const Shift = () => {
                         eventResizableFromStart={false}
                         select={handleSelect}  // Handle multi-day selection
                         selectConstraint={{  // Only allow future date selection
+                            start: new Date().toISOString().split('T')[0]
+                        }}
+                        validRange={{
                             start: new Date().toISOString().split('T')[0]
                         }}
                     />

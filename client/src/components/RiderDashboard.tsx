@@ -115,15 +115,13 @@ const RiderDashboard = () => {
                 });
                 if (!res.ok) throw new Error('Failed to fetch notifications');
                 const data = await res.json();
-                // Optionally filter for active and relevant to riders
                 const riderNotifs = data.filter(
-                    (n: Announcement) =>
-                        n.is_active &&
-                        (n.target_audience === 'riders' || n.target_audience === 'all')
+                    (n: Announcement) => n.is_active
                 );
                 setNotifications(riderNotifs);
             } catch {
-                // Optionally handle error
+                console.error('Failed to fetch notifications');
+                setAlert({ message: 'Failed to load notifications', type: 'error' });
             }
         };
         fetchNotifications();
@@ -255,13 +253,15 @@ const RiderDashboard = () => {
         const end = new Date(shift.end_date);
         start.setHours(0, 0, 0, 0);
         end.setHours(0, 0, 0, 0);
-        return start <= today && today <= end;
+        // Only shifts that start and end today
+        return start.getTime() === today.getTime() && end.getTime() === today.getTime();
     });
 
     const upcomingShifts = profile.shifts.filter(shift => {
         const start = new Date(shift.start_date);
         start.setHours(0, 0, 0, 0);
-        return start > today;
+        // Shifts that start after today
+        return start.getTime() > today.getTime();
     });
 
     return (
@@ -331,17 +331,17 @@ const RiderDashboard = () => {
                                         className="border border-gray-300 rounded px-2 py-1 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400"
                                         value={name}
                                         onChange={e => setName(e.target.value)}
-                                    // disabled={loading}
+                                        disabled={loading}
                                     />
                                     <button
                                         className="ml-1 px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
                                         onClick={handleNameSave}
-                                    // disabled={loading}
+                                        disabled={loading}
                                     ><FiCheck /></button>
                                     <button
                                         className="ml-1 px-2 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
                                         onClick={() => { setEditName(false); setName(profile.name); }}
-                                    // disabled={loading}
+                                        disabled={loading}
                                     ><FiX /></button>
                                 </>
                             ) : (
