@@ -11,9 +11,16 @@ const ProtectedRoute = ({ children, requiredRoles, fallback }: ProtectedRoutePro
     const { user } = useSharedValue();
 
     const normalizedRole = user?.role_name?.toLowerCase();
-    const hasAccess =
-        requiredRoles.includes('superadmin') && normalizedRole === 'superadmin'
-        || requiredRoles.includes('admin') && normalizedRole !== 'superadmin';
+    let hasAccess = false;
+    if (normalizedRole) {
+        if (requiredRoles.includes('superadmin') && normalizedRole === 'superadmin') {
+            hasAccess = true;
+        } else if (requiredRoles.includes('admin') && normalizedRole !== 'superadmin' && normalizedRole !== 'rider') {
+            hasAccess = true;
+        } else if (requiredRoles.includes('rider') && normalizedRole === 'rider') {
+            hasAccess = true;
+        }
+    }
 
     if (!hasAccess) {
         return fallback || (

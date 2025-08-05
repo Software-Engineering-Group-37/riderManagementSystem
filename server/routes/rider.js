@@ -2,7 +2,66 @@ import bcrypt from 'bcrypt';
 import express from 'express';
 import pool from '../database/dbPool.js';
 import { sendRiderPasswordUpdateEmail, sendRiderWelcomeEmail } from '../emailService.js';
-import { verifyAdmin, verifyToken } from '../middleware/auth.js';
+import { verifyAdmin, verifyRider, verifyToken } from '../middleware/auth.js';
+// ==================== RIDER SELF-SERVICE ROUTES ====================
+
+// Get current rider's profile and assigned shifts (protected for riders only)
+router.get('/me', verifyToken, verifyRider, async (req, res) => {
+    try {
+        const riderId = req.user.id;
+        // Get rider details
+        const riderResult = await pool.query(`
+            SELECT id, name, email, phone, photo_url, is_active, created_at
+            FROM riders WHERE id = $1
+        `, [riderId]);
+        if (riderResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Rider not found' });
+        }
+        // Get assigned shifts
+        const shiftsResult = await pool.query(`
+            SELECT 
+                s.id as shift_id,
+                s.start_date,
+                s.end_date,
+                s.start_time,
+                s.end_time,
+                s.status,
+                s.created_at,
+                z.name as zone_name,
+                u.name as assigned_by_admin
+            FROM shifts s
+            JOIN zones z ON s.zone_id = z.id
+            JOIN users u ON s.user_id = u.id
+            WHERE s.rider_id = $1
+            ORDER BY s.start_date DESC, s.start_time DESC
+        `, [riderId]);
+        const rider = riderResult.rows[0];
+        rider.shifts = shiftsResult.rows;
+        res.status(200).json(rider);
+    } catch (error) {
+        console.error('Error fetching rider self profile:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Update current rider's profile (name, photo_url)
+router.put('/me', verifyToken, verifyRider, async (req, res) => {
+    try {
+        const riderId = req.user.id;
+        const { name, photo_url } = req.body;
+        if (!name) {
+            return res.status(400).json({ error: 'Name is required' });
+        }
+        const result = await pool.query(
+            `UPDATE riders SET name = $1, photo_url = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3 RETURNING id, name, email, phone, photo_url, is_active, created_at, updated_at`,
+            [name, photo_url, riderId]
+        );
+        res.status(200).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error updating rider self profile:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 const router = express.Router();
 
 

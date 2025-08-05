@@ -9,6 +9,7 @@ import Notification from './components/Notification';
 import Profile from './components/Profile';
 import ProtectedRoute from './components/ProtectedRoute';
 import Rider from './components/Rider';
+import RiderDashboard from './components/RiderDashboard';
 import Shift from './components/Shift';
 import SystemSettings from './components/SystemSetting';
 
@@ -18,6 +19,13 @@ const App = () => {
         <Routes>
             {/* Public routes */}
             <Route path="/login" element={<Login />} />
+
+            {/* Rider Dashboard - only for riders */}
+            <Route path="/rider-dashboard" element={
+                <ProtectedRoute requiredRoles={['rider']}>
+                    <RiderDashboard />
+                </ProtectedRoute>
+            } />
 
             {/* Protected routes - Both Admin types */}
             <Route path="/dashboard" element={
