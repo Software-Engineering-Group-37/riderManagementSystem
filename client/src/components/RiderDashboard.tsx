@@ -97,11 +97,12 @@ const RiderDashboard = () => {
 
     // Fetch shifts on mount and when needed
     useEffect(() => {
+        if (!user) return; // Only fetch if user is set
         fetchShifts()
             .then(shifts => {
                 setProfile(prev => prev ? { ...prev, shifts } : prev);
             });
-    }, [fetchShifts]);
+    }, [user, fetchShifts]);
 
     // Fetch announcements for rider
     useEffect(() => {
@@ -220,6 +221,24 @@ const RiderDashboard = () => {
         return <div className="flex h-screen items-center justify-center text-gray-500">Profile not found.</div>;
     }
 
+    // Helper to split shifts
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const todaysShifts = profile.shifts.filter(shift => {
+        const start = new Date(shift.start_date);
+        const end = new Date(shift.end_date);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(0, 0, 0, 0);
+        return start <= today && today <= end;
+    });
+
+    const upcomingShifts = profile.shifts.filter(shift => {
+        const start = new Date(shift.start_date);
+        start.setHours(0, 0, 0, 0);
+        return start > today;
+    });
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex flex-col">
             <Helmet>
@@ -317,18 +336,59 @@ const RiderDashboard = () => {
                 </div>
 
                 {/* Shifts List */}
-                <div className="w-full bg-white rounded-2xl shadow-lg p-5">
-                    <h2 className="text-lg font-semibold mb-4 text-blue-700">My Shifts</h2>
-                    {profile.shifts && profile.shifts.length === 0 ? (
-                        <div className="text-gray-500">No shifts assigned yet.</div>
+                <div className="w-full bg-white rounded-2xl shadow-lg p-5 mb-6">
+                    <h2 className="text-lg font-semibold mb-4 text-blue-700">Today's Shifts</h2>
+                    {todaysShifts.length === 0 ? (
+                        <div className="text-gray-500">No shifts for today.</div>
                     ) : (
                         <div className="flex flex-col gap-4">
-                            {profile.shifts && profile.shifts.map(shift => {
-                                // Format dates and times
+                            {todaysShifts.map(shift => {
                                 const startDate = new Date(shift.start_date);
                                 const endDate = new Date(shift.end_date);
-                                const startTime = shift.start_time.slice(0, 5); // "HH:mm"
-                                const endTime = shift.end_time.slice(0, 5);     // "HH:mm"
+                                const startTime = shift.start_time.slice(0, 5);
+                                const endTime = shift.end_time.slice(0, 5);
+                                const dateString = startDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) +
+                                    (shift.start_date !== shift.end_date
+                                        ? ` - ${endDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}`
+                                        : '');
+
+                                return (
+                                    <div key={shift.shift_id} className="border rounded-lg p-4 flex flex-col sm:flex-row sm:items-center justify-between bg-blue-50">
+                                        <div>
+                                            <div className="font-semibold text-blue-800">{dateString}</div>
+                                            <div className="text-gray-700 text-sm">
+                                                {startTime} - {endTime}
+                                            </div>
+                                            <div className="text-gray-600 text-sm">Zone: {shift.zone_name}</div>
+                                        </div>
+                                        <div className="mt-2 sm:mt-0">
+                                            <span className={`capitalize px-3 py-1 rounded text-xs font-medium ${shift.status === 'assigned' ? 'bg-green-100 text-green-800' :
+                                                shift.status === 'ongoing' ? 'bg-blue-100 text-blue-800' :
+                                                    shift.status === 'completed' ? 'bg-purple-100 text-purple-800' :
+                                                        shift.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                                            'bg-gray-100 text-gray-800'
+                                                }`}>
+                                                {shift.status}
+                                            </span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+
+                <div className="w-full bg-white rounded-2xl shadow-lg p-5">
+                    <h2 className="text-lg font-semibold mb-4 text-blue-700">Upcoming Shifts</h2>
+                    {upcomingShifts.length === 0 ? (
+                        <div className="text-gray-500">No upcoming shifts.</div>
+                    ) : (
+                        <div className="flex flex-col gap-4">
+                            {upcomingShifts.map(shift => {
+                                const startDate = new Date(shift.start_date);
+                                const endDate = new Date(shift.end_date);
+                                const startTime = shift.start_time.slice(0, 5);
+                                const endTime = shift.end_time.slice(0, 5);
                                 const dateString = startDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) +
                                     (shift.start_date !== shift.end_date
                                         ? ` - ${endDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}`

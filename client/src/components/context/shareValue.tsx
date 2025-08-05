@@ -61,7 +61,7 @@ export const SharedValueProvider = ({ children }: { children: ReactNode }) => {
             // Ignore backend errors, always clear local state
             console.error('Logout failed:', error);
         } finally {
-            sessionStorage.removeItem('user');
+            sessionStorage.clear(); // Clears all sessionStorage keys
             setUserState(null);
             setIsLoading(false);
             window.location.href = '/login';
