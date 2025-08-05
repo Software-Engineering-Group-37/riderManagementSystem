@@ -57,7 +57,7 @@ const RiderDashboard = () => {
     const fetchProfile = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/profile`, { credentials: 'include' });
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/riders/profile`, { credentials: 'include' });
             if (!res.ok) throw new Error('Failed to load profile');
             const data = await res.json();
             setProfile((prev) => prev ? { ...prev, ...data } : data);
@@ -73,7 +73,6 @@ const RiderDashboard = () => {
 
     useEffect(() => {
         fetchProfile();
-        // Optionally, fetch shifts separately if needed
     }, [fetchProfile]);
 
     // Fetch announcements for rider
@@ -107,7 +106,7 @@ const RiderDashboard = () => {
         }
         try {
             setLoading(true);
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/me`, {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/rider-profile`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -126,7 +125,7 @@ const RiderDashboard = () => {
         }
     };
 
-    // Handle image upload (simulate upload, store as base64 for demo)
+    // Handle image upload (Cloudinary via backend)
     const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -135,7 +134,7 @@ const RiderDashboard = () => {
             const formData = new FormData();
             formData.append('avatar', file);
 
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/profile/avatar`, {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/rider-profile/avatar`, {
                 method: 'POST',
                 credentials: 'include',
                 body: formData,
@@ -289,7 +288,7 @@ const RiderDashboard = () => {
                 {/* Shifts Table */}
                 <div className="w-full bg-white rounded-2xl shadow-lg p-5 overflow-x-auto">
                     <h2 className="text-lg font-semibold mb-4 text-blue-700">My Shifts</h2>
-                    {profile.shifts.length === 0 ? (
+                    {profile.shifts && profile.shifts.length === 0 ? (
                         <div className="text-gray-500">No shifts assigned yet.</div>
                     ) : (
                         <table className="min-w-full text-sm">
@@ -302,7 +301,7 @@ const RiderDashboard = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {profile.shifts.map(shift => (
+                                {profile.shifts && profile.shifts.map(shift => (
                                     <tr key={shift.shift_id} className="border-b last:border-b-0">
                                         <td className="py-2 px-3">{shift.start_date} - {shift.end_date}</td>
                                         <td className="py-2 px-3">{shift.start_time} - {shift.end_time}</td>

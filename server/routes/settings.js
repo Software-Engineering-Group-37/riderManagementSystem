@@ -441,4 +441,27 @@ router.put('/profile/password', verifyToken, async (req, res) => {
     }
 });
 
-export default router;
+// Rider profile update (name, photo)
+router.put('/rider-profile', verifyToken, async (req, res) => {
+    const { name, photo_url } = req.body;
+    if (!name) return res.status(400).json({ error: 'Name is required' });
+
+    const result = await pool.query(
+        'UPDATE riders SET name = $1, photo_url = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3 RETURNING id, name, email, photo_url, created_at',
+        [name, photo_url, req.user.id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Rider not found' });
+    res.status(200).json(result.rows[0]);
+});
+
+// Rider avatar upload
+router.post('/rider-profile/avatar', verifyToken, upload.single('avatar'), async (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    const photoUrl = req.file.path;
+    const result = await pool.query(
+        'UPDATE riders SET photo_url = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING photo_url',
+        [photoUrl, req.user.id]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Rider not found' });
+    res.status(200).json({ photo_url: photoUrl, success: true });
+});
