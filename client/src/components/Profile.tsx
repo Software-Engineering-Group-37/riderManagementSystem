@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { FiArrowLeft, FiCamera, FiEdit2, FiEye, FiEyeOff, FiLock, FiSave, FiUser } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import Alert from './Alert';
@@ -332,6 +333,10 @@ const Profile = () => {
 
     return (
         <div className="flex h-screen overflow-hidden">
+            <Helmet>
+                <title>Profile - Rider Management System</title>
+                <meta name="description" content="Manage your profile settings and preferences." />
+            </Helmet>
             {/* Alert */}
             {alert && (
                 <div className="fixed top-6 right-6 z-50">

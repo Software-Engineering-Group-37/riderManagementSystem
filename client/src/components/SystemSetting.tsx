@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { useCallback, useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import {
     FiClock,
     FiEdit2,
@@ -254,6 +255,10 @@ const SystemSettings: FC = () => {
 
     return (
         <div className="flex h-screen overflow-hidden">
+            <Helmet>
+                <title>System Settings - Rider Management System</title>
+                <meta name="description" content="Manage roles, zones, announcements, and system configuration." />
+            </Helmet>
             {/* Alert */}
             {alert && (
                 <div className="fixed top-6 right-6 z-50">

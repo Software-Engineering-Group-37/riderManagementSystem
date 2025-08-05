@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
@@ -32,6 +33,10 @@ const ForgotPassword = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1680E4] to-[#1268ba] relative overflow-hidden">
+            <Helmet>
+                <title>Forgot Password - Rider Management System</title>
+                <meta name="description" content="Request a password reset for your account." />
+            </Helmet>
             {/* Decorative blurred circles */}
             <div className="absolute -top-20 -left-20 w-72 h-72 bg-[#1680E4] opacity-20 rounded-full blur-2xl z-0"></div>
             <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-[#1268ba] opacity-20 rounded-full blur-3xl z-0"></div>

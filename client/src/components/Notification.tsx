@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { useCallback, useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import {
     FiAlertCircle,
     FiAlertTriangle,
@@ -229,6 +230,10 @@ const Notification: FC = () => {
 
     return (
         <div className="flex h-screen overflow-hidden">
+            <Helmet>
+                <title>Notifications - Rider Management System</title>
+                <meta name="description" content="View and manage your notifications." />
+            </Helmet>
             {/* Alert */}
             {alert && (
                 <div className="fixed top-6 right-6 z-50">

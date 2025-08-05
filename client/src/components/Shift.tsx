@@ -4,6 +4,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { useCallback, useEffect, useState } from "react";
+import { Helmet } from 'react-helmet-async';
 import Select from 'react-select';
 import Alert from "./Alert";
 import Menu from "./Menu";
@@ -794,6 +795,10 @@ const Shift = () => {
 
     return (
         <div className="flex h-screen overflow-hidden">
+            <Helmet>
+                <title>Shift Management</title>
+                <meta name="description" content="Manage shifts and riders efficiently." />
+            </Helmet>
             {alert && <Alert message={alert.message} type={alert.type} />}
             {width > 968 ? <Menu /> : <SmallMenu />}
 

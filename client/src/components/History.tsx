@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { useCallback, useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import {
     FiClock,
     FiDownload,
@@ -332,6 +333,10 @@ const History = () => {
 
     return (
         <div className="flex h-screen overflow-hidden">
+            <Helmet>
+                <title>History - Rider Management System</title>
+                <meta name="description" content="View the history of rider activities and shifts." />
+            </Helmet>
             {alert && <Alert message={alert.message} type={alert.type} />}
             {width > 968 ? <Menu /> : <SmallMenu />}
 

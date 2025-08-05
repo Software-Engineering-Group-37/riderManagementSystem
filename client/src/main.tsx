@@ -1,6 +1,7 @@
 import { createTheme, ThemeProvider } from '@mui/material';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
 import { SharedValueProvider } from './components/context/shareValue.tsx';
@@ -31,11 +32,13 @@ const theme = createTheme({
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
-      <SharedValueProvider>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </SharedValueProvider>
+      <HelmetProvider>
+        <SharedValueProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </SharedValueProvider>
+      </HelmetProvider>
     </ThemeProvider>
   </StrictMode>,
 )

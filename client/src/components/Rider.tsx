@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { useCallback, useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { FiEdit2, FiMail, FiPhone, FiPlus, FiRefreshCw, FiSearch, FiTrash } from "react-icons/fi";
 import Alert from "./Alert";
 import Menu from "./Menu";
@@ -315,6 +316,10 @@ const Rider = () => {
 
     return (
         <div className="flex h-screen overflow-hidden">
+            <Helmet>
+                <title>Riders - Rider Management System</title>
+                <meta name="description" content="Manage riders, view their shifts and details." />
+            </Helmet>
             {/* Alert in the top-right corner */}
             {alert && (
                 <div className="fixed top-6 right-6 z-50">

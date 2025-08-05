@@ -5,6 +5,7 @@ import { Box, Paper, Tab, Table, TableBody, TableCell, TableContainer, TableHead
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import React, { useCallback, useEffect, useState } from "react";
+import { Helmet } from 'react-helmet-async';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import Menu from './Menu';
 import SmallMenu from './SmallMenu';
@@ -275,6 +276,10 @@ const Dashboard = () => {
     if (isFullscreen) {
         return (
             <div className="fixed inset-0 z-50 bg-white">
+                <Helmet>
+                    <title>Dashboard - Rider Management System</title>
+                    <meta name="description" content="Fullscreen view of today's shifts in the Rider Management System" />
+                </Helmet>
                 {/* Fullscreen Header */}
                 <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center">
                     <h1 className="text-xl font-semibold text-gray-800 bg-white px-4 py-2 rounded-lg shadow-md">

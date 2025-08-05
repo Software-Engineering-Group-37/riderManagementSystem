@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { Link, useNavigate } from 'react-router-dom';
 import { useSharedValue } from './context/shareValue';
@@ -72,6 +73,10 @@ const Login = () => {
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-white px-4">
+            <Helmet>
+                <title>Login - Rider Management System</title>
+                <meta name="description" content="Login to your account in the Rider Management System." />
+            </Helmet>
             <div className="border border-[#1680E4] p-8 rounded-2xl w-full max-w-[400px] bg-white shadow-lg space-y-6">
 
                 {/* Logo & Title */}
