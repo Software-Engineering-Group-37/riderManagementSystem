@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { FiCamera, FiCheck, FiEdit2, FiLogOut, FiX } from 'react-icons/fi';
 import Alert from './Alert';
 import { useSharedValue } from './context/shareValue';
-import Menu from './Menu';
-import SmallMenu from './SmallMenu';
 
 interface Shift {
     shift_id: string;
@@ -29,7 +28,7 @@ interface RiderProfile {
 }
 
 const RiderDashboard = () => {
-    const { user, setUser } = useSharedValue();
+    const { user, setUser, logout } = useSharedValue();
     const [profile, setProfile] = useState<RiderProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [alert, setAlert] = useState<{ message: string; type?: 'success' | 'error' | 'info' } | null>(null);
@@ -97,39 +96,28 @@ const RiderDashboard = () => {
         if (!file) return;
         setUploading(true);
         try {
-            // Convert to base64 (simulate upload)
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-                const base64 = reader.result as string;
-                // Save to backend
-                const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/me`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({ name, photo_url: base64 }),
-                });
-                if (!res.ok) throw new Error('Failed to update photo');
-                const updated = await res.json();
-                setPhotoUrl(updated.photo_url);
-                setProfile((prev) => prev ? { ...prev, photo_url: updated.photo_url } : prev);
-                setAlert({ message: 'Profile photo updated', type: 'success' });
-                setUser({ ...user!, photo_url: updated.photo_url });
-            };
-            reader.readAsDataURL(file);
+            const formData = new FormData();
+            formData.append('avatar', file);
+
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/profile/avatar`, {
+                method: 'POST',
+                credentials: 'include',
+                body: formData,
+            });
+
+            if (!res.ok) throw new Error('Failed to upload photo');
+            const data = await res.json();
+
+            setPhotoUrl(data.photo_url);
+            setProfile((prev) => prev ? { ...prev, photo_url: data.photo_url } : prev);
+            setAlert({ message: 'Profile photo updated', type: 'success' });
+            setUser({ ...user!, photo_url: data.photo_url });
         } catch {
             setAlert({ message: 'Failed to update photo', type: 'error' });
         } finally {
             setUploading(false);
         }
     };
-
-    // Responsive width
-    const [width, setWidth] = useState(window.innerWidth);
-    useEffect(() => {
-        const handleResize = () => setWidth(window.innerWidth);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
 
     if (loading) {
         return (
@@ -145,7 +133,7 @@ const RiderDashboard = () => {
     }
 
     return (
-        <div className="flex h-screen overflow-hidden">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex flex-col">
             <Helmet>
                 <title>Rider Dashboard - Rider Management System</title>
                 <meta name="description" content="Rider dashboard: view shifts, update profile." />
@@ -155,37 +143,56 @@ const RiderDashboard = () => {
                     <Alert message={alert.message} type={alert.type} />
                 </div>
             )}
-            {width > 968 ? <Menu /> : <SmallMenu />}
-            <div className="flex flex-col items-center w-full px-2 py-6 overflow-y-auto">
-                <h1 className="text-2xl font-bold mb-2">Welcome, {profile.name.split(' ')[0]}</h1>
-                <div className="flex flex-col md:flex-row gap-8 w-full max-w-4xl">
-                    {/* Profile Card */}
-                    <div className="bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center w-full md:w-1/3">
-                        <div className="relative group mb-3">
-                            <img
-                                src={photoUrl || '/rider.png'}
-                                alt="Profile"
-                                className="w-28 h-28 rounded-full object-cover border-4 border-blue-200 shadow"
-                                onError={e => (e.currentTarget.src = '/rider.png')}
-                            />
-                            <button
-                                className="absolute bottom-2 right-2 bg-blue-600 text-white rounded-full p-2 shadow hover:bg-blue-700 transition"
-                                onClick={() => fileInputRef.current?.click()}
-                                disabled={uploading}
-                                title="Change photo"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2a2.828 2.828 0 11-4-4 2.828 2.828 0 014 4z" /></svg>
-                            </button>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                ref={fileInputRef}
-                                onChange={handlePhotoChange}
-                                disabled={uploading}
-                            />
-                        </div>
-                        <div className="flex items-center gap-2 mb-2">
+
+            {/* Top Bar */}
+            <header className="flex items-center justify-between px-4 py-3 bg-white shadow-sm sticky top-0 z-10">
+                <div className="flex items-center gap-3">
+                    <img src="/zippy_logo.svg" alt="Logo" className="h-10" />
+                    <span className="font-bold text-lg text-blue-700">Rider Dashboard</span>
+                </div>
+                <div className="flex items-center gap-3">
+                    <div className="relative group">
+                        <img
+                            src={photoUrl || '/rider.png'}
+                            alt="Profile"
+                            className="w-10 h-10 rounded-full object-cover border-2 border-blue-200 shadow cursor-pointer"
+                            onClick={() => fileInputRef.current?.click()}
+                            onError={e => (e.currentTarget.src = '/rider.png')}
+                        />
+                        <button
+                            className="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-1 shadow hover:bg-blue-700 transition"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={uploading}
+                            title="Change photo"
+                        >
+                            <FiCamera className="w-4 h-4" />
+                        </button>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            ref={fileInputRef}
+                            onChange={handlePhotoChange}
+                            disabled={uploading}
+                        />
+                    </div>
+                    <button
+                        onClick={logout}
+                        className="flex items-center gap-1 px-3 py-2 bg-red-50 text-red-600 rounded hover:bg-red-100 transition"
+                        title="Logout"
+                    >
+                        <FiLogOut className="w-5 h-5" />
+                        <span className="hidden sm:inline">Logout</span>
+                    </button>
+                </div>
+            </header>
+
+            {/* Main Content */}
+            <main className="flex-1 flex flex-col items-center px-2 py-6 w-full max-w-3xl mx-auto">
+                {/* Profile Card */}
+                <div className="w-full bg-white rounded-2xl shadow-lg p-5 flex flex-col items-center mb-6">
+                    <div className="flex flex-col items-center w-full">
+                        <div className="flex items-center gap-2 mb-2 w-full justify-center">
                             {editName ? (
                                 <>
                                     <input
@@ -198,12 +205,12 @@ const RiderDashboard = () => {
                                         className="ml-1 px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
                                         onClick={handleNameSave}
                                         disabled={loading}
-                                    >Save</button>
+                                    ><FiCheck /></button>
                                     <button
                                         className="ml-1 px-2 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
                                         onClick={() => { setEditName(false); setName(profile.name); }}
                                         disabled={loading}
-                                    >Cancel</button>
+                                    ><FiX /></button>
                                 </>
                             ) : (
                                 <>
@@ -211,7 +218,7 @@ const RiderDashboard = () => {
                                     <button
                                         className="ml-1 px-2 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 text-sm"
                                         onClick={() => setEditName(true)}
-                                    >Edit</button>
+                                    ><FiEdit2 /></button>
                                 </>
                             )}
                         </div>
@@ -219,42 +226,43 @@ const RiderDashboard = () => {
                         <div className="text-gray-600 text-sm mb-1">{profile.phone}</div>
                         <div className="text-gray-500 text-xs">Member since {new Date(profile.created_at).toLocaleDateString()}</div>
                     </div>
-                    {/* Shifts Table */}
-                    <div className="flex-1 bg-white rounded-2xl shadow-lg p-6 overflow-x-auto">
-                        <h2 className="text-lg font-semibold mb-4">My Shifts</h2>
-                        {profile.shifts.length === 0 ? (
-                            <div className="text-gray-500">No shifts assigned yet.</div>
-                        ) : (
-                            <table className="min-w-full text-sm">
-                                <thead>
-                                    <tr className="bg-blue-50">
-                                        <th className="py-2 px-3 text-left">Date</th>
-                                        <th className="py-2 px-3 text-left">Time</th>
-                                        <th className="py-2 px-3 text-left">Zone</th>
-                                        <th className="py-2 px-3 text-left">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {profile.shifts.map(shift => (
-                                        <tr key={shift.shift_id} className="border-b last:border-b-0">
-                                            <td className="py-2 px-3">{shift.start_date} - {shift.end_date}</td>
-                                            <td className="py-2 px-3">{shift.start_time} - {shift.end_time}</td>
-                                            <td className="py-2 px-3">{shift.zone_name}</td>
-                                            <td className="py-2 px-3">
-                                                <span className={`capitalize px-2 py-1 rounded text-xs font-medium ${shift.status === 'assigned' ? 'bg-green-100 text-green-800' :
-                                                    shift.status === 'ongoing' ? 'bg-blue-100 text-blue-800' :
-                                                        shift.status === 'completed' ? 'bg-purple-100 text-purple-800' :
-                                                            shift.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                                                                'bg-gray-100 text-gray-800'}`}>{shift.status}</span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        )}
-                    </div>
                 </div>
-            </div>
+
+                {/* Shifts Table */}
+                <div className="w-full bg-white rounded-2xl shadow-lg p-5 overflow-x-auto">
+                    <h2 className="text-lg font-semibold mb-4 text-blue-700">My Shifts</h2>
+                    {profile.shifts.length === 0 ? (
+                        <div className="text-gray-500">No shifts assigned yet.</div>
+                    ) : (
+                        <table className="min-w-full text-sm">
+                            <thead>
+                                <tr className="bg-blue-50">
+                                    <th className="py-2 px-3 text-left">Date</th>
+                                    <th className="py-2 px-3 text-left">Time</th>
+                                    <th className="py-2 px-3 text-left">Zone</th>
+                                    <th className="py-2 px-3 text-left">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {profile.shifts.map(shift => (
+                                    <tr key={shift.shift_id} className="border-b last:border-b-0">
+                                        <td className="py-2 px-3">{shift.start_date} - {shift.end_date}</td>
+                                        <td className="py-2 px-3">{shift.start_time} - {shift.end_time}</td>
+                                        <td className="py-2 px-3">{shift.zone_name}</td>
+                                        <td className="py-2 px-3">
+                                            <span className={`capitalize px-2 py-1 rounded text-xs font-medium ${shift.status === 'assigned' ? 'bg-green-100 text-green-800' :
+                                                shift.status === 'ongoing' ? 'bg-blue-100 text-blue-800' :
+                                                    shift.status === 'completed' ? 'bg-purple-100 text-purple-800' :
+                                                        shift.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                                            'bg-gray-100 text-gray-800'}`}>{shift.status}</span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
+            </main>
         </div>
     );
 };
