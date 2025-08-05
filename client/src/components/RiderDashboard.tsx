@@ -71,7 +71,7 @@ const RiderDashboard = () => {
 
     const fetchShifts = useCallback(async () => {
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/rider/me`, { credentials: 'include' });
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/me`, { credentials: 'include' });
             if (!res.ok) throw new Error('Failed to load shifts');
             const data = await res.json();
             return data.shifts || [];
