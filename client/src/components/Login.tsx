@@ -56,7 +56,7 @@ const Login = () => {
                 sessionStorage.setItem('user', JSON.stringify(data.user));
                 sessionStorage.setItem('role', 'rider');
                 setUser(data.user);
-                navigate('/dashboard');
+                navigate('/rider-dashboard');
                 return;
             }
 
