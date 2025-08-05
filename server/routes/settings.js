@@ -175,7 +175,7 @@ router.get('/riders/profile', verifyToken, async (req, res) => {
                 u.name,
                 u.email,
                 u.photo_url,
-                u.created_at,
+                u.created_at
             FROM riders u
             WHERE u.id = $1
         `, [req.user.id]);
