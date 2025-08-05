@@ -4,7 +4,7 @@ import pool from '../database/dbPool.js';
 import { sendRiderPasswordUpdateEmail, sendRiderWelcomeEmail } from '../emailService.js';
 import { verifyAdmin, verifyRider, verifyToken } from '../middleware/auth.js';
 // ==================== RIDER SELF-SERVICE ROUTES ====================
-
+const router = express.Router();
 // Get current rider's profile and assigned shifts (protected for riders only)
 router.get('/me', verifyToken, verifyRider, async (req, res) => {
     try {
@@ -62,7 +62,7 @@ router.put('/me', verifyToken, verifyRider, async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-const router = express.Router();
+
 
 
 // ==================== RIDER MANAGEMENT ROUTES ====================
