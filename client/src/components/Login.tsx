@@ -41,7 +41,7 @@ const Login = () => {
             }
 
             // If admin login fails, try rider login
-            response = await fetch(`${import.meta.env.VITE_API_URL}/rider/login`, {
+            response = await fetch(`${import.meta.env.VITE_API_URL}/admin/rlogin`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

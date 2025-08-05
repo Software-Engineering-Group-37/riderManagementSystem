@@ -1,5 +1,7 @@
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import express from 'express';
+import jwt from 'jsonwebtoken';
 import pool from '../database/dbPool.js';
 import { sendRiderPasswordUpdateEmail, sendRiderWelcomeEmail } from '../emailService.js';
 import { verifyAdmin, verifyRider, verifyToken } from '../middleware/auth.js';
@@ -433,6 +435,91 @@ router.post('/registerRider', verifyToken, verifyAdmin, async (req, res) => {
         await pool.query("ROLLBACK"); // Rollback on any error
         console.error('Error registering rider:', error);
         res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Rider login route (Public)
+router.post('/rlogin', async (req, res) => {
+    const { email, password } = req.body;
+    console.log('Rider login attempt:', email);
+
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    try {
+        // Get rider by email
+        const result = await pool.query(
+            `SELECT * FROM riders WHERE email = $1`,
+            [email]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(401).json({ error: 'Invalid email or password' });
+        }
+
+        const rider = result.rows[0];
+
+        if (!rider.password) {
+            console.error('No password found in database for rider:', rider.email);
+            return res.status(500).json({ error: 'Account configuration error' });
+        }
+
+        // Compare password
+        const isPasswordValid = await bcrypt.compare(password, rider.password);
+
+        if (!isPasswordValid) {
+            return res.status(401).json({ error: 'Invalid email or password' });
+        }
+
+        // Generate tokens
+        const accessToken = jwt.sign(
+            {
+                id: rider.id,
+                email: rider.email,
+                role: 'rider',
+                type: 'access'
+            },
+            process.env.JWT_SECRET || 'your-secret-key',
+            { expiresIn: '1h' }
+        );
+
+        const refreshToken = jwt.sign(
+            {
+                id: rider.id,
+                email: rider.email,
+                role: 'rider',
+                type: 'refresh',
+                tokenId: crypto.randomUUID()
+            },
+            process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET || 'your-refresh-secret-key',
+            { expiresIn: '7d' }
+        );
+
+        // Set HTTP-only cookies
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'none',
+            maxAge: 60 * 60 * 1000, // 1 hour
+        });
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'none',
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
+
+        // Return rider data (without password)
+        const { password: _, ...riderWithoutPassword } = rider;
+        res.status(200).json({
+            user: riderWithoutPassword,
+            message: 'Login successful'
+        });
+    } catch (error) {
+        console.error('Error logging in rider:', error);
+        res.status(500).json({ error: 'Internal server error', details: error.message });
     }
 });
 
