@@ -5,7 +5,7 @@ import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import bcrypt from 'bcrypt';
 import { v2 as cloudinary } from 'cloudinary';
 import pool from '../database/dbPool.js';
-import { verifyAdmin, verifyToken } from '../middleware/auth.js';
+import { verifyAdmin, verifyRider, verifyToken } from '../middleware/auth.js';
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
@@ -167,7 +167,7 @@ router.get('/profile', verifyToken, async (req, res) => {
     }
 });
 
-router.get('/riders/profile', verifyToken, async (req, res) => {
+router.get('/riders/profile', verifyToken, verifyRider, async (req, res) => {
     try {
         const result = await pool.query(`
             SELECT 
@@ -442,7 +442,7 @@ router.put('/profile/password', verifyToken, async (req, res) => {
 });
 
 // Rider profile update (name, photo)
-router.put('/rider-profile', verifyToken, async (req, res) => {
+router.put('/rider-profile', verifyToken, verifyRider, async (req, res) => {
     const { name, photo_url } = req.body;
     if (!name) return res.status(400).json({ error: 'Name is required' });
 
@@ -455,7 +455,7 @@ router.put('/rider-profile', verifyToken, async (req, res) => {
 });
 
 // Rider avatar upload
-router.post('/rider-profile/avatar', verifyToken, upload.single('avatar'), async (req, res) => {
+router.post('/rider-profile/avatar', verifyToken, verifyRider, upload.single('avatar'), async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     const photoUrl = req.file.path;
     const result = await pool.query(
