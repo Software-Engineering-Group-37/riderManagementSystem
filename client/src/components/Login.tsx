@@ -32,9 +32,9 @@ const Login = () => {
 
             let data = await response.json();
 
-            if (response.ok) {
+            if (response.ok && data.user) {
                 sessionStorage.setItem('user', JSON.stringify(data.user));
-                sessionStorage.setItem('role', 'admin');
+                sessionStorage.setItem('role', data.user.role || 'admin');
                 setUser(data.user);
                 navigate('/dashboard');
                 return;
@@ -52,9 +52,9 @@ const Login = () => {
 
             data = await response.json();
 
-            if (response.ok) {
+            if (response.ok && data.user) {
                 sessionStorage.setItem('user', JSON.stringify(data.user));
-                sessionStorage.setItem('role', 'rider');
+                sessionStorage.setItem('role', data.user.role || 'rider');
                 setUser(data.user);
                 navigate('/rider-dashboard');
                 return;
