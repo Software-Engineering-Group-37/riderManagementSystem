@@ -61,7 +61,16 @@ const RiderDashboard = () => {
             const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/riders/profile`, { credentials: 'include' });
             if (!res.ok) throw new Error('Failed to load profile');
             const data = await res.json();
-            setProfile((prev) => prev ? { ...prev, ...data } : data);
+
+            // Fetch rider shifts
+            const shiftsRes = await fetch(`${import.meta.env.VITE_API_URL}/admin/rider/me`, { credentials: 'include' });
+            let shifts: Shift[] = [];
+            if (shiftsRes.ok) {
+                const shiftData = await shiftsRes.json();
+                shifts = shiftData.shifts || [];
+            }
+
+            setProfile({ ...data, shifts });
             setName(data.name);
             setPhotoUrl(data.photo_url);
             setUser({ ...user!, photo_url: data.photo_url, name: data.name });
