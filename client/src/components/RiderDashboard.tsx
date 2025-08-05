@@ -44,7 +44,7 @@ interface Announcement {
 const RiderDashboard = () => {
     const { user, setUser, logout } = useSharedValue();
     const [profile, setProfile] = useState<RiderProfile | null>(null);
-    const [loading, setLoading] = useState(true);
+    // const [loading, setLoading] = useState(true);
     const [alert, setAlert] = useState<{ message: string; type?: 'success' | 'error' | 'info' } | null>(null);
     const [editName, setEditName] = useState(false);
     const [name, setName] = useState('');
@@ -83,14 +83,14 @@ const RiderDashboard = () => {
 
     // Fetch profile on mount and after photo/name update
     useEffect(() => {
-        setLoading(true);
+        // setLoading(true);
         fetchProfile()
             .then(profileData => {
                 if (profileData) {
                     setProfile(prev => ({ ...profileData, shifts: prev?.shifts || [] }));
                 }
             })
-            .finally(() => setLoading(false));
+        // .finally(() => setLoading(false));
     }, [fetchProfile]);
 
     // Fetch shifts on mount and when needed
@@ -132,7 +132,7 @@ const RiderDashboard = () => {
             return;
         }
         try {
-            setLoading(true);
+            // setLoading(true);
             // Update rider profile
             const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/rider-profile`, {
                 method: 'PUT',
@@ -149,7 +149,7 @@ const RiderDashboard = () => {
         } catch {
             setAlert({ message: 'Failed to update name', type: 'error' });
         } finally {
-            setLoading(false);
+            // setLoading(false);
         }
     };
 
@@ -205,14 +205,14 @@ const RiderDashboard = () => {
         }
     }, []);
 
-    if (loading) {
-        return (
-            <div className="flex h-screen items-center justify-center bg-gray-50">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                <span className="ml-3 text-gray-600">Loading dashboard...</span>
-            </div>
-        );
-    }
+    // if (loading) {
+    // return (
+    //         <div className="flex h-screen items-center justify-center bg-gray-50">
+    //             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    //             <span className="ml-3 text-gray-600">Loading dashboard...</span>
+    //         </div>
+    //     );
+    // }
 
     if (!profile) {
         return <div className="flex h-screen items-center justify-center text-gray-500">Profile not found.</div>;
@@ -285,17 +285,17 @@ const RiderDashboard = () => {
                                         className="border border-gray-300 rounded px-2 py-1 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400"
                                         value={name}
                                         onChange={e => setName(e.target.value)}
-                                        disabled={loading}
+                                    // disabled={loading}
                                     />
                                     <button
                                         className="ml-1 px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
                                         onClick={handleNameSave}
-                                        disabled={loading}
+                                    // disabled={loading}
                                     ><FiCheck /></button>
                                     <button
                                         className="ml-1 px-2 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
                                         onClick={() => { setEditName(false); setName(profile.name); }}
-                                        disabled={loading}
+                                    // disabled={loading}
                                     ><FiX /></button>
                                 </>
                             ) : (

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useNavigate } from 'react-router';
 import { useSharedValue } from './context/shareValue';
 
 interface ProtectedRouteProps {
@@ -9,6 +10,7 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children, requiredRoles, fallback }: ProtectedRouteProps) => {
     const { isSuperAdmin, isRegularAdmin, isRider } = useSharedValue();
+    const navigate = useNavigate();
 
     let hasAccess = false;
     if (requiredRoles.includes('superadmin') && isSuperAdmin) {
@@ -36,7 +38,7 @@ const ProtectedRoute = ({ children, requiredRoles, fallback }: ProtectedRoutePro
                         Required role: {requiredRoles.join(' or ')}
                     </p>
                     <button
-                        onClick={() => window.history.back()}
+                        onClick={() => navigate('/login')}
                         className="mt-4 px-4 py-2 bg-[#1680E4] text-white rounded-lg hover:bg-[#126dcc] transition"
                     >
                         Go Back
