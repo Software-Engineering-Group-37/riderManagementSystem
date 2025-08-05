@@ -45,7 +45,6 @@ router.get('/me', verifyToken, verifyRider, async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-
 // Update current rider's profile (name, photo_url)
 router.put('/me', verifyToken, verifyRider, async (req, res) => {
     try {
@@ -276,10 +275,10 @@ router.put('/rider/:id', verifyToken, verifyAdmin, async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
 // Deactivate rider (soft delete - Only admins can deactivate riders)
 router.delete('/rider/:id', verifyToken, verifyAdmin, async (req, res) => {
     const { id } = req.params;
-    
     try {
         await pool.query("BEGIN");
         
@@ -374,10 +373,10 @@ router.get('/riders/available', verifyToken, verifyAdmin, async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
 //register a rider and hash password (Only Admins can register riders)
 router.post('/registerRider', verifyToken, verifyAdmin, async (req, res) => {
     const { name, email, password, phone } = req.body;
-    
     try {
         await pool.query("BEGIN"); // Start transaction
         
@@ -446,7 +445,6 @@ router.post('/rlogin', async (req, res) => {
     if (!email || !password) {
         return res.status(400).json({ error: 'Email and password are required' });
     }
-
     try {
         // Get rider by email
         const result = await pool.query(

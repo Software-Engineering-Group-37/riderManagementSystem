@@ -87,8 +87,13 @@ const Login = () => {
 
         // Check if already logged in
         const user = sessionStorage.getItem('user');
-        if (user) {
-            navigate('/dashboard');
+        const role = sessionStorage.getItem('role');
+        if (user && role) {
+            if (role === 'admin') {
+                navigate('/dashboard');
+            } else if (role === 'rider') {
+                navigate('/rider-dashboard');
+            }
         }
     }, [navigate]);
 
