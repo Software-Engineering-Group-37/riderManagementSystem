@@ -154,6 +154,7 @@ const History = () => {
     const [stats, setStats] = useState<AuditStats | null>(null);
     const [adminOptions, setAdminOptions] = useState<AdminOption[]>([]);
     const [exporting, setExporting] = useState(false);
+    const [showFilters, setShowFilters] = useState(window.innerWidth > 968); // true on desktop, false on mobile
 
     // Helper to show alert
     const displayAlert = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
@@ -308,7 +309,11 @@ const History = () => {
     // Initialize component
     useEffect(() => {
         document.title = "History-Rider Management System";
-        const handleResize = () => setWidth(window.innerWidth);
+        const handleResize = () => {
+            setWidth(window.innerWidth);
+            if (window.innerWidth > 968) setShowFilters(true);
+            else setShowFilters(false);
+        };
         window.addEventListener("resize", handleResize);
 
         fetchAdminOptions();
@@ -393,117 +398,129 @@ const History = () => {
                 </div>
 
                 {/* Filters Section */}
-                <div className="bg-white border-b border-gray-200 px-6 py-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {/* Audit Type Dropdown */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                📂 Audit Type
-                            </label>
-                            <select
-                                value={selectedType}
-                                onChange={(e) => handleTypeChange(e.target.value)}
-                                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            >
-                                {availableAuditTypes.map(type => (
-                                    <option key={type.value} value={type.value}>
-                                        {type.label}
-                                    </option>
-                                ))}
-                            </select>
-                            {availableAuditTypes.find(t => t.value === selectedType) && (
-                                <p className="text-xs text-gray-500 mt-1">
-                                    {availableAuditTypes.find(t => t.value === selectedType)?.description}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* Search */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                🔍 Search
-                            </label>
-                            <input
-                                type="text"
-                                placeholder={isRegularAdmin
-                                    ? "Search riders, zones..."
-                                    : "Search names, emails, zones..."
-                                }
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                        </div>
-
-                        {/* Start Date */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                📅 Start Date
-                            </label>
-                            <input
-                                type="date"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                        </div>
-
-                        {/* End Date */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                📅 End Date
-                            </label>
-                            <input
-                                type="date"
-                                value={endDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Admin Filter & Stats */}
-                    <div className="flex items-center justify-between mt-4">
-                        <div className="flex items-center gap-4">
+                {showFilters && (
+                    <div className="bg-white border-b border-gray-200 px-6 py-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            {/* Audit Type Dropdown */}
                             <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    📂 Audit Type
+                                </label>
                                 <select
-                                    value={selectedAdmin}
-                                    onChange={(e) => setSelectedAdmin(e.target.value)}
-                                    className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    value={selectedType}
+                                    onChange={(e) => handleTypeChange(e.target.value)}
+                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 >
-                                    <option value="">All Admins</option>
-                                    {adminOptions.map(admin => (
-                                        <option key={admin.id} value={admin.id}>
-                                            {admin.name} ({admin.total_activities} activities)
+                                    {availableAuditTypes.map(type => (
+                                        <option key={type.value} value={type.value}>
+                                            {type.label}
                                         </option>
                                     ))}
                                 </select>
+                                {availableAuditTypes.find(t => t.value === selectedType) && (
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        {availableAuditTypes.find(t => t.value === selectedType)?.description}
+                                    </p>
+                                )}
                             </div>
 
-                            <button
-                                onClick={fetchAuditLogs}
-                                disabled={loading}
-                                className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition disabled:opacity-50"
-                            >
-                                {loading ? (
-                                    <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin" />
-                                ) : (
-                                    <FiRefreshCw size={16} />
-                                )}
-                                Refresh
-                            </button>
+                            {/* Search */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    🔍 Search
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder={isRegularAdmin
+                                        ? "Search riders, zones..."
+                                        : "Search names, emails, zones..."
+                                    }
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                />
+                            </div>
+
+                            {/* Start Date */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    📅 Start Date
+                                </label>
+                                <input
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                />
+                            </div>
+
+                            {/* End Date */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    📅 End Date
+                                </label>
+                                <input
+                                    type="date"
+                                    value={endDate}
+                                    onChange={(e) => setEndDate(e.target.value)}
+                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                />
+                            </div>
                         </div>
 
-                        {/* Quick Stats */}
-                        {stats && (
-                            <div className="flex items-center gap-6 text-sm text-gray-600">
-                                <span>Total Records: <strong>{totalCount}</strong></span>
-                                {stats.summary.most_active_admin && (
-                                    <span>Most Active: <strong>{stats.summary.most_active_admin}</strong></span>
-                                )}
+                        {/* Admin Filter & Stats */}
+                        <div className="flex items-center justify-between mt-4">
+                            <div className="flex items-center gap-4">
+                                <div>
+                                    <select
+                                        value={selectedAdmin}
+                                        onChange={(e) => setSelectedAdmin(e.target.value)}
+                                        className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    >
+                                        <option value="">All Admins</option>
+                                        {adminOptions.map(admin => (
+                                            <option key={admin.id} value={admin.id}>
+                                                {admin.name} ({admin.total_activities} activities)
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <button
+                                    onClick={fetchAuditLogs}
+                                    disabled={loading}
+                                    className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition disabled:opacity-50"
+                                >
+                                    {loading ? (
+                                        <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin" />
+                                    ) : (
+                                        <FiRefreshCw size={16} />
+                                    )}
+                                    Refresh
+                                </button>
                             </div>
-                        )}
+
+                            {/* Quick Stats */}
+                            {stats && (
+                                <div className="flex items-center gap-6 text-sm text-gray-600">
+                                    <span>Total Records: <strong>{totalCount}</strong></span>
+                                    {stats.summary.most_active_admin && (
+                                        <span>Most Active: <strong>{stats.summary.most_active_admin}</strong></span>
+                                    )}
+                                </div>
+                            )}
+                        </div>
                     </div>
+                )}
+
+                {/* Mobile Filter Toggle */}
+                <div className="sm:hidden flex justify-end px-6 py-2 bg-white border-b border-gray-200">
+                    <button
+                        onClick={() => setShowFilters(f => !f)}
+                        className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm"
+                    >
+                        {showFilters ? "Hide Filters" : "Show Filters"}
+                    </button>
                 </div>
 
                 {/* Table Section */}
@@ -780,17 +797,20 @@ const AuditTable: FC<AuditTableProps> = ({
 
                             <div className="flex items-center gap-1">
                                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                                    const page = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
+                                    const startPage = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
+                                    const pageNum = startPage + i;
+                                    if (pageNum > totalPages) return null;
                                     return (
                                         <button
-                                            key={page}
-                                            onClick={() => onPageChange(page)}
-                                            className={`px-3 py-1 text-sm rounded ${page === currentPage
+                                            key={pageNum}
+                                            onClick={() => onPageChange(pageNum)}
+                                            className={`px-3 py-1 text-sm rounded ${pageNum === currentPage
                                                 ? 'bg-blue-600 text-white'
                                                 : 'border border-gray-300 hover:bg-gray-50'
-                                                }`}
+                                                }`
+                                            }
                                         >
-                                            {page}
+                                            {pageNum}
                                         </button>
                                     );
                                 })}
@@ -806,7 +826,8 @@ const AuditTable: FC<AuditTableProps> = ({
                         </div>
                     </div>
                 </div>
-            )}
-        </div>
+            )
+            }
+        </div >
     );
 };
