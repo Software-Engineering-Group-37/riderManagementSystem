@@ -439,8 +439,11 @@ router.post('/registerRider', verifyToken, verifyAdmin, async (req, res) => {
 });
 
 // Rider login route (Public)
+const isProduction = process.env.NODE_ENV === 'production';
+
 router.post('/rlogin', async (req, res) => {
     const { email, password } = req.body;
+    console.log('Rider login attempt:', email);
     console.log('Rider login attempt:', email);
 
     if (!email || !password) {

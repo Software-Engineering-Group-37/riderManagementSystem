@@ -9,6 +9,10 @@ import { verifyAdmin, verifySuperAdmin, verifyToken } from '../middleware/auth.j
 
 const router = express.Router();
 
+const isProduction = process.env.NODE_ENV === 'production';
+
+//register an admin and hash password (Only superadmin can register new admins)
+// Add this import at the top
 //register an admin and hash password (Only superadmin can register new admins)
 // Add this import at the top
 
