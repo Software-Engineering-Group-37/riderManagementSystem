@@ -384,7 +384,7 @@ const Profile = () => {
                                         Profile Picture
                                     </h3>
                                 </div>
-                                <div className="p-6">
+                                <div className="p-3">
                                     <div className="flex items-center gap-6">
                                         <div className="relative">
                                             {avatarSrc ? (
