@@ -35,7 +35,6 @@ router.get('/me', verifyToken, verifyRider, async (req, res) => {
             JOIN zones z ON s.zone_id = z.id
             JOIN users u ON s.user_id = u.id
             WHERE s.rider_id = $1
-              AND CURRENT_DATE BETWEEN s.start_date AND s.end_date
             ORDER BY s.start_date DESC, s.start_time DESC
         `, [riderId]);
         const rider = riderResult.rows[0];

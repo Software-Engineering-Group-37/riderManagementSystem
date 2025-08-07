@@ -64,13 +64,13 @@ const RiderDashboard = () => {
             const data = await res.json();
             setName(data.name);
             setPhotoUrl(data.photo_url);
-            setUser({ ...user!, photo_url: data.photo_url, name: data.name });
+            // Remove setUser here, or use a stable value
             return data;
         } catch {
             setAlert({ message: 'Failed to load profile', type: 'error' });
             return null;
         }
-    }, [user, setUser]);
+    }, []); // Remove user, setUser from dependencies
 
     const fetchShifts = useCallback(async () => {
         try {
@@ -86,15 +86,11 @@ const RiderDashboard = () => {
 
     // Fetch profile on mount and after photo/name update
     useEffect(() => {
-        // setLoading(true);
-        fetchProfile()
-            .then(profileData => {
-                if (profileData) {
-                    setProfile(prev => ({ ...profileData, shifts: prev?.shifts || [] }));
-                }
-            })
-            .finally(() => setLoading(false));
-    }, [fetchProfile]);
+        // Only fetch profile once on mount
+        fetchProfile().then(profileData => {
+            if (profileData) setProfile(profileData);
+        }).finally(() => setLoading(false));
+    }, [fetchProfile]); // Only run once
 
     // Fetch shifts on mount and when needed
     useEffect(() => {
@@ -248,7 +244,7 @@ const RiderDashboard = () => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const todaysShifts = profile.shifts.filter(shift => {
+    const todaysShifts = (profile.shifts ?? []).filter(shift => {
         const start = new Date(shift.start_date);
         const end = new Date(shift.end_date);
         start.setHours(0, 0, 0, 0);
@@ -257,11 +253,13 @@ const RiderDashboard = () => {
         return start.getTime() === today.getTime() && end.getTime() === today.getTime();
     });
 
-    const upcomingShifts = profile.shifts.filter(shift => {
+    const upcomingShifts = (profile.shifts ?? []).filter(shift => {
         const start = new Date(shift.start_date);
+        const end = new Date(shift.end_date);
         start.setHours(0, 0, 0, 0);
-        // Shifts that start after today
-        return start.getTime() > today.getTime();
+        end.setHours(0, 0, 0, 0);
+        // Shifts that start after today OR end after today
+        return start.getTime() > today.getTime() || end.getTime() > today.getTime();
     });
 
     return (

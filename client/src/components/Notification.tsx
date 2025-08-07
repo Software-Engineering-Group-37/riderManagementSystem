@@ -445,31 +445,21 @@ const NotificationCard: FC<NotificationCardProps> = ({
 }) => {
     const getTypeIcon = (type: string) => {
         switch (type) {
-            case 'info':
-                return <FiInfo className="text-blue-600" />;
-            case 'warning':
-                return <FiAlertTriangle className="text-yellow-600" />;
-            case 'urgent':
-                return <FiAlertCircle className="text-red-600" />;
-            case 'maintenance':
-                return <FiTool className="text-purple-600" />;
-            default:
-                return <FiInfo className="text-gray-600" />;
+            case 'info': return <FiInfo className="text-blue-600" />;
+            case 'warning': return <FiAlertTriangle className="text-yellow-600" />;
+            case 'urgent': return <FiAlertCircle className="text-red-600" />;
+            case 'maintenance': return <FiTool className="text-purple-600" />;
+            default: return <FiInfo className="text-gray-600" />;
         }
     };
 
     const getTypeColor = (type: string) => {
         switch (type) {
-            case 'info':
-                return 'bg-blue-50 border-blue-200';
-            case 'warning':
-                return 'bg-yellow-50 border-yellow-200';
-            case 'urgent':
-                return 'bg-red-50 border-red-200';
-            case 'maintenance':
-                return 'bg-purple-50 border-purple-200';
-            default:
-                return 'bg-gray-50 border-gray-200';
+            case 'info': return 'bg-blue-50 border-blue-200';
+            case 'warning': return 'bg-yellow-50 border-yellow-200';
+            case 'urgent': return 'bg-red-50 border-red-200';
+            case 'maintenance': return 'bg-purple-50 border-purple-200';
+            default: return 'bg-gray-50 border-gray-200';
         }
     };
 
@@ -480,7 +470,6 @@ const NotificationCard: FC<NotificationCardProps> = ({
             high: 'bg-orange-100 text-orange-800',
             urgent: 'bg-red-100 text-red-800'
         };
-
         return (
             <span className={`px-2 py-1 text-xs rounded-full ${colors[priority as keyof typeof colors]}`}>
                 {priority.charAt(0).toUpperCase() + priority.slice(1)}
@@ -490,12 +479,9 @@ const NotificationCard: FC<NotificationCardProps> = ({
 
     const getAudienceIcon = (audience: string) => {
         switch (audience) {
-            case 'all':
-                return <FiUsers className="text-gray-500" />;
-            case 'admins':
-                return <FiUser className="text-blue-500" />;
-            default:
-                return <FiUsers className="text-gray-500" />;
+            case 'all': return <FiUsers className="text-gray-500" />;
+            case 'admins': return <FiUser className="text-blue-500" />;
+            default: return <FiUsers className="text-gray-500" />;
         }
     };
 
@@ -503,100 +489,74 @@ const NotificationCard: FC<NotificationCardProps> = ({
         const date = new Date(dateString);
         const now = new Date();
         const diff = now.getTime() - date.getTime();
-
         const minutes = Math.floor(diff / (1000 * 60));
         const hours = Math.floor(diff / (1000 * 60 * 60));
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-        if (minutes < 60) {
-            return `${minutes}m ago`;
-        } else if (hours < 24) {
-            return `${hours}h ago`;
-        } else if (days < 7) {
-            return `${days}d ago`;
-        } else {
-            return date.toLocaleDateString();
-        }
+        if (minutes < 60) return `${minutes}m ago`;
+        if (hours < 24) return `${hours}h ago`;
+        if (days < 7) return `${days}d ago`;
+        return date.toLocaleDateString();
     };
 
     const isExpired = notification.expires_at && new Date(notification.expires_at) < new Date();
 
     return (
-        <div className={`relative bg-white rounded-lg border-l-4 shadow-sm hover:shadow-md transition-shadow ${getTypeColor(notification.type)
-            } ${!notification.is_read ? 'ring-2 ring-blue-100' : ''} ${isExpired ? 'opacity-60' : ''} `}>
+        <div className={`relative rounded-lg border-l-4 shadow-sm hover:shadow-md transition-shadow ${getTypeColor(notification.type)} ${!notification.is_read ? 'ring-2 ring-blue-100' : ''} ${isExpired ? 'opacity-60' : ''}`}>
             {/* Unread indicator */}
             {!notification.is_read && (
-                <div className="absolute top-4 right-4 w-3 h-3 bg-blue-500 rounded-full"></div>
+                <div className="absolute top-3 right-3 w-2 h-2 bg-blue-500 rounded-full"></div>
             )}
 
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
                 {/* Header */}
-                <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                        <div className="flex-shrink-0">
-                            {getTypeIcon(notification.type)}
-                        </div>
-                        <div className="flex-1">
-                            <h3 className="font-semibold text-gray-900 mb-1">
-                                {notification.title}
-                                {isExpired && <span className="text-red-500 ml-2">(Expired)</span>}
-                            </h3>
-                            <div className="flex items-center gap-3 text-sm text-gray-500">
-                                <div className="flex items-center gap-1">
-                                    {getAudienceIcon(notification.target_audience)}
-                                    <span>{notification.target_audience === 'all' ? 'Everyone' : 'Admins'}</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    <FiClock size={14} />
-                                    <span>{formatDate(notification.created_at)}</span>
-                                </div>
-                                <span>by {notification.created_by_admin}</span>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            {getPriorityBadge(notification.priority)}
-                        </div>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 gap-2">
+                    <div className="flex items-center gap-2">
+                        {getTypeIcon(notification.type)}
+                        <h3 className="font-semibold text-gray-900 text-base sm:text-lg">
+                            {notification.title}
+                            {isExpired && <span className="text-red-500 ml-2 text-xs">(Expired)</span>}
+                        </h3>
+                        {getPriorityBadge(notification.priority)}
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                        {getAudienceIcon(notification.target_audience)}
+                        <span className="hidden sm:inline">{notification.target_audience === 'all' ? 'Everyone' : 'Admins'}</span>
+                        <FiClock size={12} />
+                        <span>{formatDate(notification.created_at)}</span>
+                        <span className="hidden sm:inline">by {notification.created_by_admin}</span>
                     </div>
                 </div>
 
                 {/* Content */}
-                <div className="mb-4">
-                    <p className="text-gray-700 leading-relaxed">
-                        {notification.content}
-                    </p>
-                </div>
+                <p className="text-gray-700 text-sm mb-2">{notification.content}</p>
 
                 {/* Footer */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                <div className="flex items-center justify-between mt-2">
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
                         {notification.expires_at && (
-                            <div className="flex items-center gap-1">
-                                <FiClock size={14} />
-                                <span>
-                                    Expires: {new Date(notification.expires_at).toLocaleDateString()}
-                                </span>
-                            </div>
+                            <span>
+                                <FiClock size={12} className="inline" /> Expires: {new Date(notification.expires_at).toLocaleDateString()}
+                            </span>
                         )}
                     </div>
-
                     <div className="flex items-center gap-2">
                         {notification.is_read ? (
                             <button
                                 onClick={onMarkAsUnread}
-                                className="flex items-center gap-1 px-3 py-1 text-sm text-gray-600 hover:text-gray-800 transition"
+                                className="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 hover:text-gray-800 transition"
                                 title="Mark as unread"
                             >
-                                <FiEyeOff size={14} />
-                                Mark Unread
+                                <FiEyeOff size={12} />
+                                <span className="hidden sm:inline">Mark Unread</span>
                             </button>
                         ) : (
                             <button
                                 onClick={onMarkAsRead}
-                                className="flex items-center gap-1 px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition"
+                                className="flex items-center gap-1 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition"
                                 title="Mark as read"
                             >
-                                <FiEye size={14} />
-                                Mark Read
+                                <FiEye size={12} />
+                                <span className="hidden sm:inline">Mark Read</span>
                             </button>
                         )}
                     </div>
