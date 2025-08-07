@@ -13,6 +13,7 @@ interface AdminType {
     id: string;
     name: string;
     email: string;
+    photo_url?: string;
     role_name: string;
     created_at: string;
     registered_by_admin?: string;
@@ -547,9 +548,17 @@ const AdminCard: FC<AdminCardProps> = ({ admin, onEdit, onDeactivate, onReactiva
 
             {/* Avatar + Name */}
             <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                    {getInitials(admin.name)}
-                </div>
+                {admin.photo_url ? (
+                    <img
+                        src={admin.photo_url}
+                        alt={admin.name}
+                        className="w-10 h-10 rounded-full object-cover border border-gray-300"
+                    />
+                ) : (
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                        {getInitials(admin.name)}
+                    </div>
+                )}
                 <div className="font-semibold text-gray-800">{admin.name}</div>
             </div>
 

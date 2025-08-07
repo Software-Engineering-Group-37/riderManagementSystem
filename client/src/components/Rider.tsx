@@ -29,6 +29,7 @@ interface RiderType {
     name: string;
     phone: string;
     email: string;
+    photo_url?: string;
     is_active: boolean;
     total_shifts: number;
     completed_shifts: number;
@@ -544,9 +545,17 @@ const RiderCard: FC<RiderCardProps> = ({ rider, onEdit, onDelete, onReactivate }
 
             {/* Avatar + Name */}
             <div className="flex items-center space-x-3">
-                <div className="bg-green-100 p-3 rounded-full">
-                    <span className="text-green-600 text-xl">👤</span>
-                </div>
+                {rider.photo_url ? (
+                    <img
+                        src={rider.photo_url}
+                        alt={rider.name}
+                        className="w-10 h-10 rounded-full object-cover border border-gray-300"
+                    />
+                ) : (
+                    <div className="bg-green-100 p-3 rounded-full">
+                        <span className="text-green-600 text-xl">👤</span>
+                    </div>
+                )}
                 <div className="font-semibold text-gray-800">{rider.name}</div>
             </div>
 
