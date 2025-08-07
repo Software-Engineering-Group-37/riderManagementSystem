@@ -1,6 +1,7 @@
 import type { FC } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { FaRegStar, FaStar } from "react-icons/fa";
 import { FiEdit2, FiMail, FiPhone, FiPlus, FiRefreshCw, FiSearch, FiTrash } from "react-icons/fi";
 import Alert from "./Alert";
 import Menu from "./Menu";
@@ -464,9 +465,9 @@ const SearchBar: FC<SearchBarProps> = ({
     onToggleInactive
 }) => {
     return (
-        <div className="flex items-center bg-white rounded-4xl shadow-sm py-4 px-10 space-x-2 max-w-4xl w-full h-14 mt-6">
+        <div className="flex flex-row items-center bg-white rounded-4xl shadow-sm py-3 px-2 sm:px-6 gap-2 w-full mt-6">
             {/* Search Input */}
-            <div className="flex items-center flex-grow bg-gray-100 rounded-full px-4 py-2">
+            <div className="flex items-center flex-grow bg-gray-100 rounded-full px-3 py-2">
                 <FiSearch className="text-gray-400 mr-2" />
                 <input
                     type="text"
@@ -475,38 +476,45 @@ const SearchBar: FC<SearchBarProps> = ({
                     onChange={(e) => onSearch(e.target.value)}
                 />
             </div>
-
-            {/* Toggle Inactive Button */}
+            {/* Toggle Inactive/Active Button */}
             <button
                 onClick={() => onToggleInactive(!showInactive)}
-                className={`px-3 py-2 rounded-md text-sm transition ${showInactive
-                    ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                className={`flex items-center justify-center px-3 py-2 rounded-md text-sm transition
+                    ${showInactive
+                        ? 'bg-orange-100 text-orange-700 hover:bg-orange-200'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }
+                `}
+                title={showInactive ? 'Show Active' : 'Show Inactive'}
             >
-                {showInactive ? 'Show Active' : 'Show Inactive'}
+                <span className="hidden sm:inline">
+                    {showInactive ? 'Show Active' : 'Show Inactive'}
+                </span>
+                <span className="sm:hidden">
+                    {showInactive ? <FaRegStar size={18} /> : <FaStar size={18} />}
+                </span>
             </button>
-
             {/* Refresh Button */}
             <button
                 onClick={onRefresh}
                 disabled={loading}
-                className="flex items-center px-3 py-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition disabled:opacity-50"
+                className="flex items-center justify-center px-3 py-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition disabled:opacity-50"
+                title="Refresh"
             >
                 {loading ? (
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
                 ) : (
-                    <FiRefreshCw />
+                    <FiRefreshCw size={18} />
                 )}
             </button>
-
             {/* Add Riders Button */}
             <button
                 onClick={onAddClick}
-                className="flex items-center gap-1 px-4 py-2 rounded-md bg-[#1680E4] text-white text-sm hover:bg-[#126dcc] transition"
+                className="flex items-center justify-center gap-1 px-4 py-2 rounded-md bg-[#1680E4] text-white text-sm hover:bg-[#126dcc] transition"
+                title="Add Rider"
             >
-                <FiPlus />
-                Add Rider
+                <FiPlus size={18} />
+                <span className="hidden sm:inline">Add Rider</span>
             </button>
         </div>
     );
@@ -524,8 +532,7 @@ const RiderCard: FC<RiderCardProps> = ({ rider, onEdit, onDelete, onReactivate }
     const canDelete = rider.active_shifts === 0 && rider.upcoming_shifts === 0;
 
     return (
-        <div className={`bg-white rounded-2xl shadow-lg border border-gray-200 p-4 w-80 space-y-3 ${!rider.is_active ? 'opacity-75 border-2 border-orange-200' : ''
-            }`}>
+        <div className={`bg-white rounded-2xl shadow-lg border border-gray-200 p-4 w-full max-w-2xs sm:w-70 space-y-3 mx-auto ${!rider.is_active ? 'opacity-75 border-2 border-orange-200' : ''}`}>
             {/* Status Badge */}
             {!rider.is_active && (
                 <div className="flex justify-center">
@@ -554,28 +561,28 @@ const RiderCard: FC<RiderCardProps> = ({ rider, onEdit, onDelete, onReactivate }
             </div>
 
             {/* Shifts + Actions */}
-            <div className="flex justify-between items-center pt-2">
-                <div className="text-sm text-gray-700 space-y-1">
+            <div className="flex flex-col sm:flex-row sm:justify-between items-center pt-2 gap-2">
+                <div className="text-sm text-gray-700 space-y-1 w-full">
                     <div>{rider.completed_shifts} shifts completed</div>
                     <div className="flex gap-2">
-                        <span className="text-xs rounded-full" style={{ paddingLeft: '0.5rem', paddingRight: '0.5rem', paddingTop: '0.125rem', paddingBottom: '0.125rem', backgroundColor: '#e0f7fa', color: '#00796b' }}>
+                        <span className="text-xs rounded-full px-2 py-0.5 bg-teal-100 text-teal-700">
                             {rider.active_shifts} active
                         </span>
-                        <span className="text-xs rounded-full" style={{ paddingLeft: '0.5rem', paddingRight: '0.5rem', paddingTop: '0.125rem', paddingBottom: '0.125rem', backgroundColor: '#f3e5f5', color: '#6a1b9a' }}>
+                        <span className="text-xs rounded-full px-2 py-0.5 bg-purple-100 text-purple-700">
                             {rider.upcoming_shifts} upcoming
                         </span>
                     </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 w-full sm:w-auto justify-end">
                     <button
                         onClick={onEdit}
-                        className="p-2 bg-[#1680E4] text-white rounded-md hover:bg-[#1268ba]"
+                        className="p-2 bg-[#1680E4] text-white rounded-md hover:bg-[#1268ba] focus:outline-none focus:ring-2 focus:ring-[#1680E4]"
                     >
                         <FiEdit2 size={16} />
                     </button>
                     <button
                         onClick={rider.is_active ? onDelete : onReactivate}
-                        className="p-2 bg-[#1680E4] text-white rounded-md hover:bg-[#1268ba]"
+                        className={`p-2 rounded-md focus:outline-none focus:ring-2 ${rider.is_active ? 'bg-[#1680E4] text-white hover:bg-[#1268ba]' : 'bg-green-500 text-white hover:bg-green-600'}`}
                         disabled={!canDelete && rider.is_active}
                     >
                         {rider.is_active ? <FiTrash size={16} /> : <FiRefreshCw size={16} />}

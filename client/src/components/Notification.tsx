@@ -49,6 +49,7 @@ const Notification: FC = () => {
     const [showRead, setShowRead] = useState(true);
     const [showExpired, setShowExpired] = useState(false);
     const [showClearDialog, setShowClearDialog] = useState(false);
+    const [showFilters, setShowFilters] = useState<boolean>(width > 600);
 
     // Read status tracking (stored in localStorage)
     const [readNotifications, setReadNotifications] = useState<Set<string>>(new Set());
@@ -211,7 +212,10 @@ const Notification: FC = () => {
     // Initialize component
     useEffect(() => {
         document.title = "Notifications-Rider Management System";
-        const handleResize = () => setWidth(window.innerWidth);
+        const handleResize = () => {
+            setWidth(window.innerWidth);
+            setShowFilters(window.innerWidth > 600);
+        };
         window.addEventListener("resize", handleResize);
 
         fetchNotifications();
@@ -263,91 +267,115 @@ const Notification: FC = () => {
                                 </p>
                             </div>
                         </div>
-
-                        <div className="flex items-center gap-3">
-                            {unreadCount > 0 && (
+                        {/* Desktop Buttons */}
+                        {width > 600 && (
+                            <div className="flex items-center gap-3">
+                                {unreadCount > 0 && (
+                                    <button
+                                        onClick={markAllAsRead}
+                                        className="flex items-center gap-2 px-3 py-2 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition"
+                                    >
+                                        <FiCheck size={16} />
+                                        Mark All Read
+                                    </button>
+                                )}
                                 <button
-                                    onClick={markAllAsRead}
-                                    className="flex items-center gap-2 px-3 py-2 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition"
+                                    onClick={fetchNotifications}
+                                    disabled={loading}
+                                    className="flex items-center gap-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 transition"
                                 >
-                                    <FiCheck size={16} />
-                                    Mark All Read
+                                    <FiRefreshCw className={loading ? 'animate-spin' : ''} size={16} />
+                                    Refresh
                                 </button>
-                            )}
-
-                            <button
-                                onClick={fetchNotifications}
-                                disabled={loading}
-                                className="flex items-center gap-2 px-3 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 transition"
-                            >
-                                <FiRefreshCw className={loading ? 'animate-spin' : ''} size={16} />
-                                Refresh
-                            </button>
-                        </div>
+                            </div>
+                        )}
                     </div>
                 </div>
+
+                {/* Mobile Top Bar with Icon Buttons */}
+                {width <= 600 && (
+                    <div className="flex justify-end gap-2 px-4 py-2 bg-white border-b border-gray-200 sticky top-0 z-10">
+                        <button
+                            onClick={() => setShowFilters((f: boolean) => !f)}
+                            className="p-2 rounded-full bg-blue-600 text-white"
+                            title="Show Filters"
+                        >
+                            <FiFilter size={20} />
+                        </button>
+                        <button
+                            onClick={fetchNotifications}
+                            disabled={loading}
+                            className="p-2 rounded-full bg-blue-600 text-white disabled:opacity-50"
+                            title="Refresh"
+                        >
+                            <FiRefreshCw className={loading ? 'animate-spin' : ''} size={20} />
+                        </button>
+                        {unreadCount > 0 && (
+                            <button
+                                onClick={markAllAsRead}
+                                className="p-2 rounded-full bg-blue-100 text-blue-700"
+                                title="Mark All Read"
+                            >
+                                <FiCheck size={20} />
+                            </button>
+                        )}
+                    </div>
+                )}
 
                 {/* Filters */}
-                <div className="bg-white border-b border-gray-200 px-6 py-3">
-                    <div className="flex items-center gap-4 flex-wrap">
-                        <div className="flex items-center gap-2">
-                            <FiFilter size={16} className="text-gray-500" />
-                            <span className="text-sm font-medium text-gray-700">Filters:</span>
-                        </div>
-
-                        {/* Type Filter */}
-                        <select
-                            value={filterType}
-                            onChange={(e) => setFilterType(e.target.value)}
-                            className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="all">All Types</option>
-                            <option value="info">Info</option>
-                            <option value="warning">Warning</option>
-                            <option value="urgent">Urgent</option>
-                            <option value="maintenance">Maintenance</option>
-                        </select>
-
-                        {/* Priority Filter */}
-                        <select
-                            value={filterPriority}
-                            onChange={(e) => setFilterPriority(e.target.value)}
-                            className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                            <option value="all">All Priorities</option>
-                            <option value="low">Low</option>
-                            <option value="normal">Normal</option>
-                            <option value="high">High</option>
-                            <option value="urgent">Urgent</option>
-                        </select>
-
-                        {/* Show Read Toggle */}
-                        <label className="flex items-center gap-2 text-sm">
-                            <input
-                                type="checkbox"
-                                checked={showRead}
-                                onChange={(e) => setShowRead(e.target.checked)}
-                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            />
-                            Show Read
-                        </label>
-
-                        {/* Show Expired Toggle */}
-                        <label className="flex items-center gap-2 text-sm">
-                            <input
-                                type="checkbox"
-                                checked={showExpired}
-                                onChange={(e) => setShowExpired(e.target.checked)}
-                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            />
-                            Show Expired
-                        </label>
-
-                        <div className="ml-auto text-sm text-gray-500">
-                            Showing {filteredNotifications.length} of {notifications.length} notifications
+                {showFilters && (
+                    <div className={`bg-white border-b border-gray-200 ${width <= 600 ? 'px-2 py-2 space-y-3' : 'px-6 py-3'}`}>
+                        <div className={`flex flex-wrap gap-4 ${width <= 600 ? 'flex-col' : 'items-center'}`}>
+                            <div className="flex items-center gap-2">
+                                <FiFilter size={16} className="text-gray-500" />
+                                <span className="text-sm font-medium text-gray-700">Filters:</span>
+                            </div>
+                            <select
+                                value={filterType}
+                                onChange={(e) => setFilterType(e.target.value)}
+                                className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="all">All Types</option>
+                                <option value="info">Info</option>
+                                <option value="warning">Warning</option>
+                                <option value="urgent">Urgent</option>
+                                <option value="maintenance">Maintenance</option>
+                            </select>
+                            <select
+                                value={filterPriority}
+                                onChange={(e) => setFilterPriority(e.target.value)}
+                                className="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="all">All Priorities</option>
+                                <option value="low">Low</option>
+                                <option value="normal">Normal</option>
+                                <option value="high">High</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                            <label className="flex items-center gap-2 text-sm">
+                                <input
+                                    type="checkbox"
+                                    checked={showRead}
+                                    onChange={(e) => setShowRead(e.target.checked)}
+                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                />
+                                Show Read
+                            </label>
+                            <label className="flex items-center gap-2 text-sm">
+                                <input
+                                    type="checkbox"
+                                    checked={showExpired}
+                                    onChange={(e) => setShowExpired(e.target.checked)}
+                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                />
+                                Show Expired
+                            </label>
+                            <div className="ml-auto text-sm text-gray-500">
+                                Showing {filteredNotifications.length} of {notifications.length} notifications
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
 
                 {/* Notifications List */}
                 <div className="flex-1 overflow-auto bg-gray-50">
@@ -372,7 +400,7 @@ const Notification: FC = () => {
                             </div>
                         </div>
                     ) : (
-                        <div className="p-6">
+                        <div className={width <= 600 ? "px-2 py-2 space-y-3" : "p-6"}>
                             <div className="space-y-4">
                                 {filteredNotifications.map((notification) => (
                                     <NotificationCard

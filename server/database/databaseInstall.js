@@ -6,16 +6,23 @@ import seedSuperAdmin from './seedSuperAdmin.js';
 dotenv.config(); // ✅ Load environment variables from .env file
 const { Pool } = pkg;
 
-// const pool = new Pool({
-//     user: process.env.DB_USER, // ✅ Your PostgreSQL username
-//     host: process.env.DB_HOST, // ✅ Your PostgreSQL host
-//     password: process.env.DB_PASSWORD, // ✅ Your PostgreSQL password
-//     port: process.env.DB_PORT, // ✅ Your PostgreSQL port
-// });
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false } // Add this for Render/Postgres SSL
-});
+let pool;
+
+if (process.env.NODE_ENV === 'development') {
+    console.log('Connected to the database in development mode');
+    pool = new Pool({
+        user: process.env.DB_USER, // ✅ Your PostgreSQL username
+        host: process.env.DB_HOST, // ✅ Your PostgreSQL host
+        password: process.env.DB_PASSWORD, // ✅ Your PostgreSQL password
+        port: process.env.DB_PORT, // ✅ Your PostgreSQL port
+    });
+} else {
+    console.log('Connected to the database in production mode');
+    pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        ssl: { rejectUnauthorized: false } // Add this for Render/Postgres SSL
+    });
+}
 
 async function createDatabase() {
     const client = await pool.connect(); // Get a client from the pool

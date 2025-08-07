@@ -152,19 +152,19 @@ router.post('/login', async (req, res) => {
             process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET || 'your-refresh-secret-key',
             { expiresIn: '7d' } // 7 day refresh token
         );
-
+const isProduction = process.env.NODE_ENV === 'production';
         // Set HTTP-only cookies
         res.cookie('accessToken', accessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'none',
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : 'lax',
             maxAge: 60 * 60 * 1000, // 1 hour
         });
 
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'none',
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
             
         });
@@ -240,16 +240,16 @@ router.post('/refresh', async (req, res) => {
         // Set new cookies
         res.cookie('accessToken', newAccessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'none',
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : 'lax',
             maxAge: 60 * 60 * 1000, // 1 hour
             
         });
 
         res.cookie('refreshToken', newRefreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'none',
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
             
         });

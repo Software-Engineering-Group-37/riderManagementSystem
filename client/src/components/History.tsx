@@ -5,7 +5,8 @@ import {
     FiClock,
     FiDownload,
     FiFileText,
-    FiRefreshCw,
+    FiFilter,
+    FiRotateCw,
     FiTrash,
     FiUser,
     FiUserPlus
@@ -107,7 +108,7 @@ const AUDIT_TYPES = [
 ];
 
 const History = () => {
-    const { isSuperAdmin, isRegularAdmin } = useSharedValue();
+    const { isRegularAdmin } = useSharedValue();
 
     // Filter audit types based on user role
     const getAvailableAuditTypes = () => {
@@ -347,33 +348,31 @@ const History = () => {
 
             <div className="flex flex-col w-full overflow-auto">
                 {/* Header with role indicator */}
-                <div className="bg-white border-b border-gray-200 px-6 py-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h1 className="text-2xl font-bold text-gray-900">📄 History</h1>
-                            <p className="text-sm text-gray-600 mt-1">
-                                {isRegularAdmin
-                                    ? "Rider and shift activity tracking"
-                                    : "Complete audit logs and system activity tracking"
-                                }
-                            </p>
-                            {/* Role indicator */}
-                            <div className="flex items-center gap-2 mt-2">
-                                <span className="text-xs text-gray-500">Viewing as:</span>
-                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${isSuperAdmin
-                                    ? 'bg-red-100 text-red-800'
-                                    : 'bg-blue-100 text-blue-800'
-                                    }`}>
-                                    {isSuperAdmin ? 'superadmin' : 'Admin'}
-                                </span>
-                                {isRegularAdmin && (
-                                    <span className="text-xs text-gray-500">
-                                        • Limited to rider & shift data
-                                    </span>
-                                )}
-                            </div>
+                <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900">📄 History</h1>
+                        <p className="text-sm text-gray-600 mt-1">
+                            {isRegularAdmin
+                                ? "Rider and shift activity tracking"
+                                : "Complete audit logs and system activity tracking"
+                            }
+                        </p>
+                        <div className="flex items-center gap-2 mt-2">
+                            <span className="text-xs text-gray-500">Total Records:</span>
+                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {totalCount}
+                            </span>
+                            {stats && (
+                                <div className="flex items-center gap-6 text-sm text-gray-600">
+                                    {stats.summary.most_active_admin && (
+                                        <span className="text-xs text-gray-500">Most Active: <strong>{stats.summary.most_active_admin}</strong></span>
+                                    )}
+                                </div>
+                            )}
                         </div>
-
+                    </div>
+                    {/* Desktop Buttons */}
+                    {width > 600 && (
                         <div className="flex items-center gap-3">
                             <button
                                 onClick={resetFilters}
@@ -394,136 +393,143 @@ const History = () => {
                                 Export CSV
                             </button>
                         </div>
-                    </div>
+                    )}
                 </div>
 
                 {/* Filters Section */}
                 {showFilters && (
-                    <div className="bg-white border-b border-gray-200 px-6 py-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {/* Audit Type Dropdown */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    📂 Audit Type
-                                </label>
-                                <select
-                                    value={selectedType}
-                                    onChange={(e) => handleTypeChange(e.target.value)}
-                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                >
-                                    {availableAuditTypes.map(type => (
-                                        <option key={type.value} value={type.value}>
-                                            {type.label}
-                                        </option>
-                                    ))}
-                                </select>
-                                {availableAuditTypes.find(t => t.value === selectedType) && (
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        {availableAuditTypes.find(t => t.value === selectedType)?.description}
-                                    </p>
-                                )}
-                            </div>
+                    <div className={`bg-white border-b border-gray-200 px-4 py-4 ${width <= 600 ? 'space-y-4' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'}`}>
+                        {/* Audit Type */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">📂 Audit Type</label>
+                            <select
+                                value={selectedType}
+                                onChange={(e) => handleTypeChange(e.target.value)}
+                                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                                {availableAuditTypes.map(type => (
+                                    <option key={type.value} value={type.value}>
+                                        {type.label}
+                                    </option>
+                                ))}
+                            </select>
+                            {availableAuditTypes.find(t => t.value === selectedType) && (
+                                <p className="text-xs text-gray-500 mt-1">
+                                    {availableAuditTypes.find(t => t.value === selectedType)?.description}
+                                </p>
+                            )}
+                        </div>
 
-                            {/* Search */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    🔍 Search
-                                </label>
-                                <input
-                                    type="text"
-                                    placeholder={isRegularAdmin
-                                        ? "Search riders, zones..."
-                                        : "Search names, emails, zones..."
-                                    }
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                />
-                            </div>
+                        {/* Search */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">🔍 Search</label>
+                            <input
+                                type="text"
+                                placeholder={isRegularAdmin
+                                    ? "Search riders, zones..."
+                                    : "Search names, emails, zones..."
+                                }
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                        </div>
 
-                            {/* Start Date */}
+                        {/* Date Range */}
+                        <div className={`${width <= 600 ? '' : 'flex gap-2'}`}>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    📅 Start Date
-                                </label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">📅 Start Date</label>
                                 <input
                                     type="date"
                                     value={startDate}
                                     onChange={(e) => setStartDate(e.target.value)}
-                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 />
                             </div>
-
-                            {/* End Date */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    📅 End Date
-                                </label>
+                            <div className={`${width <= 600 ? 'mt-2' : ''}`}>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">📅 End Date</label>
                                 <input
                                     type="date"
                                     value={endDate}
                                     onChange={(e) => setEndDate(e.target.value)}
-                                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 />
                             </div>
                         </div>
 
-                        {/* Admin Filter & Stats */}
-                        <div className="flex items-center justify-between mt-4">
-                            <div className="flex items-center gap-4">
-                                <div>
-                                    <select
-                                        value={selectedAdmin}
-                                        onChange={(e) => setSelectedAdmin(e.target.value)}
-                                        className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    >
-                                        <option value="">All Admins</option>
-                                        {adminOptions.map(admin => (
-                                            <option key={admin.id} value={admin.id}>
-                                                {admin.name} ({admin.total_activities} activities)
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
+                        {/* Admin Filter */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">👤 Admin</label>
+                            <select
+                                value={selectedAdmin}
+                                onChange={(e) => setSelectedAdmin(e.target.value)}
+                                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                                <option value="">All Admins</option>
+                                {adminOptions.map(admin => (
+                                    <option key={admin.id} value={admin.id}>
+                                        {admin.name} ({admin.total_activities} activities)
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
-                                <button
-                                    onClick={fetchAuditLogs}
-                                    disabled={loading}
-                                    className="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition disabled:opacity-50"
-                                >
-                                    {loading ? (
-                                        <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin" />
-                                    ) : (
-                                        <FiRefreshCw size={16} />
-                                    )}
-                                    Refresh
-                                </button>
-                            </div>
-
-                            {/* Quick Stats */}
-                            {stats && (
-                                <div className="flex items-center gap-6 text-sm text-gray-600">
-                                    <span>Total Records: <strong>{totalCount}</strong></span>
-                                    {stats.summary.most_active_admin && (
-                                        <span>Most Active: <strong>{stats.summary.most_active_admin}</strong></span>
-                                    )}
-                                </div>
-                            )}
+                        {/* Buttons */}
+                        <div className={`${width <= 600 ? 'flex flex-col gap-2 mt-4' : 'flex items-center gap-2 mt-4'}`}>
+                            <button
+                                onClick={fetchAuditLogs}
+                                disabled={loading}
+                                className={`w-full px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition disabled:opacity-50`}
+                            >
+                                {loading ? (
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto" />
+                                ) : (
+                                    "Apply"
+                                )}
+                            </button>
+                            <button
+                                onClick={resetFilters}
+                                className="w-full px-3 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition"
+                            >
+                                Reset
+                            </button>
                         </div>
                     </div>
                 )}
 
-                {/* Mobile Filter Toggle */}
-                <div className="sm:hidden flex justify-end px-6 py-2 bg-white border-b border-gray-200">
-                    <button
-                        onClick={() => setShowFilters(f => !f)}
-                        className="px-3 py-2 bg-blue-600 text-white rounded-md text-sm"
-                    >
-                        {showFilters ? "Hide Filters" : "Show Filters"}
-                    </button>
-                </div>
+                {/* Mobile Top Bar with Icon Buttons */}
+                {width <= 600 && (
+                    <div className="flex justify-end gap-2 px-4 py-2 bg-white border-b border-gray-200 sticky top-0 z-10">
+                        <button
+                            onClick={() => setShowFilters(f => !f)}
+                            className="p-2 rounded-full bg-blue-600 text-white"
+                            title="Show Filters"
+                        >
+                            <FiFilter size={20} />
+                        </button>
+                        <button
+                            onClick={resetFilters}
+                            className="p-2 rounded-full bg-gray-100 text-gray-700"
+                            title="Reset Filters"
+                        >
+                            <FiRotateCw size={20} />
+                        </button>
+                        <button
+                            onClick={handleExport}
+                            disabled={exporting || auditLogs.length === 0}
+                            className="p-2 rounded-full bg-blue-600 text-white disabled:opacity-50"
+                            title="Export CSV"
+                        >
+                            {exporting ? (
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                                <FiDownload size={20} />
+                            )}
+                        </button>
+                    </div>
+                )}
 
-                {/* Table Section */}
+                {/* Table or Cards Section */}
                 <div className="flex-1 overflow-hidden">
                     {loading ? (
                         <div className="flex items-center justify-center h-full">
@@ -533,18 +539,49 @@ const History = () => {
                             </div>
                         </div>
                     ) : (
-                        <div className="h-full overflow-auto">
-                            <AuditTable
-                                logs={auditLogs}
-                                auditType={selectedType}
-                                currentPage={currentPage}
-                                totalPages={totalPages}
-                                totalCount={totalCount}
-                                pageSize={pageSize}
-                                onPageChange={handlePageChange}
-                                onPageSizeChange={setPageSize}
-                            />
-                        </div>
+                        width > 600 ? (
+                            <div className="h-full overflow-auto">
+                                <AuditTable
+                                    logs={auditLogs}
+                                    auditType={selectedType}
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    totalCount={totalCount}
+                                    pageSize={pageSize}
+                                    onPageChange={handlePageChange}
+                                    onPageSizeChange={setPageSize}
+                                />
+                            </div>
+                        ) : (
+                            <div className="h-full overflow-auto px-2 py-2 space-y-3">
+                                {auditLogs.length === 0 ? (
+                                    <div className="text-center text-gray-500 mt-10">
+                                        <p>No audit logs found</p>
+                                        <p className="text-sm">Try adjusting your filters or date range</p>
+                                    </div>
+                                ) : (
+                                    auditLogs.map((log) => (
+                                        <div key={log.audit_id} className="bg-white rounded-xl shadow p-4 flex flex-col gap-1">
+                                            <div className="flex items-center gap-2 text-sm text-gray-700">
+                                                {selectedType === 'rider-shift-assignments' && <FiClock className="text-blue-600" />}
+                                                {selectedType === 'rider-registrations' && <FiUserPlus className="text-green-600" />}
+                                                {selectedType === 'shift-deletions' && <FiTrash className="text-red-600" />}
+                                                {selectedType === 'admin-registrations' && <FiUser className="text-purple-600" />}
+                                                <span className="font-bold">{new Date(log.audit_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                                <span className="text-blue-600">·</span>
+                                                <span>{log.description || log.audit_type}</span>
+                                            </div>
+                                            <div className="text-xs text-gray-500">
+                                                {log.performed_by_admin}
+                                                {log.rider_name && <> · {log.rider_name}</>}
+                                                {log.zone_name && <> · {log.zone_name}</>}
+                                                {log.admin_name && <> · {log.admin_name}</>}
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        )
                     )}
                 </div>
             </div>

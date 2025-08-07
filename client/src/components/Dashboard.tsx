@@ -7,6 +7,8 @@ import 'leaflet/dist/leaflet.css';
 import React, { useCallback, useEffect, useState } from "react";
 import { Helmet } from 'react-helmet-async';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import Alert from './Alert';
+import ConfirmDialog from './ConfirmDialog';
 import Menu from './Menu';
 import SmallMenu from './SmallMenu';
 import { useSharedValue } from './context/shareValue';
@@ -98,6 +100,11 @@ const Dashboard = () => {
     // NEW: Tab and fullscreen state
     const [activeTab, setActiveTab] = useState(0); // 0 = Map View, 1 = Table View
     const [isFullscreen, setIsFullscreen] = useState(false);
+
+    const [pendingCancelShiftId, setPendingCancelShiftId] = useState<string | null>(null);
+
+    // NEW: Alert state
+    const [alert, setAlert] = useState<{ message: string; type?: 'success' | 'error' | 'info' } | null>(null);
 
     // Handlers
     const handleChangePage = (_event: unknown, newPage: number) => {
@@ -226,13 +233,7 @@ const Dashboard = () => {
     };
 
     // Delete shift functionality
-    const handleDeleteShift = async (event: React.MouseEvent<HTMLButtonElement>, shiftId: string) => {
-        event.preventDefault();
-
-        if (!window.confirm('Are you sure you want to cancel this shift?')) {
-            return;
-        }
-
+    const handleDeleteShift = async (shiftId: string) => {
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/shift/${shiftId}`, {
                 method: 'DELETE',
@@ -264,11 +265,13 @@ const Dashboard = () => {
             ));
 
             fetchDashboardStats();
-            alert(result.message || 'Shift cancelled successfully');
+            setAlert({ message: result.message || 'Shift cancelled successfully', type: 'success' });
 
         } catch (error) {
             console.error('Cancel failed:', error);
-            alert(`Failed to cancel shift: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            setAlert({ message: `Failed to cancel shift: ${error instanceof Error ? error.message : 'Unknown error'}`, type: 'error' });
+        } finally {
+            setPendingCancelShiftId(null);
         }
     };
 
@@ -354,44 +357,64 @@ const Dashboard = () => {
                 <h1 className="text-xl font-semibold pl-16 pb-3 mr-auto">{`Hello ${name}`}</h1>
 
                 {/* Dashboard Stats Cards */}
-                <div className="p-4 m-1 w-9/10 rounded-[25px] shadow-md bg-white h-34 flex flex-col gap-4 sm:flex-row sm:justify-evenly sm:items-center sm:overflow-hidden overflow-y-auto overflow-x-hidden">
-                    {/* Riders Card */}
-                    <div className="flex items-center flex-1">
-                        <img src="human.png" alt="Riders" />
-                        <div className='group relative'>
-                            <p className="text-sm text-gray-600">Riders</p>
-                            <p className="text-lg font-medium">{dashboardStats.totalRiders}</p>
-                            <div className="absolute left-0 top-full mt-1 w-max bg-gray-800 text-white text-xs rounded px-3 py-2 shadow-lg opacity-0 group-hover:opacity-100 transition z-20">
-                                Total Riders: {dashboardStats.totalRiders}<br />
-                                Active Today: {dashboardStats.activeRiders}
+                {width > 600 ? (
+                    // Desktop: your original cards
+                    <div className="p-4 m-1 w-9/10 rounded-[25px] shadow-md bg-white h-34 flex flex-row gap-4 justify-evenly items-center">
+                        {/* Riders Card */}
+                        <div className="flex items-center flex-1">
+                            <img src="human.png" alt="Riders" />
+                            <div className='group relative'>
+                                <p className="text-sm text-gray-600">Riders</p>
+                                <p className="text-lg font-medium">{dashboardStats.totalRiders}</p>
+                                <div className="absolute left-0 top-full mt-1 w-max bg-gray-800 text-white text-xs rounded px-3 py-2 shadow-lg opacity-0 group-hover:opacity-100 transition z-20">
+                                    Total Riders: {dashboardStats.totalRiders}<br />
+                                    Active Today: {dashboardStats.activeRiders}
+                                </div>
+                            </div>
+                        </div>
+                        {/* Areas Card */}
+                        <div className="border-t border-b border-gray-300 flex items-center flex-1 sm:border-x sm:border-t-0 sm:border-b-0">
+                            <img src="loca.png" alt="Area" />
+                            <div className='group relative'>
+                                <p className="text-sm text-gray-600">Area Coverage</p>
+                                <p className="text-lg font-medium">{dashboardStats.totalAreas}</p>
+                                <div className="absolute left-0 top-full mt-1 w-max bg-gray-800 text-white text-xs rounded px-3 py-2 shadow-lg opacity-0 group-hover:opacity-100 transition z-20">
+                                    Areas with shifts today: {dashboardStats.totalAreas}
+                                </div>
+                            </div>
+                        </div>
+                        {/* Shifts Card */}
+                        <div className="flex items-center flex-1">
+                            <img src="active.png" alt="Shifts" />
+                            <div className='group relative'>
+                                <p className="text-sm text-gray-600">Shifts Today</p>
+                                <p className="text-lg font-medium">{dashboardStats.shiftsToday}</p>
+                                <div className="absolute left-0 top-full mt-1 w-max bg-gray-800 text-white text-xs rounded px-3 py-2 shadow-lg opacity-0 group-hover:opacity-100 transition z-20">
+                                    Total shifts scheduled for today: {dashboardStats.shiftsToday}
+                                </div>
                             </div>
                         </div>
                     </div>
-
-                    {/* Areas Card */}
-                    <div className="border-t border-b border-gray-300 flex items-center flex-1 sm:border-x sm:border-t-0 sm:border-b-0">
-                        <img src="loca.png" alt="Area" />
-                        <div className='group relative'>
-                            <p className="text-sm text-gray-600">Area Coverage</p>
-                            <p className="text-lg font-medium">{dashboardStats.totalAreas}</p>
-                            <div className="absolute left-0 top-full mt-1 w-max bg-gray-800 text-white text-xs rounded px-3 py-2 shadow-lg opacity-0 group-hover:opacity-100 transition z-20">
-                                Areas with shifts today: {dashboardStats.totalAreas}
-                            </div>
+                ) : (
+                    // Mobile: compact row, always visible
+                    <div className="w-full max-w-2xl mx-auto my-2 flex rounded-xl shadow bg-white justify-between py-2 px-2 gap-2">
+                        <div className="flex flex-col items-center flex-1 min-w-0">
+                            <img src="human.png" alt="Riders" className="w-7 h-7" />
+                            <span className="text-xs">Riders</span>
+                            <span className="font-bold text-base">{dashboardStats.totalRiders}</span>
+                        </div>
+                        <div className="flex flex-col items-center flex-1 min-w-0">
+                            <img src="loca.png" alt="Area" className="w-7 h-7" />
+                            <span className="text-xs">Areas</span>
+                            <span className="font-bold text-base">{dashboardStats.totalAreas}</span>
+                        </div>
+                        <div className="flex flex-col items-center flex-1 min-w-0">
+                            <img src="active.png" alt="Shifts" className="w-7 h-7" />
+                            <span className="text-xs">Shifts</span>
+                            <span className="font-bold text-base">{dashboardStats.shiftsToday}</span>
                         </div>
                     </div>
-
-                    {/* Shifts Card */}
-                    <div className="flex items-center flex-1">
-                        <img src="active.png" alt="Shifts" />
-                        <div className='group relative'>
-                            <p className="text-sm text-gray-600">Shifts Today</p>
-                            <p className="text-lg font-medium">{dashboardStats.shiftsToday}</p>
-                            <div className="absolute left-0 top-full mt-1 w-max bg-gray-800 text-white text-xs rounded px-3 py-2 shadow-lg opacity-0 group-hover:opacity-100 transition z-20">
-                                Total shifts scheduled for today: {dashboardStats.shiftsToday}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                )}
 
                 {/* Tab Navigation */}
                 <div className="w-9/10 bg-white rounded-t-lg shadow-sm mt-4">
@@ -482,110 +505,201 @@ const Dashboard = () => {
                             </MapContainer>
                         </div>
                     ) : (
-                        // Table View
-                        <Paper sx={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                            <div className="flex items-center justify-between p-4 border-b">
-                                <h2 className="text-lg font-semibold">Today's Shift Assignments</h2>
-                                <span className="text-sm text-gray-500">{shifts.length} shifts</span>
-                            </div>
+                        width > 600 ? (
+                            // Table View for desktop
+                            <Paper sx={{ width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                                <div className="flex items-center justify-between p-4 border-b">
+                                    <h2 className="text-lg font-semibold">Today's Shift Assignments</h2>
+                                    <span className="text-sm text-gray-500">{shifts.length} shifts</span>
+                                </div>
 
-                            <TableContainer sx={{ flexGrow: 1, overflow: 'auto' }}>
-                                <Table stickyHeader aria-label="shifts table">
-                                    <TableHead>
-                                        <TableRow>
-                                            {columns.map((column) => (
-                                                <TableCell
-                                                    key={column.id}
-                                                    align={column.align}
-                                                    style={{ minWidth: column.minWidth }}
-                                                >
-                                                    {column.id !== 'actions' ? (
-                                                        <TableSortLabel
-                                                            active={orderBy === column.id}
-                                                            direction={orderBy === column.id ? order : 'asc'}
-                                                            onClick={() => handleSort(column.id as keyof ShiftData)}
-                                                        >
-                                                            {column.label}
-                                                        </TableSortLabel>
-                                                    ) : (
-                                                        column.label
-                                                    )}
-                                                </TableCell>
-                                            ))}
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {sortedShifts
-                                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                            .map((shift) => (
-                                                <TableRow hover role="checkbox" tabIndex={-1} key={shift.shift_id}>
-                                                    {columns.map((column) => {
-                                                        if (column.id === 'actions') {
-                                                            return (
-                                                                <TableCell key={column.id} align={column.align}>
-                                                                    <div className="flex gap-2">
-                                                                        <button
-                                                                            type='button'
-                                                                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs transition-colors disabled:opacity-50"
-                                                                            onClick={() => handleClickEdit(shift.shift_id)}
-                                                                            disabled={shift.status === 'cancelled'}
-                                                                        >
-                                                                            Edit
-                                                                        </button>
-                                                                        {shift.status !== 'cancelled' ? (
+                                <TableContainer sx={{ flexGrow: 1, overflow: 'auto' }}>
+                                    <Table stickyHeader aria-label="shifts table">
+                                        <TableHead>
+                                            <TableRow>
+                                                {columns.map((column) => (
+                                                    <TableCell
+                                                        key={column.id}
+                                                        align={column.align}
+                                                        style={{ minWidth: column.minWidth }}
+                                                    >
+                                                        {column.id !== 'actions' ? (
+                                                            <TableSortLabel
+                                                                active={orderBy === column.id}
+                                                                direction={orderBy === column.id ? order : 'asc'}
+                                                                onClick={() => handleSort(column.id as keyof ShiftData)}
+                                                            >
+                                                                {column.label}
+                                                            </TableSortLabel>
+                                                        ) : (
+                                                            column.label
+                                                        )}
+                                                    </TableCell>
+                                                ))}
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {sortedShifts
+                                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                                .map((shift) => (
+                                                    <TableRow hover role="checkbox" tabIndex={-1} key={shift.shift_id}>
+                                                        {columns.map((column) => {
+                                                            if (column.id === 'actions') {
+                                                                return (
+                                                                    <TableCell key={column.id} align={column.align}>
+                                                                        <div className="flex gap-2">
                                                                             <button
                                                                                 type='button'
-                                                                                className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs transition-colors"
-                                                                                onClick={(e) => handleDeleteShift(e, shift.shift_id)}
+                                                                                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs transition-colors disabled:opacity-50"
+                                                                                onClick={() => handleClickEdit(shift.shift_id)}
+                                                                                disabled={shift.status === 'cancelled'}
                                                                             >
-                                                                                Cancel
+                                                                                Edit
                                                                             </button>
-                                                                        ) : (
-                                                                            <span className="text-gray-400 px-3 py-1 text-xs">
-                                                                                Cancelled
-                                                                            </span>
-                                                                        )}
-                                                                    </div>
+                                                                            {shift.status !== 'cancelled' ? (
+                                                                                <button
+                                                                                    type='button'
+                                                                                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs transition-colors"
+                                                                                    onClick={() => setPendingCancelShiftId(shift.shift_id)}
+                                                                                >
+                                                                                    Cancel
+                                                                                </button>
+                                                                            ) : (
+                                                                                <span className="text-gray-400 px-3 py-1 text-xs">
+                                                                                    Cancelled
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    </TableCell>
+                                                                );
+                                                            }
+                                                            const value = shift[column.id as keyof ShiftData];
+                                                            return (
+                                                                <TableCell key={column.id} align={column.align}>
+                                                                    {column.id === 'status' ? (
+                                                                        <span className={`capitalize px-2 py-1 rounded text-xs font-medium ${value === 'assigned' ? 'bg-green-100 text-green-800' :
+                                                                            value === 'active' ? 'bg-blue-100 text-blue-800' :
+                                                                                value === 'completed' ? 'bg-purple-100 text-purple-800' :
+                                                                                    value === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                                                                        'bg-gray-100 text-gray-800'
+                                                                            }`}>
+                                                                            {value}
+                                                                        </span>
+                                                                    ) : (
+                                                                        <span className={shift.status === 'cancelled' ? 'text-gray-400 line-through' : ''}>
+                                                                            {value}
+                                                                        </span>
+                                                                    )}
                                                                 </TableCell>
                                                             );
-                                                        }
-                                                        const value = shift[column.id as keyof ShiftData];
-                                                        return (
-                                                            <TableCell key={column.id} align={column.align}>
-                                                                {column.id === 'status' ? (
-                                                                    <span className={`capitalize px-2 py-1 rounded text-xs font-medium ${value === 'assigned' ? 'bg-green-100 text-green-800' :
-                                                                        value === 'active' ? 'bg-blue-100 text-blue-800' :
-                                                                            value === 'completed' ? 'bg-purple-100 text-purple-800' :
-                                                                                value === 'cancelled' ? 'bg-red-100 text-red-800' :
-                                                                                    'bg-gray-100 text-gray-800'
-                                                                        }`}>
-                                                                        {value}
-                                                                    </span>
-                                                                ) : (
-                                                                    <span className={shift.status === 'cancelled' ? 'text-gray-400 line-through' : ''}>
-                                                                        {value}
-                                                                    </span>
-                                                                )}
-                                                            </TableCell>
-                                                        );
-                                                    })}
-                                                </TableRow>
-                                            ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
+                                                        })}
+                                                    </TableRow>
+                                                ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
 
-                            <TablePagination
-                                rowsPerPageOptions={[10, 25, 50]}
-                                component="div"
-                                count={shifts.length}
-                                rowsPerPage={rowsPerPage}
-                                page={page}
-                                onPageChange={handleChangePage}
-                                onRowsPerPageChange={handleChangeRowsPerPage}
-                                sx={{ borderTop: 1, borderColor: 'divider' }}
-                            />
-                        </Paper>
+                                <TablePagination
+                                    rowsPerPageOptions={[10, 25, 50]}
+                                    component="div"
+                                    count={shifts.length}
+                                    rowsPerPage={rowsPerPage}
+                                    page={page}
+                                    onPageChange={handleChangePage}
+                                    onRowsPerPageChange={handleChangeRowsPerPage}
+                                    sx={{ borderTop: 1, borderColor: 'divider' }}
+                                />
+                            </Paper>
+                        ) : (
+                            // Card View for mobile
+                            <div className="px-2 py-2 space-y-3 h-full overflow-auto">
+                                {sortedShifts.length === 0 ? (
+                                    <div className="text-center text-gray-500 mt-10">
+                                        <p>No shifts assigned today</p>
+                                    </div>
+                                ) : (
+                                    sortedShifts
+                                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                        .map((shift) => (
+                                            <div key={shift.shift_id} className="bg-white rounded-xl shadow p-4 flex flex-col gap-2">
+                                                <div className="flex items-center gap-2">
+                                                    <img
+                                                        src={shift.rider_pic || 'default-avatar.png'}
+                                                        alt={shift.rider_name}
+                                                        className="w-10 h-10 rounded-full border border-gray-300"
+                                                    />
+                                                    <div>
+                                                        <div className="font-bold text-gray-800">{shift.rider_name}</div>
+                                                        <div className="text-xs text-gray-500">{shift.rider_phone}</div>
+                                                    </div>
+                                                    <span className={`ml-auto capitalize px-2 py-1 rounded text-xs font-medium ${shift.status === 'assigned' ? 'bg-green-100 text-green-800' :
+                                                        shift.status === 'active' ? 'bg-blue-100 text-blue-800' :
+                                                            shift.status === 'completed' ? 'bg-purple-100 text-purple-800' :
+                                                                shift.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                                                                    'bg-gray-100 text-gray-800'
+                                                        }`}>
+                                                        {shift.status}
+                                                    </span>
+                                                </div>
+                                                <div className="text-sm text-gray-700">
+                                                    <strong>Zone:</strong> {shift.zone_name}
+                                                </div>
+                                                <div className="text-xs text-gray-500">
+                                                    <strong>Time:</strong> {shift.start_time} - {shift.end_time}
+                                                </div>
+                                                <div className="flex gap-2 mt-2">
+                                                    <button
+                                                        type='button'
+                                                        className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs transition-colors disabled:opacity-50"
+                                                        onClick={() => handleClickEdit(shift.shift_id)}
+                                                        disabled={shift.status === 'cancelled'}
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                    {shift.status !== 'cancelled' ? (
+                                                        <button
+                                                            type='button'
+                                                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs transition-colors"
+                                                            onClick={() => {
+                                                                setPendingCancelShiftId(shift.shift_id);
+
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    ) : (
+                                                        <span className="text-gray-400 px-3 py-1 text-xs">
+                                                            Cancelled
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))
+                                )}
+                                {/* Pagination for mobile */}
+                                {sortedShifts.length > 0 && (
+                                    <div className="flex justify-between items-center mt-4">
+                                        <button
+                                            onClick={() => setPage(page - 1)}
+                                            disabled={page === 0}
+                                            className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                        >
+                                            Previous
+                                        </button>
+                                        <span className="text-sm text-gray-700">
+                                            Page {page + 1} of {Math.ceil(sortedShifts.length / rowsPerPage)}
+                                        </span>
+                                        <button
+                                            onClick={() => setPage(page + 1)}
+                                            disabled={page + 1 >= Math.ceil(sortedShifts.length / rowsPerPage)}
+                                            className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                        >
+                                            Next
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )
                     )}
                 </div>
 
@@ -597,6 +711,21 @@ const Dashboard = () => {
                     shifts={shifts}
                     handleClickCancel={() => setShowEditModal(false)}
                 />
+
+                {/* Confirm Dialog for shift cancellation */}
+                <ConfirmDialog
+                    isOpen={!!pendingCancelShiftId}
+                    title="Cancel Shift"
+                    message="Are you sure you want to cancel this shift? This action cannot be undone."
+                    confirmText="Cancel Shift"
+                    cancelText="Keep Shift"
+                    onConfirm={() => pendingCancelShiftId && handleDeleteShift(pendingCancelShiftId)}
+                    onCancel={() => setPendingCancelShiftId(null)}
+                    type="danger"
+                />
+
+                {/* Alert Message */}
+                {alert && <Alert message={alert.message} type={alert.type} />}
             </Box>
         </div>
     );

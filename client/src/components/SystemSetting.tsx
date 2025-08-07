@@ -14,6 +14,7 @@ import {
     FiTrash
 } from "react-icons/fi";
 import Alert from "./Alert";
+import ConfirmDialog from "./ConfirmDialog";
 import Menu from "./Menu";
 import SmallMenu from "./SmallMenu";
 import { useSharedValue } from './context/shareValue';
@@ -266,15 +267,19 @@ const SystemSettings: FC = () => {
                 </div>
             )}
 
-            {width > 968 ? <Menu /> : <SmallMenu />}
+            {/* Sidebar/Menu */}
+            <div className={width > 968 ? "w-64 flex-shrink-0" : "w-16 flex-shrink-0"}>
+                {width > 968 ? <Menu /> : <SmallMenu />}
+            </div>
 
-            <div className="flex flex-col w-full">
+            {/* Main Content */}
+            <div className="flex flex-col flex-1 min-w-0 bg-gray-50">
                 {/* Header */}
-                <div className="bg-white border-b border-gray-200 px-6 py-4">
+                <div className="bg-white border-b border-gray-200 px-2 sm:px-6 w-full py-4">
                     <div className="flex items-center justify-between">
                         <div>
                             <h1 className="text-2xl font-bold text-gray-900"> System Settings</h1>
-                            <p className="text-sm text-gray-600 mt-1">
+                            <p className="text-gray-600 mt-1 text-sm">
                                 Manage roles, zones, announcements, and system configuration
                             </p>
                         </div>
@@ -282,29 +287,26 @@ const SystemSettings: FC = () => {
                 </div>
 
                 {/* Tabs */}
-                <div className="bg-white border-b border-gray-200 px-6">
-                    <div className="flex space-x-8">
-                        {tabs.map((tab) => {
-                            const IconComponent = tab.icon;
-                            return (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => setActiveTab(tab.id)}
-                                    className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
+                <div className="bg-white border-b border-gray-200 px-1 sm:px-6">
+                    <div className="flex space-x-4 overflow-x-auto no-scrollbar pb-2">
+                        {tabs.map((tab) => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`py-4 px-4 border-b-2 font-medium text-sm transition-colors whitespace-nowrap
+                                    ${activeTab === tab.id
                                         ? 'border-blue-500 text-blue-600'
                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                        }`}
-                                >
-                                    <IconComponent size={18} />
-                                    {tab.label}
-                                </button>
-                            );
-                        })}
+                                    }`}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
                     </div>
                 </div>
 
                 {/* Tab Content */}
-                <div className="flex-1 overflow-auto bg-gray-50">
+                <div className="flex-1 overflow-auto p-2">
                     {activeTab === 'roles' && (
                         <RoleManagement
                             roles={roles}
@@ -444,13 +446,12 @@ interface RoleManagementProps {
 }
 
 const RoleManagement: FC<RoleManagementProps> = ({ roles, loading, onRefresh, onAdd, onEdit, onAlert }) => {
-    const handleDelete = async (role: Role) => {
-        if (!confirm(`Are you sure you want to delete "${role.name}"? This action cannot be undone.`)) {
-            return;
-        }
+    const [pendingDelete, setPendingDelete] = useState<Role | null>(null);
 
+    const handleDeleteConfirmed = async () => {
+        if (!pendingDelete) return;
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/role/${role.id}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/role/${pendingDelete.id}`, {
                 method: 'DELETE',
                 credentials: 'include'
             });
@@ -465,14 +466,16 @@ const RoleManagement: FC<RoleManagementProps> = ({ roles, loading, onRefresh, on
         } catch (error) {
             console.error('Error deleting role:', error);
             onAlert(error instanceof Error ? error.message : 'Failed to delete role', 'error');
+        } finally {
+            setPendingDelete(null);
         }
     };
 
     return (
-        <div className="p-6">
+        <div className="">
             <div className="bg-white rounded-lg shadow">
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-gray-200">
+                <div className="px-2 py-4 border-b border-gray-200">
                     <div className="flex items-center justify-between">
                         <div>
                             <h3 className="text-lg font-medium text-gray-900">Role Management</h3>
@@ -487,21 +490,21 @@ const RoleManagement: FC<RoleManagementProps> = ({ roles, loading, onRefresh, on
                                 className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 disabled:opacity-50"
                             >
                                 <FiRefreshCw className={loading ? 'animate-spin' : ''} />
-                                Refresh
+                                <span className="hidden sm:inline">Refresh</span>
                             </button>
                             <button
                                 onClick={onAdd}
                                 className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 text-sm"
                             >
                                 <FiPlus />
-                                Add Role
+                                <span className="hidden sm:inline">Add Role</span>
                             </button>
                         </div>
                     </div>
                 </div>
 
                 {/* Role List */}
-                <div className="p-6">
+                <div className="p-2 sm:p-6">
                     {loading ? (
                         <div className="flex items-center justify-center py-12">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
@@ -521,9 +524,9 @@ const RoleManagement: FC<RoleManagementProps> = ({ roles, loading, onRefresh, on
                             </button>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             {roles.map((role) => (
-                                <div key={role.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                <div key={role.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow w-full">
                                     <div className="flex items-start justify-between">
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2 mb-2">
@@ -547,7 +550,7 @@ const RoleManagement: FC<RoleManagementProps> = ({ roles, loading, onRefresh, on
                                                 <FiEdit2 size={16} />
                                             </button>
                                             <button
-                                                onClick={() => handleDelete(role)}
+                                                onClick={() => setPendingDelete(role)}
                                                 className="p-1 text-gray-400 hover:text-red-600 transition-colors"
                                                 title="Delete role"
                                             >
@@ -561,6 +564,16 @@ const RoleManagement: FC<RoleManagementProps> = ({ roles, loading, onRefresh, on
                     )}
                 </div>
             </div>
+            <ConfirmDialog
+                isOpen={!!pendingDelete}
+                title="Delete Role"
+                message={`Are you sure you want to delete "${pendingDelete?.name}"? This action cannot be undone.`}
+                confirmText="Delete"
+                cancelText="Cancel"
+                onConfirm={handleDeleteConfirmed}
+                onCancel={() => setPendingDelete(null)}
+                type="danger"
+            />
         </div>
     );
 };
@@ -695,13 +708,12 @@ interface ZoneManagementProps {
 }
 
 const ZoneManagement: FC<ZoneManagementProps> = ({ zones, loading, onRefresh, onAdd, onEdit, onAlert }) => {
-    const handleDelete = async (zone: Zone) => {
-        if (!confirm(`Are you sure you want to delete "${zone.name}" ? This action cannot be undone.`)) {
-            return;
-        }
+    const [pendingDelete, setPendingDelete] = useState<Zone | null>(null);
 
+    const handleDeleteConfirmed = async () => {
+        if (!pendingDelete) return;
         try {
-            const response = await fetch(`{ import.meta.env.VITE_API_URL } /admin/zone/${zone.id} `, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/zone/${pendingDelete.id}`, {
                 method: 'DELETE',
                 credentials: 'include'
             });
@@ -716,14 +728,16 @@ const ZoneManagement: FC<ZoneManagementProps> = ({ zones, loading, onRefresh, on
         } catch (error) {
             console.error('Error deleting zone:', error);
             onAlert(error instanceof Error ? error.message : 'Failed to delete zone', 'error');
+        } finally {
+            setPendingDelete(null);
         }
     };
 
     return (
-        <div className="p-6">
+        <div className="">
             <div className="bg-white rounded-lg shadow">
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-gray-200">
+                <div className="px-2 py-4 border-b border-gray-200">
                     <div className="flex items-center justify-between">
                         <div>
                             <h3 className="text-lg font-medium text-gray-900">Zone Management</h3>
@@ -738,21 +752,21 @@ const ZoneManagement: FC<ZoneManagementProps> = ({ zones, loading, onRefresh, on
                                 className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 disabled:opacity-50"
                             >
                                 <FiRefreshCw className={loading ? 'animate-spin' : ''} />
-                                Refresh
+                                <span className="hidden sm:inline">Refresh</span>
                             </button>
                             <button
                                 onClick={onAdd}
                                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
                             >
                                 <FiPlus />
-                                Add Zone
+                                <span className="hidden sm:inline">Add Zone</span>
                             </button>
                         </div>
                     </div>
                 </div>
 
                 {/* Zone List */}
-                <div className="p-6">
+                <div className="p-2 sm:p-6">
                     {loading ? (
                         <div className="flex items-center justify-center py-12">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -772,9 +786,9 @@ const ZoneManagement: FC<ZoneManagementProps> = ({ zones, loading, onRefresh, on
                             </button>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             {zones.map((zone) => (
-                                <div key={zone.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                <div key={zone.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow w-full">
                                     <div className="flex items-start justify-between">
                                         <div className="flex-1">
                                             <h4 className="font-medium text-gray-900">{zone.name}</h4>
@@ -805,7 +819,7 @@ const ZoneManagement: FC<ZoneManagementProps> = ({ zones, loading, onRefresh, on
                                                 <FiEdit2 size={16} />
                                             </button>
                                             <button
-                                                onClick={() => handleDelete(zone)}
+                                                onClick={() => setPendingDelete(zone)}
                                                 className="p-1 text-gray-400 hover:text-red-600 transition-colors"
                                                 title="Delete zone"
                                             >
@@ -819,6 +833,16 @@ const ZoneManagement: FC<ZoneManagementProps> = ({ zones, loading, onRefresh, on
                     )}
                 </div>
             </div>
+            <ConfirmDialog
+                isOpen={!!pendingDelete}
+                title="Delete Zone"
+                message={`Are you sure you want to delete "${pendingDelete?.name}"? This action cannot be undone.`}
+                confirmText="Delete"
+                cancelText="Cancel"
+                onConfirm={handleDeleteConfirmed}
+                onCancel={() => setPendingDelete(null)}
+                type="danger"
+            />
         </div>
     );
 };
@@ -937,13 +961,12 @@ interface AnnouncementManagementProps {
 }
 
 const AnnouncementManagement: FC<AnnouncementManagementProps> = ({ announcements, loading, onRefresh, onAdd, onEdit, onAlert }) => {
-    const handleDelete = async (announcement: Announcement) => {
-        if (!confirm(`Are you sure you want to delete this announcement ? This action cannot be undone.`)) {
-            return;
-        }
+    const [pendingDelete, setPendingDelete] = useState<Announcement | null>(null);
 
+    const handleDeleteConfirmed = async () => {
+        if (!pendingDelete) return;
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/announcement/${announcement.id}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/announcement/${pendingDelete.id}`, {
                 method: 'DELETE',
                 credentials: 'include'
             });
@@ -958,14 +981,16 @@ const AnnouncementManagement: FC<AnnouncementManagementProps> = ({ announcements
         } catch (error) {
             console.error('Error deleting announcement:', error);
             onAlert(error instanceof Error ? error.message : 'Failed to delete announcement', 'error');
+        } finally {
+            setPendingDelete(null);
         }
     };
 
     return (
-        <div className="p-6">
+        <div className="">
             <div className="bg-white rounded-lg shadow">
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-gray-200">
+                <div className="px-3 py-4 border-b border-gray-200">
                     <div className="flex items-center justify-between">
                         <div>
                             <h3 className="text-lg font-medium text-gray-900">Announcement Management</h3>
@@ -980,21 +1005,21 @@ const AnnouncementManagement: FC<AnnouncementManagementProps> = ({ announcements
                                 className="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 disabled:opacity-50"
                             >
                                 <FiRefreshCw className={loading ? 'animate-spin' : ''} />
-                                Refresh
+                                <span className="hidden sm:inline">Refresh</span>
                             </button>
                             <button
                                 onClick={onAdd}
                                 className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
                             >
                                 <FiPlus />
-                                Add Announcement
+                                <span className="hidden sm:inline">Add Announcement</span>
                             </button>
                         </div>
                     </div>
                 </div>
 
                 {/* Announcement List */}
-                <div className="p-6">
+                <div className="p-2">
                     {loading ? (
                         <div className="flex items-center justify-center py-12">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
@@ -1016,7 +1041,7 @@ const AnnouncementManagement: FC<AnnouncementManagementProps> = ({ announcements
                     ) : (
                         <div className="space-y-4">
                             {announcements.map((announcement) => (
-                                <div key={announcement.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                <div key={announcement.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow w-full">
                                     <div className="flex items-start justify-between">
                                         <div className="flex-1">
                                             <h4 className="font-medium text-gray-900">{announcement.title}</h4>
@@ -1040,7 +1065,7 @@ const AnnouncementManagement: FC<AnnouncementManagementProps> = ({ announcements
                                                 <FiEdit2 size={16} />
                                             </button>
                                             <button
-                                                onClick={() => handleDelete(announcement)}
+                                                onClick={() => setPendingDelete(announcement)}
                                                 className="p-1 text-gray-400 hover:text-red-600 transition-colors"
                                                 title="Delete announcement"
                                             >
@@ -1057,6 +1082,17 @@ const AnnouncementManagement: FC<AnnouncementManagementProps> = ({ announcements
                     )}
                 </div>
             </div>
+            {/* ConfirmDialog for delete */}
+            <ConfirmDialog
+                isOpen={!!pendingDelete}
+                title="Delete Announcement"
+                message="Are you sure you want to delete this announcement? This action cannot be undone."
+                confirmText="Delete"
+                cancelText="Cancel"
+                onConfirm={handleDeleteConfirmed}
+                onCancel={() => setPendingDelete(null)}
+                type="danger"
+            />
         </div>
     );
 };

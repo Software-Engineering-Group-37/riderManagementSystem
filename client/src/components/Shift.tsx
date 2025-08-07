@@ -813,47 +813,49 @@ const Shift = () => {
             />
 
             <div className="flex justify-center w-full">
-                <div className='flex flex-col w-full'>
-                    <h1 className="text-2xl font-bold text-center mt-2 mr-24">Shift Management</h1>
-                    <FullCalendar
-                        key={calendarKey} // Add this line
-                        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                        initialView="dayGridMonth"
-                        timeZone="local" // Add this line
-                        headerToolbar={{
-                            right: 'today prev,next AssignShift',
-                            center: 'title',
-                            left: 'dayGridMonth,timeGridWeek,timeGridDay'
-                        }}
-                        customButtons={{
-                            AssignShift: {
-                                text: 'Assign Shift',
-                                click: () => {
-                                    setEditingShift(null);
-                                    setSelectedDate(new Date().toISOString().split('T')[0]);
-                                    setModalOpen(true);
+                <div className="flex flex-col w-full max-w-full">
+                    <h1 className="text-2xl font-bold text-center mt-2 mr-0 sm:mr-24">Shift Management</h1>
+                    <div className="w-full" style={{ maxWidth: '100vw', overflowX: 'hidden' }}>
+                        <FullCalendar
+                            key={calendarKey}
+                            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                            initialView="dayGridMonth"
+                            timeZone="local"
+                            headerToolbar={{
+                                right: 'today prev,next AssignShift',
+                                center: 'title',
+                                left: 'dayGridMonth,timeGridWeek,timeGridDay'
+                            }}
+                            customButtons={{
+                                AssignShift: {
+                                    text: 'Assign Shift',
+                                    click: () => {
+                                        setEditingShift(null);
+                                        setSelectedDate(new Date().toISOString().split('T')[0]);
+                                        setModalOpen(true);
+                                    },
                                 },
-                            },
-                        }}
-                        dateClick={dateClick}
-                        eventClick={eventClick}
-                        selectable={true}
-                        selectMirror={true}  // Shows preview while selecting
-                        height="100%"
-                        contentHeight="100%"
-                        aspectRatio={1.5}
-                        events={events}
-                        eventStartEditable={false}
-                        eventDurationEditable={false}  // Disable drag-to-resize for now
-                        eventResizableFromStart={false}
-                        select={handleSelect}  // Handle multi-day selection
-                        selectConstraint={{  // Only allow future date selection
-                            start: new Date().toISOString().split('T')[0]
-                        }}
-                        validRange={{
-                            start: new Date().toISOString().split('T')[0]
-                        }}
-                    />
+                            }}
+                            dateClick={dateClick}
+                            eventClick={eventClick}
+                            selectable={true}
+                            selectMirror={true}
+                            height="auto"
+                            contentHeight="auto"
+                            aspectRatio={width < 600 ? 0.8 : 1.5} // More square on mobile
+                            events={events}
+                            eventStartEditable={false}
+                            eventDurationEditable={false}
+                            eventResizableFromStart={false}
+                            select={handleSelect}
+                            selectConstraint={{
+                                start: new Date().toISOString().split('T')[0]
+                            }}
+                            validRange={{
+                                start: new Date().toISOString().split('T')[0]
+                            }}
+                        />
+                    </div>
                 </div>
             </div>
         </div>
