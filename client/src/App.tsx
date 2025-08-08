@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import './App.css';
 import Admin from './components/Admin';
 import Dashboard from './components/Dashboard';
@@ -81,7 +81,7 @@ const App = () => {
             <Route path="/forgot-password" element={<ForgotPassword />} />
 
             {/* Fallback */}
-            <Route path="*" element={<Navigate to="/login" replace />} />
+            <Route path="*" element={<Login />} />
         </Routes>
     );
 }
