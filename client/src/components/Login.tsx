@@ -10,6 +10,7 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [initializing, setInitializing] = useState(true);
 
     const navigate = useNavigate();
     const { setUser } = useSharedValue();
@@ -85,17 +86,41 @@ const Login = () => {
     useEffect(() => {
         document.title = "Login-Rider Management System";
 
-        // Check if already logged in
-        const user = sessionStorage.getItem('user');
-        const role = sessionStorage.getItem('role');
-        if (user && role) {
-            if (role === 'admin') {
-                navigate('/dashboard');
-            } else if (role === 'rider') {
-                navigate('/rider-dashboard');
+        // Check if already logged in with proper error handling
+        const checkAuthStatus = async () => {
+            try {
+                const user = sessionStorage.getItem('user');
+                const role = sessionStorage.getItem('role');
+                if (user && role) {
+                    if (role === 'admin') {
+                        navigate('/dashboard');
+                    } else if (role === 'rider') {
+                        navigate('/rider-dashboard');
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking auth status:', error);
+                // Clear potentially corrupted session data
+                sessionStorage.clear();
+            } finally {
+                setInitializing(false);
             }
-        }
+        };
+
+        checkAuthStatus();
     }, [navigate]);
+
+    // Show loading spinner during initialization
+    if (initializing) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-white">
+                <div className="text-center">
+                    <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <p className="text-gray-600">Initializing...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-white px-4">

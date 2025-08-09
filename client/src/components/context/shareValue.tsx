@@ -26,8 +26,15 @@ const SharedValueContext = createContext<SharedValueContextType | undefined>(und
 
 export const SharedValueProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUserState] = useState<User | null>(() => {
-        const savedUser = sessionStorage.getItem('user');
-        return savedUser ? JSON.parse(savedUser) : null;
+        try {
+            const savedUser = sessionStorage.getItem('user');
+            return savedUser ? JSON.parse(savedUser) : null;
+        } catch (error) {
+            console.error('Error parsing user from sessionStorage:', error);
+            // Clear corrupted data
+            sessionStorage.removeItem('user');
+            return null;
+        }
     });
     const [isLoading, setIsLoading] = useState(false);
 
@@ -41,11 +48,17 @@ export const SharedValueProvider = ({ children }: { children: ReactNode }) => {
 
     // Set user and sync with sessionStorage
     const setUser = (newUser: User | null) => {
-        setUserState(newUser);
-        if (newUser) {
-            sessionStorage.setItem('user', JSON.stringify(newUser));
-        } else {
-            sessionStorage.removeItem('user');
+        try {
+            setUserState(newUser);
+            if (newUser) {
+                sessionStorage.setItem('user', JSON.stringify(newUser));
+            } else {
+                sessionStorage.removeItem('user');
+            }
+        } catch (error) {
+            console.error('Error setting user in sessionStorage:', error);
+            // Still update state even if sessionStorage fails
+            setUserState(newUser);
         }
     };
 
