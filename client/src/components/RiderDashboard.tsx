@@ -95,9 +95,25 @@ const RiderDashboard = () => {
     // Fetch shifts on mount and when needed
     useEffect(() => {
         if (!user) return; // Only fetch if user is set
+
         fetchShifts()
             .then(shifts => {
-                setProfile(prev => prev ? { ...prev, shifts } : prev);
+                // Defensive: ensure shifts is always an array
+                if (!Array.isArray(shifts)) {
+                    setAlert({ message: 'Shifts data is invalid.', type: 'error' });
+                    return;
+                }
+                // Only update if shifts are different
+                setProfile(prev => {
+                    if (!prev) return prev;
+                    const prevIds = (prev.shifts ?? []).map(s => s.shift_id).join(',');
+                    const newIds = shifts.map(s => s.shift_id).join(',');
+                    if (prevIds === newIds) return prev; // No change
+                    return { ...prev, shifts };
+                });
+            })
+            .catch(() => {
+                setAlert({ message: 'Failed to load shifts.', type: 'error' });
             });
     }, [user, fetchShifts]);
 
@@ -261,6 +277,23 @@ const RiderDashboard = () => {
         // Shifts that start after today OR end after today
         return start.getTime() > today.getTime() || end.getTime() > today.getTime();
     });
+
+    if (alert && alert.type === 'error') {
+        return (
+            <div className="flex h-screen items-center justify-center bg-gray-50">
+                <div className="text-center">
+                    <div className="text-red-600 font-bold mb-2">Error</div>
+                    <div className="mb-4">{alert.message}</div>
+                    <button
+                        className="px-4 py-2 bg-blue-600 text-white rounded"
+                        onClick={() => window.location.reload()}
+                    >
+                        Reload
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex flex-col">
