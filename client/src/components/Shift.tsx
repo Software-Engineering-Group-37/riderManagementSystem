@@ -5,6 +5,7 @@ import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { useCallback, useEffect, useState } from "react";
 import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
 import Select from 'react-select';
 import Alert from "./Alert";
 import Menu from "./Menu";
@@ -792,7 +793,37 @@ const Shift = () => {
         setModalOpen(true);
     };
 
+    // Add a retry handler for shifts
+    const fetchProfileAndShifts = () => {
+        window.location.reload(); // Reload to re-fetch all shift data
+        setAlert(null);
+    };
 
+    // Error alert UI
+    if (alert && alert.type === 'error') {
+        return (
+            <div className="flex h-screen items-center justify-center bg-gray-50">
+                <div className="text-center">
+                    <div className="text-red-600 font-bold mb-2">Error</div>
+                    <div className="mb-4">{alert.message}</div>
+                    <div className='flex gap-4'>
+                        <button
+                            className="px-4 py-2 bg-blue-600 text-white rounded"
+                            onClick={fetchProfileAndShifts}
+                        >
+                            Retry
+                        </button>
+                        <Link to='/login'>
+                            <button onClick={() => { sessionStorage.clear(); }}
+                                className="px-4 py-2 bg-blue-600 text-white rounded">
+                                Login Again
+                            </button>
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex h-screen overflow-hidden">

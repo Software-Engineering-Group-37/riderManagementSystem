@@ -7,6 +7,7 @@ import 'leaflet/dist/leaflet.css';
 import React, { useCallback, useEffect, useState } from "react";
 import { Helmet } from 'react-helmet-async';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import { Link } from 'react-router-dom';
 import Alert from './Alert';
 import ConfirmDialog from './ConfirmDialog';
 import Menu from './Menu';
@@ -274,6 +275,39 @@ const Dashboard = () => {
             setPendingCancelShiftId(null);
         }
     };
+
+    // Add a retry handler for dashboard
+    const fetchProfileAndShifts = () => {
+        fetchDashboardStats();
+        fetchTodayShifts();
+        setAlert(null);
+    };
+
+    // Error alert UI
+    if (alert && alert.type === 'error') {
+        return (
+            <div className="flex h-screen items-center justify-center bg-gray-50">
+                <div className="text-center">
+                    <div className="text-red-600 font-bold mb-2">Error</div>
+                    <div className="mb-4">{alert.message}</div>
+                    <div className='flex gap-4'>
+                        <button
+                            className="px-4 py-2 bg-blue-600 text-white rounded"
+                            onClick={fetchProfileAndShifts}
+                        >
+                            Retry
+                        </button>
+                        <Link to='/login'>
+                            <button onClick={() => { sessionStorage.clear(); }}
+                                className="px-4 py-2 bg-blue-600 text-white rounded">
+                                Login Again
+                            </button>
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     // Fullscreen layout
     if (isFullscreen) {
