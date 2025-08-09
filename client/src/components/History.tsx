@@ -11,6 +11,7 @@ import {
     FiUser,
     FiUserPlus
 } from "react-icons/fi";
+import { Link } from "react-router-dom";
 import Alert from "./Alert";
 import Menu from "./Menu";
 import SmallMenu from "./SmallMenu";
@@ -336,6 +337,31 @@ const History = () => {
     useEffect(() => {
         fetchStats();
     }, [startDate, endDate, fetchStats]);
+
+    if (alert && alert.type === 'error') {
+        return (
+            <div className="flex h-screen items-center justify-center bg-gray-50">
+                <div className="text-center">
+                    <div className="text-red-600 font-bold mb-2">Error</div>
+                    <div className="mb-4">{alert.message}</div>
+                    <div className='flex gap-4'>
+                        <button
+                            className="px-4 py-2 bg-blue-600 text-white rounded"
+                            onClick={() => fetchAuditLogs()}
+                        >
+                            Retry
+                        </button>
+                        <Link to='/login'>
+                            <button onClick={() => { sessionStorage.clear(); }}
+                                className="px-4 py-2 bg-blue-600 text-white rounded">
+                                Login Again
+                            </button>
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex h-screen overflow-hidden">

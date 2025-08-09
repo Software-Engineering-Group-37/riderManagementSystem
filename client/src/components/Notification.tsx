@@ -16,6 +16,7 @@ import {
     FiUser,
     FiUsers
 } from "react-icons/fi";
+import { Link } from "react-router-dom";
 import Alert from "./Alert";
 import ConfirmDialog from "./ConfirmDialog";
 import Menu from "./Menu";
@@ -231,6 +232,31 @@ const Notification: FC = () => {
 
     const filteredNotifications = getFilteredNotifications();
     const unreadCount = notifications.filter(n => !n.is_read && n.is_active).length;
+
+    if (alert && alert.type === 'error') {
+        return (
+            <div className="flex h-screen items-center justify-center bg-gray-50">
+                <div className="text-center">
+                    <div className="text-red-600 font-bold mb-2">Error</div>
+                    <div className="mb-4">{alert.message}</div>
+                    <div className='flex gap-4'>
+                        <button
+                            className="px-4 py-2 bg-blue-600 text-white rounded"
+                            onClick={() => fetchNotifications()}
+                        >
+                            Retry
+                        </button>
+                        <Link to='/login'>
+                            <button onClick={() => { sessionStorage.clear(); }}
+                                className="px-4 py-2 bg-blue-600 text-white rounded">
+                                Login Again
+                            </button>
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex h-screen overflow-hidden">

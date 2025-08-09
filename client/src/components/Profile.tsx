@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FiArrowLeft, FiCamera, FiEdit2, FiEye, FiEyeOff, FiLock, FiSave, FiUser } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Alert from './Alert';
 import { useSharedValue } from "./context/shareValue";
 import Menu from './Menu';
@@ -330,6 +330,31 @@ const Profile = () => {
     const getInitials = (name: string) => {
         return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
     };
+
+    if (alert && alert.type === 'error') {
+        return (
+            <div className="flex h-screen items-center justify-center bg-gray-50">
+                <div className="text-center">
+                    <div className="text-red-600 font-bold mb-2">Error</div>
+                    <div className="mb-4">{alert.message}</div>
+                    <div className='flex gap-4'>
+                        <button
+                            className="px-4 py-2 bg-blue-600 text-white rounded"
+                            onClick={() => fetchProfile()}
+                        >
+                            Retry
+                        </button>
+                        <Link to='/login'>
+                            <button onClick={() => { sessionStorage.clear(); }}
+                                className="px-4 py-2 bg-blue-600 text-white rounded">
+                                Login Again
+                            </button>
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex h-screen overflow-hidden">
