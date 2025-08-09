@@ -54,90 +54,53 @@ const RiderDashboard = () => {
     const [notifications, setNotifications] = useState<Announcement[]>([]);
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const prevShiftIds = useRef<Set<string>>(new Set());
 
-    // Fetch profile (on load and after photo upload)
-    const fetchProfile = useCallback(async () => {
+    // Fetch profile and shifts together
+    const fetchProfileAndShifts = useCallback(async () => {
+        setLoading(true);
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/riders/profile`, { credentials: 'include' });
-            if (!res.ok) throw new Error('Failed to load profile');
-            const data = await res.json();
-            setName(data.name);
-            setPhotoUrl(data.photo_url);
-            // Remove setUser here, or use a stable value
-            return data;
-        } catch {
-            setAlert({ message: 'Failed to load profile', type: 'error' });
-            return null;
-        }
-    }, []); // Remove user, setUser from dependencies
+            // Fetch profile
+            const profileRes = await fetch(`${import.meta.env.VITE_API_URL}/admin/riders/profile`, { credentials: 'include' });
+            if (!profileRes.ok) throw new Error('Failed to load profile');
+            const profileData = await profileRes.json();
 
-    const fetchShifts = useCallback(async () => {
-        try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/me`, { credentials: 'include' });
-            if (!res.ok) throw new Error('Failed to load shifts');
-            const data = await res.json();
-            return data.shifts || [];
-        } catch {
-            setAlert({ message: 'Failed to load shifts', type: 'error' });
-            return [];
+            // Fetch shifts
+            const shiftsRes = await fetch(`${import.meta.env.VITE_API_URL}/admin/me`, { credentials: 'include' });
+            if (!shiftsRes.ok) throw new Error('Failed to load shifts');
+            const shiftsData = await shiftsRes.json();
+
+            // Defensive: ensure shifts is always an array
+            const shifts = Array.isArray(shiftsData.shifts) ? shiftsData.shifts : [];
+            setProfile({ ...profileData, shifts });
+            setName(profileData.name);
+            setPhotoUrl(profileData.photo_url);
+            setAlert(null);
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Failed to load dashboard';
+            setAlert({ message: errorMessage, type: 'error' });
+            setProfile(null);
+        } finally {
+            setLoading(false);
         }
     }, []);
-
-    // Fetch profile on mount and after photo/name update
-    useEffect(() => {
-        // Only fetch profile once on mount
-        fetchProfile().then(profileData => {
-            if (profileData) setProfile(profileData);
-        }).finally(() => setLoading(false));
-    }, [fetchProfile]); // Only run once
-
-    // Fetch shifts on mount and when needed
-    useEffect(() => {
-        if (!user) return; // Only fetch if user is set
-
-        fetchShifts()
-            .then(shifts => {
-                // Defensive: ensure shifts is always an array
-                if (!Array.isArray(shifts)) {
-                    setAlert({ message: 'Shifts data is invalid.', type: 'error' });
-                    return;
-                }
-                // Only update if shifts are different
-                setProfile(prev => {
-                    if (!prev) return prev;
-                    const prevIds = (prev.shifts ?? []).map(s => s.shift_id).join(',');
-                    const newIds = shifts.map(s => s.shift_id).join(',');
-                    if (prevIds === newIds) return prev; // No change
-                    return { ...prev, shifts };
-                });
-            })
-            .catch(() => {
-                setAlert({ message: 'Failed to load shifts.', type: 'error' });
-            });
-    }, [user, fetchShifts]);
 
     // Fetch announcements for rider
-    useEffect(() => {
-        const fetchNotifications = async () => {
-            try {
-                // Fetch announcements
-                const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/announcements`, {
-                    credentials: 'include'
-                });
-                if (!res.ok) throw new Error('Failed to fetch notifications');
-                const data = await res.json();
-                const riderNotifs = data.filter(
-                    (n: Announcement) => n.is_active
-                );
-                setNotifications(riderNotifs);
-            } catch {
-                console.error('Failed to fetch notifications');
-                setAlert({ message: 'Failed to load notifications', type: 'error' });
-            }
-        };
-        fetchNotifications();
+    const fetchNotifications = useCallback(async () => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/announcements`, { credentials: 'include' });
+            if (!res.ok) throw new Error('Failed to fetch notifications');
+            const data = await res.json();
+            setNotifications(data.filter((n: Announcement) => n.is_active));
+        } catch {
+            setAlert({ message: 'Failed to load notifications', type: 'error' });
+        }
     }, []);
+
+    useEffect(() => {
+        if (!user) return;
+        fetchProfileAndShifts();
+        fetchNotifications();
+    }, [user, fetchProfileAndShifts, fetchNotifications]);
 
     // Handle name edit
     const handleNameSave = async () => {
@@ -145,9 +108,8 @@ const RiderDashboard = () => {
             setAlert({ message: 'Name cannot be empty', type: 'error' });
             return;
         }
+        setLoading(true);
         try {
-            setLoading(true);
-            // Update rider profile
             const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/rider-profile`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -156,7 +118,7 @@ const RiderDashboard = () => {
             });
             if (!res.ok) throw new Error('Failed to update name');
             const updated = await res.json();
-            setProfile((prev) => prev ? { ...prev, name: updated.name } : prev);
+            setProfile(prev => prev ? { ...prev, name: updated.name } : prev);
             setEditName(false);
             setAlert({ message: 'Name updated successfully', type: 'success' });
             setUser({ ...user!, name: updated.name, photo_url: updated.photo_url });
@@ -176,7 +138,6 @@ const RiderDashboard = () => {
             const formData = new FormData();
             formData.append('avatar', file);
 
-            // Upload rider avatar
             const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/rider-profile/avatar`, {
                 method: 'POST',
                 credentials: 'include',
@@ -186,9 +147,8 @@ const RiderDashboard = () => {
             if (!res.ok) throw new Error('Failed to upload photo');
             await res.json();
 
-            // Fetch the latest profile to get the new photo_url
-            await fetchProfile();
-
+            // Refresh profile after upload
+            await fetchProfileAndShifts();
             setAlert({ message: 'Profile photo updated', type: 'success' });
         } catch {
             setAlert({ message: 'Failed to update photo', type: 'error' });
@@ -200,7 +160,6 @@ const RiderDashboard = () => {
     // Notification logic (example)
     useEffect(() => {
         if (notifications.length > 0 && "Notification" in window) {
-            // Find unread, high-priority, or new notifications
             const newNotifs = notifications.filter(n => !n.is_read && n.priority === 'urgent');
             newNotifs.forEach(n => {
                 if (Notification.permission === "granted") {
@@ -219,29 +178,25 @@ const RiderDashboard = () => {
         }
     }, []);
 
-    useEffect(() => {
-        if (!profile?.shifts) return;
+    // Split shifts
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-        // Get current and previous shift IDs
-        const currentIds = new Set(profile.shifts.map(s => s.shift_id));
-        const prevIds = prevShiftIds.current;
+    const todaysShifts = (profile?.shifts ?? []).filter(shift => {
+        const start = new Date(shift.start_date);
+        const end = new Date(shift.end_date);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(0, 0, 0, 0);
+        return start.getTime() === today.getTime() && end.getTime() === today.getTime();
+    });
 
-        // Find new shifts (present now, not before)
-        const newShifts = profile.shifts.filter(s => !prevIds.has(s.shift_id));
-
-        // Show notification for each new shift
-        if ("Notification" in window && Notification.permission === "granted") {
-            newShifts.forEach(shift => {
-                new Notification("New Shift Assigned!", {
-                    body: `Shift on ${new Date(shift.start_date).toLocaleDateString()} (${shift.start_time.slice(0, 5)} - ${shift.end_time.slice(0, 5)}) in ${shift.zone_name}`,
-                    icon: "zippy_logo.svg"
-                });
-            });
-        }
-
-        // Update previous shift IDs
-        prevShiftIds.current = currentIds;
-    }, [profile?.shifts]);
+    const upcomingShifts = (profile?.shifts ?? []).filter(shift => {
+        const start = new Date(shift.start_date);
+        const end = new Date(shift.end_date);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(0, 0, 0, 0);
+        return start.getTime() > today.getTime() || end.getTime() > today.getTime();
+    });
 
     if (loading) {
         return (
@@ -252,32 +207,6 @@ const RiderDashboard = () => {
         );
     }
 
-    if (!profile) {
-        return <div className="flex h-screen items-center justify-center text-gray-500">Profile not found.</div>;
-    }
-
-    // Helper to split shifts
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const todaysShifts = (profile.shifts ?? []).filter(shift => {
-        const start = new Date(shift.start_date);
-        const end = new Date(shift.end_date);
-        start.setHours(0, 0, 0, 0);
-        end.setHours(0, 0, 0, 0);
-        // Only shifts that start and end today
-        return start.getTime() === today.getTime() && end.getTime() === today.getTime();
-    });
-
-    const upcomingShifts = (profile.shifts ?? []).filter(shift => {
-        const start = new Date(shift.start_date);
-        const end = new Date(shift.end_date);
-        start.setHours(0, 0, 0, 0);
-        end.setHours(0, 0, 0, 0);
-        // Shifts that start after today OR end after today
-        return start.getTime() > today.getTime() || end.getTime() > today.getTime();
-    });
-
     if (alert && alert.type === 'error') {
         return (
             <div className="flex h-screen items-center justify-center bg-gray-50">
@@ -286,13 +215,17 @@ const RiderDashboard = () => {
                     <div className="mb-4">{alert.message}</div>
                     <button
                         className="px-4 py-2 bg-blue-600 text-white rounded"
-                        onClick={() => window.location.reload()}
+                        onClick={() => fetchProfileAndShifts()}
                     >
-                        Reload
+                        Retry
                     </button>
                 </div>
             </div>
         );
+    }
+
+    if (!profile) {
+        return <div className="flex h-screen items-center justify-center text-gray-500">Profile not found.</div>;
     }
 
     return (
@@ -301,7 +234,7 @@ const RiderDashboard = () => {
                 <title>Rider Dashboard - Rider Management System</title>
                 <meta name="description" content="Rider dashboard: view shifts, update profile." />
             </Helmet>
-            {alert && (
+            {alert && alert.type !== 'error' && (
                 <div className="fixed top-6 right-6 z-50">
                     <Alert message={alert.message} type={alert.type} />
                 </div>
