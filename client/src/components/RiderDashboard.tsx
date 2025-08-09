@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { FiCamera, FiCheck, FiEdit2, FiLogOut, FiX } from 'react-icons/fi';
+import { Link } from 'react-router';
 import Alert from './Alert';
 import ConfirmDialog from './ConfirmDialog';
 import { useSharedValue } from './context/shareValue';
@@ -219,6 +220,10 @@ const RiderDashboard = () => {
                     >
                         Retry
                     </button>
+                    <Link to='/login'
+                        className="px-4 py-2 bg-blue-600 text-white rounded">
+                        Login Again
+                    </Link>
                 </div>
             </div>
         );
