@@ -214,18 +214,20 @@ const RiderDashboard = () => {
                 <div className="text-center">
                     <div className="text-red-600 font-bold mb-2">Error</div>
                     <div className="mb-4">{alert.message}</div>
-                    <button
-                        className="px-4 py-2 bg-blue-600 text-white rounded"
-                        onClick={() => fetchProfileAndShifts()}
-                    >
-                        Retry
-                    </button>
-                    <Link to='/login'>
+                    <div className='flex gap-4'>
                         <button
-                            className="px-4 py-2 bg-blue-600 text-white rounded">
-                            Login Again
+                            className="px-4 py-2 bg-blue-600 text-white rounded"
+                            onClick={() => fetchProfileAndShifts()}
+                        >
+                            Retry
                         </button>
-                    </Link>
+                        <Link to='/login'>
+                            <button
+                                className="px-4 py-2 bg-blue-600 text-white rounded">
+                                Login Again
+                            </button>
+                        </Link>
+                    </div>
                 </div>
             </div>
         );
