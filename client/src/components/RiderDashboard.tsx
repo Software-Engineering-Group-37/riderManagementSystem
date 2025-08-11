@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { FiCamera, FiCheck, FiEdit2, FiLogOut, FiX } from 'react-icons/fi';
+import { FiAlertCircle, FiCamera, FiCheck, FiEdit2, FiLogOut, FiX } from 'react-icons/fi';
 import { Link } from 'react-router';
 import Alert from './Alert';
 import ConfirmDialog from './ConfirmDialog';
@@ -54,6 +54,9 @@ const RiderDashboard = () => {
     const [uploading, setUploading] = useState(false);
     const [notifications, setNotifications] = useState<Announcement[]>([]);
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+    const [showHelpModal, setShowHelpModal] = useState(false);
+    const [helpNote, setHelpNote] = useState('');
+    const [helpSubmitting, setHelpSubmitting] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Fetch profile and shifts together
@@ -155,6 +158,39 @@ const RiderDashboard = () => {
             setAlert({ message: 'Failed to update photo', type: 'error' });
         } finally {
             setUploading(false);
+        }
+    };
+
+    // Handler to submit help request
+    const handleHelpRequest = async () => {
+        if (!helpNote.trim()) {
+            setAlert({ message: 'Please enter a note describing your issue.', type: 'error' });
+            return;
+        }
+        setHelpSubmitting(true);
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/notifications`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: `Rider Help Request: ${profile?.name || ''}`,
+                    content: helpNote,
+                    type: 'urgent',
+                    priority: 'urgent',
+                    target_audience: 'admin',
+                    is_active: true,
+                    created_by_admin: profile?.id || '', // or user?.id
+                })
+            });
+            if (!res.ok) throw new Error('Failed to send help request');
+            setShowHelpModal(false);
+            setHelpNote('');
+            setAlert({ message: 'Help request sent to admins!', type: 'success' });
+        } catch {
+            setAlert({ message: 'Failed to send help request', type: 'error' });
+        } finally {
+            setHelpSubmitting(false);
         }
     };
 
@@ -419,6 +455,48 @@ const RiderDashboard = () => {
                 </div>
             </main>
 
+            {/* Help Modal */}
+            {showHelpModal && (
+                <div className="fixed inset-0 bg-[#00000055] flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+                        <h2 className="text-lg font-semibold text-red-700 flex items-center gap-2 mb-2">
+                            <FiAlertCircle /> Request Help
+                        </h2>
+                        <p className="text-sm text-gray-600 mb-3">
+                            Please describe your issue or emergency. This will alert the admins immediately.
+                        </p>
+                        <textarea
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 min-h-[80px] focus:outline-none focus:ring-2 focus:ring-red-500"
+                            value={helpNote}
+                            onChange={e => setHelpNote(e.target.value)}
+                            placeholder="Describe your situation..."
+                            disabled={helpSubmitting}
+                        />
+                        <div className="flex justify-end gap-3">
+                            <button
+                                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                                onClick={() => setShowHelpModal(false)}
+                                disabled={helpSubmitting}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center gap-2 disabled:opacity-50"
+                                onClick={handleHelpRequest}
+                                disabled={helpSubmitting || !helpNote.trim()}
+                            >
+                                {helpSubmitting ? (
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                ) : (
+                                    <FiAlertCircle />
+                                )}
+                                Send Alert
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <ConfirmDialog
                 isOpen={showLogoutConfirm}
                 title="Confirm Logout"
@@ -432,6 +510,21 @@ const RiderDashboard = () => {
                 onCancel={() => setShowLogoutConfirm(false)}
                 type="danger"
             />
+
+            {/* Request Help Floating Button */}
+            <div className="fixed bottom-6 right-6 z-50">
+                <button
+                    className="flex items-center justify-center bg-red-600 hover:bg-red-700 text-white rounded-full shadow-lg w-14 h-14 transition group"
+                    onClick={() => setShowHelpModal(true)}
+                    title="Request Help"
+                    aria-label="Request Help"
+                >
+                    <FiAlertCircle className="w-7 h-7" />
+                    <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-3 py-1 text-xs bg-black text-white rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        Request Help
+                    </span>
+                </button>
+            </div>
         </div>
     );
 };

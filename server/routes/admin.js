@@ -667,5 +667,64 @@ router.post('/auth/forgot-password', async (req, res) => {
     }
 });
 
+// Fix notification creation route (for riders to alert admins)
+router.post('/notifications', verifyToken, async (req, res) => {
+    // Only allow riders to send help alerts
+    if (req.user.role !== 'rider') {
+        return res.status(403).json({ error: 'Only riders can send help alerts.' });
+    }
+    const { content } = req.body;
+    if (!content) {
+        return res.status(400).json({ error: 'Message content is required.' });
+    }
+    try {
+        // Insert into notifications table
+        const result = await pool.query(
+            `INSERT INTO notifications (message, type, rider_id)
+             VALUES ($1, $2, $3) RETURNING *`,
+            [content, 'warning', req.user.id]
+        );
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        console.error('Error creating notification:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Get all rider alerts (help requests)
+router.get('/notifications/rider-alerts', verifyToken, verifyAdmin, async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT n.id, n.message, n.type, n.rider_id, n.created_at, n.is_read, r.name as rider_name, r.phone as rider_phone
+             FROM notifications n
+             JOIN riders r ON n.rider_id = r.id
+             WHERE n.type = 'warning'
+             ORDER BY n.created_at DESC`
+        );
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error fetching rider alerts:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Mark a rider alert as read
+router.patch('/notifications/rider-alerts/:id/read', verifyToken, verifyAdmin, async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query(
+            `UPDATE notifications SET is_read = true WHERE id = $1 AND type = 'warning' RETURNING id, is_read`,
+            [id]
+        );
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Rider alert not found' });
+        }
+        res.json({ success: true, id, is_read: true });
+    } catch (error) {
+        console.error('Error marking rider alert as read:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 
 export default router;

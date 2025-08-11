@@ -191,35 +191,46 @@ const SmallMenuButton: React.FC<SmallMenuButtonProps> = ({ menuItems }) => {
     const [unreadCount, setUnreadCount] = useState(0);
     const { user } = useSharedValue();
 
-    // Fetch unread notification count
+    // Fetch unread notification count (announcements + rider alerts)
+    // Define Notification type
+    interface Notification {
+        id: string | number;
+        is_active: boolean;
+        expires_at?: string;
+    }
+
     useEffect(() => {
         const fetchUnreadCount = async () => {
             if (!user) return;
 
-            try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/announcements`, {
-                    credentials: 'include'
-                });
+            let unreadNotifications = 0;
+            let unreadRiderAlerts = 0;
 
-                if (response.ok) {
-                    const notifications = await response.json();
+            try {
+                // Announcements
+                const notifRes = await fetch(`${import.meta.env.VITE_API_URL}/admin/announcements`, { credentials: 'include' });
+                if (notifRes.ok) {
+                    const notifications: Notification[] = await notifRes.json();
                     const readNotifications = JSON.parse(localStorage.getItem('readNotifications') || '[]');
                     const now = new Date();
-
-                    const unread = notifications.filter((notification: {
-                        id: string | number;
-                        is_active: boolean;
-                        expires_at?: string;
-                    }) =>
+                    unreadNotifications = notifications.filter((notification: Notification) =>
                         notification.is_active &&
                         !readNotifications.includes(notification.id) &&
                         (!notification.expires_at || new Date(notification.expires_at) > now)
                     ).length;
-
-                    setUnreadCount(unread);
                 }
-            } catch (error) {
-                console.error('Error fetching unread count:', error);
+
+                // Rider Alerts
+                const alertRes = await fetch(`${import.meta.env.VITE_API_URL}/admin/notifications/rider-alerts`, { credentials: 'include' });
+                if (alertRes.ok) {
+                    type RiderAlert = { is_read: boolean;[key: string]: unknown };
+                    const riderAlerts: RiderAlert[] = await alertRes.json();
+                    unreadRiderAlerts = riderAlerts.filter((alert: RiderAlert) => !alert.is_read).length;
+                }
+
+                setUnreadCount(unreadNotifications + unreadRiderAlerts);
+            } catch {
+                setUnreadCount(unreadNotifications + unreadRiderAlerts);
             }
         };
 

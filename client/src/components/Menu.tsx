@@ -12,6 +12,7 @@ const Menu: React.FC = () => {
     const photoUrl = user?.photo_url;
     const [showDropdown, setShowDropdown] = useState(false);
     const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
     const location = useLocation();
 
     const handleLogout = async () => {
@@ -39,6 +40,60 @@ const Menu: React.FC = () => {
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [showDropdown]);
+
+    useEffect(() => {
+        const fetchUnreadCount = async () => {
+            if (!user) return;
+
+            let unreadNotifications = 0;
+            let unreadRiderAlerts = 0;
+
+            try {
+                // Announcements
+                const notifRes = await fetch(`${import.meta.env.VITE_API_URL}/admin/announcements`, { credentials: 'include' });
+                if (notifRes.ok) {
+                    const notifications = await notifRes.json();
+                    const readNotifications = JSON.parse(localStorage.getItem('readNotifications') || '[]');
+                    const now = new Date();
+                    interface Notification {
+                        id: number;
+                        is_active: boolean;
+                        expires_at?: string;
+                        // add other properties if needed
+                    }
+                    unreadNotifications = notifications.filter((notification: Notification) =>
+                        notification.is_active &&
+                        !readNotifications.includes(notification.id) &&
+                        (!notification.expires_at || new Date(notification.expires_at) > now)
+                    ).length;
+                }
+
+                // Rider Alerts
+                const alertRes = await fetch(`${import.meta.env.VITE_API_URL}/admin/notifications/rider-alerts`, { credentials: 'include' });
+                if (alertRes.ok) {
+                    interface RiderAlert {
+                        id: number;
+                        is_read: boolean;
+                        // add other properties if needed
+                    }
+                    const riderAlerts: RiderAlert[] = await alertRes.json();
+                    unreadRiderAlerts = riderAlerts.filter((alert: RiderAlert) => !alert.is_read).length;
+                }
+
+                setUnreadCount(unreadNotifications + unreadRiderAlerts);
+            } catch {
+                setUnreadCount(unreadNotifications + unreadRiderAlerts);
+            }
+        };
+
+        fetchUnreadCount();
+        const interval = setInterval(fetchUnreadCount, 60000);
+        window.addEventListener('storage', fetchUnreadCount);
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener('storage', fetchUnreadCount);
+        };
+    }, [user]);
 
     // Define menu items with icon images
     const menuItems = [
@@ -137,6 +192,11 @@ const Menu: React.FC = () => {
                                 className="w-5 h-5"
                             />
                             <span className="flex-1">{item.label}</span>
+                            {item.id === 'notifications' && unreadCount > 0 && (
+                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[16px] h-[16px] flex items-center justify-center font-medium px-1">
+                                    {unreadCount > 99 ? '99+' : unreadCount}
+                                </span>
+                            )}
                         </Link>
                     ))}
                 </div>

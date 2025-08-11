@@ -43,11 +43,22 @@ const Notification: FC = () => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [loading, setLoading] = useState(false);
     const [alert, setAlert] = useState<{ message: string; type?: 'success' | 'error' | 'info' } | null>(null);
+    interface RiderAlert {
+        id: string;
+        rider_name: string;
+        rider_phone: string;
+        message: string;
+        created_at: string;
+        is_read?: boolean; // Client-side read status
+    }
+
+    const [riderAlerts, setRiderAlerts] = useState<RiderAlert[]>([]);
+    const [showRiderAlerts, setShowRiderAlerts] = useState(false);
 
     // Filter states
     const [filterType, setFilterType] = useState<string>('all');
     const [filterPriority, setFilterPriority] = useState<string>('all');
-    const [showRead, setShowRead] = useState(true);
+    const [showRead, setShowRead] = useState(false);
     const [showExpired, setShowExpired] = useState(false);
     const [showClearDialog, setShowClearDialog] = useState(false);
     const [showFilters, setShowFilters] = useState<boolean>(width > 600);
@@ -122,6 +133,24 @@ const Notification: FC = () => {
         }
     }, [user, readNotifications]);
 
+    // Fetch rider alerts for admins
+    useEffect(() => {
+        const fetchRiderAlerts = async () => {
+            try {
+                const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/notifications/rider-alerts`, {
+                    credentials: 'include'
+                });
+                if (!res.ok) throw new Error('Failed to fetch rider alerts');
+                const data = await res.json();
+                setRiderAlerts(data);
+            } catch {
+                setAlert({ message: 'Failed to load rider alerts', type: 'error' });
+            }
+        };
+
+        fetchRiderAlerts();
+    }, []);
+
     // Mark notification as read
     const markAsRead = (notificationId: string) => {
         const newReadSet = new Set(readNotifications);
@@ -171,6 +200,24 @@ const Notification: FC = () => {
         setNotifications(unreadNotifications);
         displayAlert('Read notifications hidden', 'success');
         setShowClearDialog(false);
+    };
+
+    // Mark rider alert as read
+    const markRiderAlertAsRead = async (id: string) => {
+        try {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/admin/notifications/rider-alerts/${id}/read`, {
+                method: 'PATCH',
+                credentials: 'include'
+            });
+            if (!res.ok) throw new Error('Failed to mark as read');
+            setRiderAlerts(prev =>
+                prev.map(alert =>
+                    alert.id === id ? { ...alert, is_read: true } : alert
+                )
+            );
+        } catch {
+            setAlert({ message: 'Failed to mark alert as read', type: 'error' });
+        }
     };
 
     // Get filtered notifications
@@ -232,6 +279,8 @@ const Notification: FC = () => {
 
     const filteredNotifications = getFilteredNotifications();
     const unreadCount = notifications.filter(n => !n.is_read && n.is_active).length;
+    const unreadRiderAlerts = riderAlerts.filter(a => !a.is_read).length;
+    const totalUnread = unreadCount + unreadRiderAlerts;
 
     if (alert && alert.type === 'error') {
         return (
@@ -280,16 +329,16 @@ const Notification: FC = () => {
                         <div className="flex items-center gap-3">
                             <div className="relative">
                                 <FiBell size={24} className="text-gray-700" />
-                                {unreadCount > 0 && (
+                                {totalUnread > 0 && (
                                     <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                                        {unreadCount > 99 ? '99+' : unreadCount}
+                                        {totalUnread > 99 ? '99+' : totalUnread}
                                     </span>
                                 )}
                             </div>
                             <div>
                                 <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
                                 <p className="text-sm text-gray-600">
-                                    {unreadCount > 0 ? `${unreadCount} unread notifications` : 'All caught up!'}
+                                    {totalUnread > 0 ? `${totalUnread} unread notifications` : 'All caught up!'}
                                 </p>
                             </div>
                         </div>
@@ -397,60 +446,132 @@ const Notification: FC = () => {
                                 Show Expired
                             </label>
                             <div className="ml-auto text-sm text-gray-500">
-                                Showing {filteredNotifications.length} of {notifications.length} notifications
+                                {showRiderAlerts
+                                    ? `Showing ${riderAlerts.filter(a => showRead || !a.is_read).length} of ${riderAlerts.length} rider alerts`
+                                    : `Showing ${filteredNotifications.length} of ${notifications.length} notifications`
+                                }
                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* Notifications List */}
+                {/* Switch between Notifications and Rider Alerts */}
+                <div className="flex items-center gap-6 mb-4 px-4 pt-4">
+                    <span className="font-semibold text-gray-700">View:</span>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                            type="radio"
+                            name="notificationView"
+                            value="notifications"
+                            checked={!showRiderAlerts}
+                            onChange={() => setShowRiderAlerts(false)}
+                            className="accent-blue-600"
+                        />
+                        <span className={`text-sm ${!showRiderAlerts ? 'font-bold text-blue-700' : 'text-gray-700'}`}>Announcements</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                            type="radio"
+                            name="notificationView"
+                            value="riderAlerts"
+                            checked={showRiderAlerts}
+                            onChange={() => setShowRiderAlerts(true)}
+                            className="accent-red-600"
+                        />
+                        <span className={`text-sm ${showRiderAlerts ? 'font-bold text-red-700' : 'text-gray-700'}`}>Rider Alerts</span>
+                    </label>
+                </div>
+
+                {/* List controlled by switch */}
                 <div className="flex-1 overflow-auto bg-gray-50">
-                    {loading ? (
-                        <div className="flex items-center justify-center h-full">
-                            <div className="text-center">
-                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                                <p className="mt-4 text-gray-600">Loading notifications...</p>
-                            </div>
-                        </div>
-                    ) : filteredNotifications.length === 0 ? (
-                        <div className="flex items-center justify-center h-full">
-                            <div className="text-center">
-                                <FiBell size={64} className="mx-auto text-gray-300 mb-4" />
-                                <h3 className="text-lg font-medium text-gray-900 mb-2">No notifications found</h3>
-                                <p className="text-gray-500">
-                                    {notifications.length === 0
-                                        ? "You don't have any notifications yet"
-                                        : "No notifications match your current filters"
-                                    }
-                                </p>
-                            </div>
+                    {showRiderAlerts ? (
+                        // Rider Alerts Section
+                        <div className="mt-2 px-4">
+                            <h2 className="text-lg font-semibold mb-2 text-red-700">Rider Alerts</h2>
+                            {loading ? (
+                                <div className="flex items-center justify-center h-full">
+                                    <div className="text-center">
+                                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
+                                        <p className="mt-4 text-gray-600">Loading rider alerts...</p>
+                                    </div>
+                                </div>
+                            ) : riderAlerts.filter(alert => showRead || !alert.is_read).length === 0 ? (
+                                <div className="flex items-center justify-center h-full">
+                                    <div className="text-center">
+                                        <FiBell size={64} className="mx-auto text-gray-300 mb-4" />
+                                        <h3 className="text-lg font-medium text-gray-900 mb-2">No rider alerts found</h3>
+                                        <p className="text-gray-500">
+                                            {"No rider alerts have been sent yet."}
+                                        </p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {riderAlerts
+                                        .filter(alert => showRead || !alert.is_read)
+                                        .map(alert => (
+                                            <RiderAlertCard
+                                                key={alert.id}
+                                                alert={alert}
+                                                onMarkAsRead={() => markRiderAlertAsRead(alert.id)}
+                                            />
+                                        ))}
+                                </div>
+                            )}
                         </div>
                     ) : (
-                        <div className={width <= 600 ? "px-2 py-2 space-y-3" : "p-6"}>
-                            <div className="space-y-4">
-                                {filteredNotifications.map((notification) => (
-                                    <NotificationCard
-                                        key={notification.id}
-                                        notification={notification}
-                                        onMarkAsRead={() => markAsRead(notification.id)}
-                                        onMarkAsUnread={() => markAsUnread(notification.id)}
-                                    />
-                                ))}
-                            </div>
+                        // Notifications List Section 
+                        <div className="mt-2 px-4">
+                            <h2 className="text-lg font-semibold mb-2 text-blue-700">Announcements</h2>
+                            {loading ? (
+                                <div className="flex items-center justify-center h-full">
+                                    <div className="text-center">
+                                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                                        <p className="mt-4 text-gray-600">Loading announcements...</p>
+                                    </div>
+                                </div>
+                            ) : filteredNotifications.length === 0 ? (
+                                <div className="flex items-center justify-center h-full">
+                                    <div className="text-center">
+                                        <FiBell size={64} className="mx-auto text-gray-300 mb-4" />
+                                        <h3 className="text-lg font-medium text-gray-900 mb-2">No announcements found</h3>
+                                        <p className="text-gray-500">
+                                            {notifications.length === 0
+                                                ? "You don't have any notifications yet"
+                                                : "No notifications match your current filters"
+                                            }
+                                        </p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className={width <= 600 ? "px-2 py-2 space-y-3" : "p-6"}>
+                                    <div className="space-y-4">
+                                        {filteredNotifications.map((notification) => (
+                                            <NotificationCard
+                                                key={notification.id}
+                                                notification={notification}
+                                                onMarkAsRead={() => markAsRead(notification.id)}
+                                                onMarkAsUnread={() => markAsUnread(notification.id)}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
+
+                <ConfirmDialog
+                    isOpen={showClearDialog}
+                    title="Clear Read Notifications"
+                    message="Are you sure you want to clear all read notifications? This will remove them from your view."
+                    confirmText="Clear"
+                    cancelText="Cancel"
+                    onConfirm={hideReadNotifications}
+                    onCancel={() => setShowClearDialog(false)}
+                    type="danger"
+                />
             </div>
-            <ConfirmDialog
-                isOpen={showClearDialog}
-                title="Clear Read Notifications"
-                message="Are you sure you want to clear all read notifications? This will remove them from your view."
-                confirmText="Clear"
-                cancelText="Cancel"
-                onConfirm={hideReadNotifications}
-                onCancel={() => setShowClearDialog(false)}
-                type="danger"
-            />
         </div>
     );
 };
@@ -586,6 +707,79 @@ const NotificationCard: FC<NotificationCardProps> = ({
                             </button>
                         )}
                     </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Rider Alert Card Component
+interface RiderAlertCardProps {
+    alert: {
+        id: string;
+        rider_name: string;
+        rider_phone: string;
+        message: string;
+        created_at: string;
+        is_read?: boolean;
+    };
+    onMarkAsRead: () => void;
+}
+
+const RiderAlertCard: FC<RiderAlertCardProps> = ({ alert, onMarkAsRead }) => {
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diff = now.getTime() - date.getTime();
+        const minutes = Math.floor(diff / (1000 * 60));
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        if (minutes < 60) return `${minutes}m ago`;
+        if (hours < 24) return `${hours}h ago`;
+        if (days < 7) return `${days}d ago`;
+        return date.toLocaleDateString();
+    };
+
+    return (
+        <div className={`relative rounded-lg border-l-4 shadow-sm hover:shadow-md transition-shadow bg-red-50 border-red-200 ${!alert.is_read ? 'ring-2 ring-red-100' : ''}`}>
+            {/* Unread indicator */}
+            {!alert.is_read && (
+                <div className="absolute top-3 right-3 w-2 h-2 bg-red-500 rounded-full"></div>
+            )}
+
+            <div className="p-4 sm:p-6">
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2 gap-2">
+                    <div className="flex items-center gap-2">
+                        <FiAlertTriangle className="text-red-600" />
+                        <h3 className="font-semibold text-gray-900 text-base sm:text-lg">
+                            {alert.rider_name} ({alert.rider_phone})
+                        </h3>
+                        <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Rider Alert</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <FiClock size={12} />
+                        <span>{formatDate(alert.created_at)}</span>
+                    </div>
+                </div>
+
+                {/* Content */}
+                <p className="text-gray-700 text-sm mb-2">{alert.message}</p>
+
+                {/* Footer */}
+                <div className="flex items-center justify-end mt-2 gap-2">
+                    {!alert.is_read ? (
+                        <button
+                            onClick={onMarkAsRead}
+                            className="flex items-center gap-1 px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition"
+                            title="Mark as read"
+                        >
+                            <FiEye size={12} />
+                            <span className="hidden sm:inline">Mark Read</span>
+                        </button>
+                    ) : (
+                        <span className="px-2 py-1 text-xs bg-gray-300 text-gray-700 rounded">Read</span>
+                    )}
                 </div>
             </div>
         </div>
